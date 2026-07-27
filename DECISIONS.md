@@ -208,3 +208,32 @@ that has to be earned rather than assumed:
 **Not explicitly requested** — the licence, the branch rename and the
 `.gitignore`. Flagged for review. The repo itself was NOT created on GitHub:
 Felix asked for that to wait for his go-ahead, and it has.
+
+## 2026-07-27 — A drift dashboard, and what "behind" is allowed to mean
+
+**Decided:** `tools/status` reports, for every consumer sitting beside this repo,
+which commit its vendored copy came from, whether any vendored file has been
+edited by hand, and what is uncommitted or unpushed. It is read-only and exits
+0 in sync, 1 behind, 2 hand-edited.
+
+**Why:** vendoring buys deliberate adoption and charges for it in visibility.
+Nothing in the model tells you what is actually deployed, and "remember to check"
+is not a mechanism. Felix asked how to keep everything nicely synced, and the
+honest answer is that he should not have to hold it in his head.
+
+**The one design call worth arguing about:** "behind" counts only commits that
+touched a path a consumer actually vendors. This repo's decision log, licence
+and tooling change often and reach nobody, and the first run of the tool proudly
+announced that both sites were three commits behind when not one vendored byte
+had moved. A status tool that cries wolf is a status tool people stop reading, so
+doc-only commits are silent by construction.
+
+**Hand-edit detection is the part that matters.** A stale copy announces itself
+eventually. A vendored file someone edited in place looks exactly like a synced
+one, survives every future sync as a silent revert, and is the failure this whole
+model exists to prevent. Verified in both directions before committing: green
+when the trees match, and exit 2 naming `assets/preprint/core.css` when a single
+comment line was planted in it.
+
+**Not explicitly requested** — the tool, and the definition of behind. Flagged
+for review.
