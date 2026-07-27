@@ -94,7 +94,11 @@ input, textarea, select { font: inherit; color: inherit; }
    `.rail__mode` here, a .6rem square and a word, which is a second drawing of a
    control the system already owns. An app is not a different question from a
    reading page about which mode you are in. */
-.rail .modeswitch { padding: .45rem .5rem; }
+/* The cursor stays the surface's, and is not core's to set. A class rule in core
+   would outrank a consumer's `button { cursor: … }` element selector and strip
+   the drawn pointer off every surface that mints one, fubl.org included. Here it
+   only restores what `.rail__mode` declared. */
+.rail .modeswitch { padding: .45rem .5rem; cursor: pointer; }
 
 /* ── screens ──────────────────────────────────────────────────────────── */
 .screens { min-width: 0; }
