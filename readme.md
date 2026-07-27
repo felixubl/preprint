@@ -40,7 +40,7 @@ Take what you want:
 
 ```
   tokens/          the constants        colours, faces, scales, rules, motion, pointers
-  core.css         small and shared     reset, .sq, .eyebrow, .mark, the mode switch, the toast.
+  core.css         shared, and growing  reset, .sq, .eyebrow, .mark, the mode switch, the toast. 291 lines.
   controls.css     optional             faces for js/controls.js
   surfaces/
     reading.css    if you are writing   article, sidenotes, figures, the marker layer
