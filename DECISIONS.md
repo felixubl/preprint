@@ -174,3 +174,37 @@ silent divergence into a declared one.
 
 **Not explicitly requested** — the subset escape hatch. The guard as originally
 written would have blocked the workshop's sync outright. Flagged for review.
+
+## 2026-07-27 — MIT, `main`, and what was checked before agreeing to publish
+
+**Decided:** this repo carries the MIT licence, its branch was renamed `master`
+to `main`, and it gained a `.gitignore` for `.DS_Store` and `__pycache__`.
+
+**Why the licence:** Felix chose to make the repo public. A public repo with no
+licence is all rights reserved by default, which is the opposite of what
+publishing a design system is for. MIT is the licence `neo-retro` already
+carries, and that is the closest precedent: his other public design system.
+Copying an existing choice rather than inventing one.
+
+**Why the branch rename:** `git init` produced `master` here while
+`personalwebsite`, `workshop` and `fubl-admin` are all on `main`. One repo
+disagreeing about its default branch is a small thing that costs an extra thought
+every time someone pushes.
+
+**Checked before agreeing it should be public**, because "no secrets" is a claim
+that has to be earned rather than assumed:
+
+- No private keys, GitHub or Slack tokens, AWS keys or quoted passwords anywhere
+  in the tree.
+- No mention of the VPS address, the bcrypt hash, `basic_auth` or the deploy key
+  in any of the briefs. The deployment runbook lives in the private `fubl-admin`
+  repo and did not come along.
+- All three screenshots in `uploads/` were opened and looked at: a warning
+  callout demonstrating law 00, the three register drop caps, and a breach
+  specimen. Design documentation, nothing personal.
+- `uploads/the-framework-12-skins.html` (992K) is the lineage document the readme
+  already cites. The only matches for "token" in it are design tokens.
+
+**Not explicitly requested** — the licence, the branch rename and the
+`.gitignore`. Flagged for review. The repo itself was NOT created on GitHub:
+Felix asked for that to wait for his go-ahead, and it has.
