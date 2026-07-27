@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PREPRINT ADMIN — write, then publish</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hepta+Slab:wght@200;400;700;900&amp;family=Zilla+Slab:wght@300;400;500;600;700&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;family=Cousine:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    --paper: #fbfbf9; --surface: #ffffff; --sunk: #f2f2ee;
+    --ink: #171716; --muted: #52524b; --faint: #6a6a62;
+    --hair: rgba(23,23,22,.11); --line: rgba(23,23,22,.27); --edge: #171716;
+    --g: #01a368; --r: #ed0a3f; --b: #0066ff;
+    --g-text: #017a4e; --r-text: #c8082f; --b-text: #0052cc;
+    --mark-c: rgba(222,238,46,.62); --mark-p: rgba(255,79,163,.34); --mark-b: rgba(64,204,255,.38);
+    --code: #f4f4f0; --sel: rgba(0,102,255,.15); --shadow: rgba(23,23,22,.12);
+    --tint: rgba(23,23,22,.055); --scrim: rgba(23,23,22,.34);
+    background: var(--paper); color: var(--ink);
+    font-family: 'Zilla Slab', Georgia, serif;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  body[data-mode="dark"] {
+    --paper: #141413; --surface: #1c1c1a; --sunk: #0e0e0d;
+    --ink: #efeee8; --muted: #a8a7a0; --faint: #8e8d86;
+    --hair: rgba(239,238,232,.13); --line: rgba(239,238,232,.30); --edge: #efeee8;
+    --g: #26d494; --r: #ff4d68; --b: #6a9dff;
+    --g-text: #45e2a6; --r-text: #ff8b9d; --b-text: #9dbfff;
+    --mark-c: rgba(222,238,46,.32); --mark-p: rgba(255,79,163,.30); --mark-b: rgba(64,204,255,.30);
+    --code: #111110; --sel: rgba(106,157,255,.28); --shadow: rgba(0,0,0,.60);
+    --tint: rgba(239,238,232,.075); --scrim: rgba(0,0,0,.55);
+  }
+  h1, h2, h3, h4, h5 { font-family: 'Hepta Slab', Georgia, serif; font-weight: 700; letter-spacing: -0.03em; line-height: 1.06; }
+  code, kbd, pre, samp { font-family: 'Cousine', ui-monospace, monospace; }
+  a { color: var(--b-text); text-decoration: none; border-bottom: 1px solid currentColor; }
+  a:hover { color: var(--ink); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  input, textarea { font-family: 'Cousine', ui-monospace, monospace; }
+  button { background: transparent; border: 0; }
+  ::selection { background: var(--sel); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); }
+  ::-webkit-scrollbar-track { background: transparent; }
+  textarea { resize: none; }
+  @keyframes adm-in { from { opacity: 0; transform: translateY(3px) } to { opacity: 1; transform: none } }
+  @media (max-width: 980px) {
+    [data-adm-root] { grid-template-columns: minmax(0,1fr) !important; }
+    [data-adm-rail] { flex-direction: row !important; align-items: center; overflow-x: auto; position: sticky !important; top: 0; z-index: 25;
+      border-right: 0 !important; border-bottom: 1px solid var(--line) !important; padding: .35rem .5rem !important; gap: .25rem !important; height: auto !important; }
+    [data-adm-brand] { display: none !important; }
+    [data-adm-railspacer] { display: none !important; }
+    [data-adm-railitem] { border-left: 0 !important; border-bottom: 2px solid transparent; white-space: nowrap; }
+    [data-adm-railkbd] { display: none !important; }
+    [data-adm-cols2] { grid-template-columns: minmax(0,1fr) !important; }
+  }
+  @media (max-width: 820px) {
+    [data-adm-row] { grid-template-columns: minmax(0,1fr) !important; }
+    [data-adm-listrow] { grid-template-columns: 34px minmax(0,1fr) !important; }
+    [data-adm-listmeta] { display: none !important; }
+  }
+</style>
+</helmet>
+
+<div data-adm-root="" style="min-height:100vh;display:grid;grid-template-columns:206px minmax(0,1fr);background:var(--paper);color:var(--ink)">
+
+  <nav data-adm-rail="" style="display:flex;flex-direction:column;gap:.15rem;padding:.9rem .6rem;border-right:1px solid var(--line);background:var(--sunk);position:sticky;top:0;height:100vh">
+    <div data-adm-brand="" style="display:flex;align-items:center;gap:.6rem;padding:.15rem .35rem .9rem">
+      <span style="position:relative;display:block;width:22px;height:22px;flex:none">
+        <span style="position:absolute;left:0;top:0;width:14px;height:14px;background:var(--g);mix-blend-mode:{{ plateBlend }}"></span>
+        <span style="position:absolute;left:8px;top:2px;width:14px;height:14px;background:var(--r);mix-blend-mode:{{ plateBlend }}"></span>
+        <span style="position:absolute;left:4px;top:8px;width:14px;height:14px;background:var(--b);mix-blend-mode:{{ plateBlend }}"></span>
+      </span>
+      <div style="display:grid;gap:.1rem">
+        <code style="font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700">Preprint</code>
+        <code style="font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">admin</code>
+      </div>
+    </div>
+
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+      <button data-adm-railitem="" onClick="{{ n.on }}" style="display:flex;align-items:center;gap:.6rem;padding:.5rem .5rem;border-left:2px solid {{ n.bar }};background:{{ n.bg }};cursor:pointer;text-align:left;font-size:.9rem;font-weight:{{ n.wt }};color:{{ n.fg }}" style-hover="background:var(--tint)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square" style="flex:none;opacity:{{ n.op }}"><path d="{{ n.icon }}"></path></svg>
+        <span style="flex:1">{{ n.label }}</span>
+        <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><code data-adm-railkbd="" style="font-size:.62rem;color:var(--r-text)">{{ n.badge }}</code></sc-if>
+        <code data-adm-railkbd="" style="font-size:.62rem;color:var(--faint)">{{ n.kbd }}</code>
+      </button>
+    </sc-for>
+
+    <div data-adm-railspacer="" style="flex:1"></div>
+
+    <button onClick="{{ openPalette }}" style="display:flex;align-items:center;gap:.5rem;padding:.45rem .5rem;border:1px solid var(--line);border-radius:3px;cursor:pointer;font-size:.8rem" style-hover="border-color:var(--edge)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square" style="flex:none"><path d="M2.5 2.5h8v8h-8z M10.5 10.5 13.5 13.5"></path></svg>
+      <span style="flex:1;text-align:left">Commands</span><code style="font-size:.66rem;color:var(--faint)">⌘K</code>
+    </button>
+    <button onClick="{{ toggleMode }}" style="display:flex;align-items:center;gap:.5rem;padding:.45rem .5rem;cursor:pointer;font-size:.8rem;color:var(--muted)" style-hover="color:var(--ink)">
+      <span style="width:.6rem;height:.6rem;background:var(--ink);flex:none"></span>
+      <span style="flex:1;text-align:left">{{ modeNext }}</span>
+    </button>
+  </nav>
+
+  <main style="min-width:0">
+
+    <sc-if value="{{ isWrite }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="Editor" style="display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100vh;min-width:0">
+
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;padding:.5rem .8rem;border-bottom:1px solid var(--line);background:var(--paper)">
+          <div style="display:flex;gap:.15rem;flex:none">
+            <sc-for list="{{ regBtns }}" as="rb" hint-placeholder-count="3">
+              <button onClick="{{ rb.on }}" title="{{ rb.title }}" style="width:28px;height:28px;display:grid;place-items:center;border:{{ rb.bd }};border-radius:2px;background:{{ rb.bg }};cursor:pointer;font-family:'Hepta Slab',serif;font-weight:900;font-size:.85rem;color:{{ rb.fg }}">{{ rb.letter }}</button>
+            </sc-for>
+          </div>
+          <input value="{{ title }}" onChange="{{ setTitle }}" placeholder="Untitled" aria-label="Article title" style="flex:1;min-width:min(100%,180px);height:28px;padding:0 .4rem;background:transparent;border:1px solid transparent;border-radius:2px;font-family:'Hepta Slab',serif;font-weight:700;font-size:1rem;letter-spacing:-0.02em" style-hover="border-color:var(--hair)" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none">
+          <button onClick="{{ toggleStateMenu }}" style="height:28px;padding:0 .55rem;display:inline-flex;align-items:center;gap:.4rem;border:{{ stateBd }};border-radius:9999px;background:{{ stateBg }};color:{{ stateFg }};font-size:.74rem;font-weight:600;cursor:pointer">
+            <span style="width:.4rem;height:.4rem;background:{{ stateDot }};flex:none"></span>{{ stateLabel }}
+          </button>
+          <div style="display:flex;gap:.2rem;flex:none">
+            <button onClick="{{ undo }}" title="Undo — ⌘Z" style="width:28px;height:26px;display:grid;place-items:center;border:1px solid {{ undoBd }};border-radius:2px;color:{{ undoCol }};cursor:pointer" style-hover="border-color:var(--edge);color:var(--ink)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square"><path d="M2.5 6.5h8l3 3M2.5 6.5 5.5 3.5M2.5 6.5 5.5 9.5"></path></svg>
+            </button>
+            <button onClick="{{ redo }}" title="Redo — ⌘⇧Z" style="width:28px;height:26px;display:grid;place-items:center;border:1px solid {{ redoBd }};border-radius:2px;color:{{ redoCol }};cursor:pointer" style-hover="border-color:var(--edge);color:var(--ink)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square"><path d="M13.5 6.5h-8l-3 3M13.5 6.5 10.5 3.5M13.5 6.5 10.5 9.5"></path></svg>
+            </button>
+            <button onClick="{{ openCite }}" title="Cite a source — ⌘⇧C" style="height:26px;padding:0 .5rem;display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--line);border-radius:2px;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--b-text)" style-hover="border-color:var(--b)">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square" style="flex:none"><path d="M3 3v10M6.5 5h7M6.5 8h7M6.5 11h4.5"></path></svg>Cite
+            </button>
+          </div>
+          <div style="display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;flex:none">
+            <sc-for list="{{ paneBtns }}" as="pb" hint-placeholder-count="3">
+              <button onClick="{{ pb.on }}" title="{{ pb.title }}" style="height:26px;padding:0 .55rem;border-right:1px solid var(--line);background:{{ pb.bg }};color:{{ pb.fg }};font-family:'Cousine',monospace;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer">{{ pb.label }}</button>
+            </sc-for>
+          </div>
+          <button onClick="{{ toggleInspector }}" title="Inspector" style="height:26px;padding:0 .5rem;border:1px solid {{ inspBd }};border-radius:3px;background:{{ inspBg }};cursor:pointer;font-size:.72rem;font-weight:600;flex:none">Inspector</button>
+          <code style="font-size:.66rem;color:{{ savedCol }};flex:none">{{ savedMsg }}</code>
+        </div>
+
+        <sc-if value="{{ stateMenuOn }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;z-index:30"></div>
+        </sc-if>
+
+        <div data-adm-split="" data-adm-pane="{{ pane }}" style="display:grid;grid-template-columns:{{ paneCols }};min-height:0">
+
+          <sc-if value="{{ showSource }}" hint-placeholder-val="{{ true }}">
+            <div style="position:relative;min-width:0;border-right:1px solid var(--hair);display:grid;grid-template-rows:minmax(0,1fr)">
+              <textarea value="{{ source }}" onChange="{{ setSource }}" onKeyUp="{{ trackCaret }}" onClick="{{ trackCaret }}" onSelect="{{ trackCaret }}" onMouseUp="{{ onSelectUp }}" spellcheck="false" aria-label="Article source" style="width:100%;height:100%;padding:clamp(1rem,3vw,2.2rem) clamp(1rem,3vw,2rem) 40vh;background:var(--paper);border:0;outline:none;font-size:.875rem;line-height:1.85;caret-color:var(--r);tab-size:2"></textarea>
+              <sc-if value="{{ typewriter }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;left:0;right:0;top:50%;height:0;border-top:1px dotted var(--hair);pointer-events:none"></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showPreview }}" hint-placeholder-val="{{ true }}">
+            <div data-adm-previewpane="" style="min-width:0;overflow-y:auto;background:var(--surface)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.4rem .8rem;border-bottom:1px solid var(--hair);position:sticky;top:0;background:var(--surface);z-index:5">
+                <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">live · as the reader gets it</code>
+                <code data-adm-preview-note="" style="font-size:.64rem;color:var(--faint)">{{ previewNote }}</code>
+              </div>
+              <div style="padding:clamp(1.5rem,4vw,2.75rem) clamp(1rem,3vw,2.25rem);display:grid;gap:1.15rem;justify-content:center">
+
+                <div data-adm-row="" style="display:grid;grid-template-columns:minmax(0,66ch) minmax(0,20ch);gap:clamp(1rem,3vw,2.25rem)">
+                  <div style="grid-column:1;display:grid;gap:.85rem">
+                    <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:{{ regCol }}">{{ regLabel }}</code>
+                    <h1 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.04em;line-height:1.02;text-wrap:balance">{{ titleShown }}</h1>
+                    <p style="font-size:1.12rem;line-height:1.5;font-weight:300;font-family:'Hepta Slab',serif;letter-spacing:-0.015em;color:var(--muted)">{{ dek }}</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:1.25rem;padding:.6rem 0;border-top:1px solid var(--hair);border-bottom:1px dotted {{ regPlate }}">
+                      <code style="font-size:.7rem;color:var(--faint)">{{ metaDate }}</code>
+                      <code style="font-size:.7rem;color:var(--faint)">{{ metaCount }}</code>
+                    </div>
+                  </div>
+                </div>
+
+                <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="4">
+                  <div data-adm-row="" style="display:grid;grid-template-columns:{{ b.cols }};gap:clamp(1rem,3vw,2.25rem);background:{{ b.bg }}">
+                    <sc-if value="{{ b.isP }}" hint-placeholder-val="{{ true }}">
+                      <p style="grid-column:1;font-size:1.0625rem;line-height:1.68"><sc-if value="{{ b.hasCap }}" hint-placeholder-val="{{ false }}"><span style="float:left;font-family:'Hepta Slab',serif;font-weight:900;font-size:3.6em;line-height:.76;letter-spacing:-0.04em;color:{{ b.capCol }};padding-right:.07em;margin-top:.05em">{{ b.cap }}</span></sc-if><sc-for list="{{ b.runs }}" as="r" hint-placeholder-count="1"><sc-if value="{{ r.isSpan }}" hint-placeholder-val="{{ true }}"><span style="font-weight:{{ r.wt }};font-style:{{ r.fs }};background:{{ r.bg }};font-family:{{ r.ff }};font-size:{{ r.sz }};padding:{{ r.pad }};box-decoration-break:clone">{{ r.text }}</span></sc-if><sc-if value="{{ r.isRef }}" hint-placeholder-val="{{ false }}"><sup style="font-size:.62em;line-height:0;vertical-align:super;color:var(--b-text)">{{ r.n }}</sup></sc-if><sc-if value="{{ r.isTerm }}" hint-placeholder-val="{{ false }}"><span title="{{ r.def }}" style="border-bottom:1px dotted var(--b);cursor:help">{{ r.text }}</span></sc-if><sc-if value="{{ r.isLink }}" hint-placeholder-val="{{ false }}"><a href="{{ r.href }}">{{ r.text }}</a></sc-if><sc-if value="{{ r.isCite }}" hint-placeholder-val="{{ false }}"><span title="{{ r.def }}" style="font-family:'Cousine',monospace;font-size:.8em;color:{{ r.col }};cursor:help">{{ r.text }}</span></sc-if></sc-for></p>
+                    </sc-if>
+                    <sc-if value="{{ b.isH2 }}" hint-placeholder-val="{{ false }}">
+                      <h2 style="grid-column:1;font-size:1.45rem;margin-top:.6rem">{{ b.text }}</h2>
+                    </sc-if>
+                    <sc-if value="{{ b.isH3 }}" hint-placeholder-val="{{ false }}">
+                      <h4 style="grid-column:1;font-size:1.1rem;margin-top:.3rem">{{ b.text }}</h4>
+                    </sc-if>
+                    <sc-if value="{{ b.isLede }}" hint-placeholder-val="{{ false }}">
+                      <p style="grid-column:1;font-size:.94rem;line-height:1.6;padding:.7rem .9rem;border-left:2px solid var(--edge);background:var(--sunk);color:var(--muted)">{{ b.text }}</p>
+                    </sc-if>
+                    <sc-if value="{{ b.isRule }}" hint-placeholder-val="{{ false }}">
+                      <span style="grid-column:1;height:0;border-top:1px dashed var(--r);margin:.4rem 0"></span>
+                    </sc-if>
+                    <sc-if value="{{ b.isEq }}" hint-placeholder-val="{{ false }}">
+                      <div style="grid-column:1;padding:1rem;border-left:2px solid var(--edge);background:var(--sunk);font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;text-align:center">{{ b.text }}</div>
+                    </sc-if>
+                    <sc-if value="{{ b.isDef }}" hint-placeholder-val="{{ false }}">
+                      <div style="grid-column:1;display:grid;gap:.35rem;padding:.85rem .95rem;border:1px solid var(--g);background:var(--surface)">
+                        <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--g-text)">definition</code>
+                        <p style="font-size:.94rem;line-height:1.6"><strong>{{ b.text }}</strong> {{ b.body }}</p>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ b.isList }}" hint-placeholder-val="{{ false }}">
+                      <div style="grid-column:1;display:grid;gap:.45rem">
+                        <sc-for list="{{ b.items }}" as="it" hint-placeholder-count="2">
+                          <p style="display:grid;grid-template-columns:1.1rem minmax(0,1fr);gap:.4rem;font-size:1.0625rem;line-height:1.62"><code style="font-size:.8rem;color:var(--faint)">·</code><span><sc-for list="{{ it.runs }}" as="r" hint-placeholder-count="1"><sc-if value="{{ r.isSpan }}" hint-placeholder-val="{{ true }}"><span style="font-weight:{{ r.wt }};font-style:{{ r.fs }};background:{{ r.bg }};font-family:{{ r.ff }};font-size:{{ r.sz }};padding:{{ r.pad }};box-decoration-break:clone">{{ r.text }}</span></sc-if><sc-if value="{{ r.isRef }}" hint-placeholder-val="{{ false }}"><sup style="font-size:.62em;line-height:0;vertical-align:super;color:var(--b-text)">{{ r.n }}</sup></sc-if><sc-if value="{{ r.isTerm }}" hint-placeholder-val="{{ false }}"><span title="{{ r.def }}" style="border-bottom:1px dotted var(--b);cursor:help">{{ r.text }}</span></sc-if><sc-if value="{{ r.isLink }}" hint-placeholder-val="{{ false }}"><a href="{{ r.href }}">{{ r.text }}</a></sc-if><sc-if value="{{ r.isCite }}" hint-placeholder-val="{{ false }}"><span title="{{ r.def }}" style="font-family:'Cousine',monospace;font-size:.8em;color:{{ r.col }};cursor:help">{{ r.text }}</span></sc-if></sc-for></span></p>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ b.isCode }}" hint-placeholder-val="{{ false }}">
+                      <div style="grid-column:1;border:1px solid var(--line);background:var(--code)">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.4rem .7rem;border-bottom:1px solid var(--hair)">
+                          <code style="font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">{{ b.text }}</code>
+                          <div style="display:flex;gap:.3rem">
+                            <span style="width:.4rem;height:.4rem;background:var(--g)"></span>
+                            <span style="width:.4rem;height:.4rem;background:var(--r)"></span>
+                            <span style="width:.4rem;height:.4rem;background:var(--b)"></span>
+                          </div>
+                        </div>
+                        <pre style="margin:0;padding:.8rem .7rem;font-size:.8rem;line-height:1.8;overflow-x:auto"><sc-for list="{{ b.lines }}" as="ln" hint-placeholder-count="3"><span style="display:block;color:{{ ln.col }}">{{ ln.t }}</span></sc-for></pre>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ b.isFig }}" hint-placeholder-val="{{ false }}">
+                      <figure style="grid-column:1;display:grid;gap:.55rem">
+                        <div style="border:1px dashed var(--line);background:var(--sunk);min-height:clamp(8rem,20vw,12rem);display:grid;place-items:center;background-image:repeating-linear-gradient(45deg,var(--hair) 0 1px,transparent 1px 9px)">
+                          <code style="font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:var(--paper);padding:.35rem .65rem">{{ b.body }}</code>
+                        </div>
+                        <figcaption style="font-size:.85rem;line-height:1.55;color:var(--muted)">{{ b.text }}</figcaption>
+                      </figure>
+                    </sc-if>
+                    <sc-if value="{{ b.hasNotes }}" hint-placeholder-val="{{ false }}">
+                      <aside style="grid-column:2;display:grid;gap:.7rem;align-content:start">
+                        <sc-for list="{{ b.notes }}" as="nt" hint-placeholder-count="1">
+                          <div style="display:grid;gap:.2rem;border-left:2px solid var(--b);padding-left:.65rem">
+                            <code style="font-size:.62rem;color:var(--b-text)">{{ nt.n }}</code>
+                            <p style="font-size:.8125rem;line-height:1.5;color:var(--muted)">{{ nt.text }}</p>
+                          </div>
+                        </sc-for>
+                      </aside>
+                    </sc-if>
+                  </div>
+                </sc-for>
+
+                <sc-if value="{{ hasRefs }}" hint-placeholder-val="{{ false }}">
+                  <div data-adm-row="" style="display:grid;grid-template-columns:minmax(0,66ch) minmax(0,20ch);gap:clamp(1rem,3vw,2.25rem);margin-top:.6rem">
+                    <div style="grid-column:1;display:grid;gap:.8rem;padding-top:1rem;border-top:2px solid var(--edge)">
+                      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem">
+                        <h4 style="font-size:1.1rem">References</h4>
+                        <code style="font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">generated · {{ refCount }}</code>
+                      </div>
+                      <div style="display:grid;gap:.5rem">
+                        <sc-for list="{{ refs }}" as="rf" hint-placeholder-count="2">
+                          <p style="display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.5rem;font-size:.86rem;line-height:1.55;color:var(--muted)">
+                            <code style="color:var(--b-text);font-size:.78rem">{{ rf.n }}</code>
+                            <span>{{ rf.cite }}<sc-if value="{{ rf.link }}" hint-placeholder-val="{{ false }}"> <a href="{{ rf.link }}" style="font-family:'Cousine',monospace;font-size:.76rem">{{ rf.linkLabel }}</a></sc-if></span>
+                          </p>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ inspectorOn }}" hint-placeholder-val="{{ false }}">
+            <aside data-adm-inspector="" style="min-width:0;position:{{ inspPos }};inset:{{ inspInset }};z-index:{{ inspZ }};width:{{ inspW }};border-left:1px solid var(--line);background:var(--sunk);overflow-y:auto">
+              <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.5rem .8rem;border-bottom:1px solid var(--line);background:var(--paper);position:sticky;top:0;z-index:2">
+                  <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">inspector</code>
+                  <button onClick="{{ toggleInspector }}" style="height:32px;padding:0 .7rem;border:1px solid var(--line);border-radius:3px;font-size:.8rem;font-weight:600;cursor:pointer">Close</button>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ inspAnnotate }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:.8rem;border-bottom:1px solid var(--hair);display:grid;gap:.55rem">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.5rem">
+                    <code style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">selection</code>
+                    <code style="font-size:.62rem;color:{{ selCol }}">{{ selLabel }}</code>
+                  </div>
+                  <div style="display:flex;gap:.3rem">
+                    <sc-for list="{{ markBtns }}" as="mb" hint-placeholder-count="3">
+                      <button onClick="{{ mb.on }}" title="{{ mb.title }}" style="flex:1;height:30px;border:1px solid var(--line);background:{{ mb.solid }};cursor:pointer" style-hover="border-color:var(--edge)"></button>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.3rem">
+                    <sc-for list="{{ annotBtns }}" as="ab" hint-placeholder-count="6">
+                      <button onClick="{{ ab.on }}" style="height:30px;display:flex;align-items:center;justify-content:space-between;gap:.4rem;padding:0 .45rem;border:1px solid var(--line);border-radius:2px;cursor:pointer;font-size:.74rem;font-weight:600;color:{{ ab.col }}" style-hover="border-color:var(--edge);background:var(--surface)">
+                        <span>{{ ab.label }}</span><code style="font-size:.6rem;color:var(--faint)">{{ ab.kbd }}</code>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+
+              <div style="padding:.8rem;border-bottom:1px solid var(--hair);display:grid;gap:.5rem">
+                <code style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">outline</code>
+                <sc-if value="{{ hasOutline }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid;gap:.1rem;border-left:1px solid var(--line);padding-left:.6rem">
+                    <sc-for list="{{ outline }}" as="o" hint-placeholder-count="3">
+                      <button onClick="{{ o.on }}" style="text-align:left;font-size:.8rem;line-height:1.45;color:{{ o.col }};cursor:pointer;padding-left:{{ o.pad }}" style-hover="color:var(--ink)">{{ o.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ noOutline }}" hint-placeholder-val="{{ false }}">
+                  <p style="font-size:.78rem;line-height:1.5;color:var(--faint)">No sections yet. A <code style="font-size:.9em">##</code> line starts one.</p>
+                </sc-if>
+              </div>
+
+              <div style="padding:.8rem;border-bottom:1px solid var(--hair);display:grid;gap:.5rem">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.5rem">
+                  <code style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">references</code>
+                  <button onClick="{{ openCite }}" style="font-family:'Cousine',monospace;font-size:.62rem;color:var(--b-text);cursor:pointer;border-bottom:1px solid currentColor">cite ⌘⇧C</button>
+                </div>
+                <sc-if value="{{ hasRefs }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid;gap:.15rem">
+                    <sc-for list="{{ citedList }}" as="cl" hint-placeholder-count="2">
+                      <button onClick="{{ cl.on }}" style="display:grid;grid-template-columns:1.6rem minmax(0,1fr);gap:.35rem;text-align:left;cursor:pointer;padding:.25rem;border:1px solid transparent" style-hover="border-color:var(--line);background:var(--surface)">
+                        <code style="font-size:.64rem;color:var(--b-text)">{{ cl.n }}</code>
+                        <span style="font-size:.74rem;line-height:1.4;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ cl.text }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <p style="font-size:.72rem;line-height:1.5;color:var(--faint)">The list at the foot of the article is generated from these, in order of first appearance.</p>
+              </div>
+
+              <div style="padding:.8rem;border-bottom:1px solid var(--hair);display:grid;gap:.5rem">
+                <code style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">sidenotes · {{ noteCount }}</code>
+                <sc-for list="{{ noteList }}" as="nl" hint-placeholder-count="2">
+                  <button onClick="{{ nl.on }}" style="display:grid;grid-template-columns:1.1rem minmax(0,1fr);gap:.4rem;text-align:left;cursor:pointer;padding:.3rem;border:1px solid transparent" style-hover="border-color:var(--line);background:var(--surface)">
+                    <code style="font-size:.66rem;color:var(--b-text)">{{ nl.n }}</code>
+                    <span style="font-size:.76rem;line-height:1.45;color:var(--muted)">{{ nl.text }}</span>
+                  </button>
+                </sc-for>
+              </div>
+
+              <div style="padding:.8rem;display:grid;gap:.6rem">
+                <code style="font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">this piece</code>
+                <label style="display:grid;gap:.25rem"><code style="font-size:.66rem;color:var(--muted)">dek</code><textarea value="{{ dek }}" onChange="{{ setDek }}" rows="3" style="padding:.4rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem;line-height:1.5" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></textarea></label>
+                <label style="display:grid;gap:.25rem"><code style="font-size:.66rem;color:var(--muted)">slug</code><input value="{{ slug }}" onChange="{{ setSlug }}" style="height:30px;padding:0 .4rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></label>
+                <div style="display:grid;gap:.25rem">
+                  <code style="font-size:.66rem;color:var(--muted)">state</code>
+                  <sc-for list="{{ stateBtns }}" as="sb" hint-placeholder-count="4">
+                    <button onClick="{{ sb.on }}" style="display:flex;align-items:center;gap:.45rem;height:30px;padding:0 .45rem;border:{{ sb.bd }};border-radius:2px;background:{{ sb.bg }};cursor:pointer;font-size:.76rem;font-weight:600;color:{{ sb.fg }};text-align:left" style-hover="border-color:var(--edge)">
+                      <span style="width:.4rem;height:.4rem;background:{{ sb.dot }};flex:none"></span><span style="flex:1">{{ sb.label }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ isScheduled }}" hint-placeholder-val="{{ false }}">
+                  <label style="display:grid;gap:.25rem"><code style="font-size:.66rem;color:var(--muted)">goes live</code><input value="{{ schedule }}" onChange="{{ setSchedule }}" style="height:30px;padding:0 .4rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem"></label>
+                </sc-if>
+                <button onClick="{{ goDeploy }}" style="height:34px;border:2px solid var(--edge);border-radius:3px;background:var(--edge);color:var(--paper);font-size:.8rem;font-weight:600;cursor:pointer" style-active="transform:translate(1px,1px)">Review &amp; deploy</button>
+              </div>
+            </aside>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;padding:.4rem .8rem;border-top:1px solid var(--line);background:var(--sunk)">
+          <code style="font-size:.66rem;color:var(--muted)">{{ wordStat }}</code>
+          <span style="width:1px;height:.8rem;background:var(--hair)"></span>
+          <code style="font-size:.66rem;color:var(--faint)">{{ caretStat }}</code>
+          <span style="width:1px;height:.8rem;background:var(--hair)"></span>
+          <button onClick="{{ toggleTypewriter }}" style="font-family:'Cousine',monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:{{ twCol }};cursor:pointer;border-bottom:1px solid currentColor">{{ twLabel }}</button>
+          <sc-if value="{{ hasOutline }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:.65rem;overflow-x:auto;flex:1;min-width:min(100%,140px)">
+              <sc-for list="{{ outline }}" as="o" hint-placeholder-count="3">
+                <button onClick="{{ o.on }}" style="font-family:'Cousine',monospace;font-size:.66rem;white-space:nowrap;color:{{ o.col }};cursor:pointer" style-hover="color:var(--ink)">{{ o.short }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <code style="font-size:.66rem;color:var(--faint);margin-left:auto">{{ offlineMsg }}</code>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Library" style="min-height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0">
+        <div style="padding:clamp(1.25rem,3vw,2rem) clamp(1rem,3vw,2rem) .9rem;border-bottom:6px solid var(--edge);display:grid;gap:1.1rem">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem">
+            <div style="display:grid;gap:.5rem">
+              <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">library</code>
+              <h2 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.045em">Everything written</h2>
+            </div>
+            <div style="display:flex;gap:.4rem">
+              <button onClick="{{ goDeploy }}" style="height:40px;padding:0 .9rem;border:1px solid var(--line);border-radius:3px;font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem" style-hover="border-color:var(--edge)">
+                <span style="width:.45rem;height:.45rem;background:var(--r)"></span>{{ stagedLabel }}
+              </button>
+              <button onClick="{{ newDoc }}" style="height:40px;padding:0 1rem;border:2px solid var(--edge);border-radius:3px;background:var(--edge);color:var(--paper);font-size:.88rem;font-weight:600;cursor:pointer" style-active="transform:translate(1px,1px)">New article</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:1px">
+            <sc-for list="{{ libStats }}" as="s" hint-placeholder-count="4">
+              <div style="padding:.6rem .7rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.15rem">
+                <code style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">{{ s.label }}</code>
+                <span style="font-family:'Hepta Slab',serif;font-weight:700;font-size:1.4rem;letter-spacing:-0.03em;color:{{ s.col }}">{{ s.val }}</span>
+                <code style="font-size:.62rem;color:var(--muted)">{{ s.note }}</code>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+            <div style="display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden">
+              <sc-for list="{{ filters }}" as="fl" hint-placeholder-count="5">
+                <button onClick="{{ fl.on }}" style="height:32px;padding:0 .7rem;border-right:1px solid var(--line);background:{{ fl.bg }};color:{{ fl.fg }};font-size:.78rem;font-weight:600;cursor:pointer">{{ fl.label }}</button>
+              </sc-for>
+            </div>
+            <label style="display:flex;align-items:center;gap:.45rem;flex:1;min-width:min(100%,180px);height:32px;padding:0 .6rem;border:1px solid var(--line);border-radius:3px;background:var(--surface)" style-focus-within="border-color:var(--b)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--faint)" stroke-width="1.35" stroke-linecap="square" style="flex:none"><path d="M2.5 2.5h8v8h-8z M10.5 10.5 13.5 13.5"></path></svg>
+              <input value="{{ query }}" onChange="{{ setQuery }}" placeholder="title, slug, or a phrase" style="flex:1;background:transparent;border:0;outline:none;font-size:.8rem">
+            </label>
+          </div>
+        </div>
+
+        <div style="padding:0 clamp(1rem,3vw,2rem) 3rem">
+          <div data-adm-listrow="" style="display:grid;grid-template-columns:34px minmax(0,1fr) 112px 96px 104px;gap:1rem;padding:.55rem 0;border-bottom:1px solid var(--line)">
+            <code style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">reg</code>
+            <code style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">title</code>
+            <code data-adm-listmeta="" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">state</code>
+            <code data-adm-listmeta="" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">length</code>
+            <code data-adm-listmeta="" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">edited</code>
+          </div>
+          <sc-for list="{{ docList }}" as="d" hint-placeholder-count="6">
+            <button data-adm-listrow="" onClick="{{ d.on }}" style="width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) 112px 96px 104px;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--hair);align-items:center;text-align:left;cursor:pointer;background:{{ d.rowBg }}" style-hover="background:var(--tint)">
+              <span style="width:28px;height:28px;display:grid;place-items:center;background:{{ d.plate }};color:var(--paper);font-family:'Hepta Slab',serif;font-weight:900;font-size:.95rem">{{ d.letter }}</span>
+              <span style="display:grid;gap:.2rem;min-width:0">
+                <span style="display:flex;align-items:baseline;gap:.5rem;min-width:0">
+                  <span style="font-family:'Hepta Slab',serif;font-weight:700;font-size:1rem;letter-spacing:-0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.title }}</span>
+                  <sc-if value="{{ d.behind }}" hint-placeholder-val="{{ false }}"><code style="font-size:.6rem;color:var(--r-text);white-space:nowrap;flex:none">· unpushed</code></sc-if>
+                </span>
+                <code style="font-size:.64rem;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.slug }}</code>
+              </span>
+              <span data-adm-listmeta="" style="display:inline-flex;align-items:center;gap:.35rem;padding:.16rem .45rem;border:{{ d.bd }};border-radius:9999px;background:{{ d.bg }};color:{{ d.fg }};font-size:.68rem;font-weight:600;justify-self:start">
+                <span style="width:.35rem;height:.35rem;background:{{ d.dot }};flex:none"></span>{{ d.state }}
+              </span>
+              <code data-adm-listmeta="" style="font-size:.7rem;color:var(--muted)">{{ d.len }}</code>
+              <code data-adm-listmeta="" style="font-size:.7rem;color:var(--faint)">{{ d.edited }}</code>
+            </button>
+          </sc-for>
+          <sc-if value="{{ emptyList }}" hint-placeholder-val="{{ false }}">
+            <p style="padding:2rem 0;font-size:.9rem;color:var(--faint)">Nothing matches. The filter is doing its job.</p>
+          </sc-if>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isSources }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Sources" style="min-height:100vh;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,3vw,2rem) 3rem;display:grid;gap:1.25rem;align-content:start;min-width:0">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;padding-bottom:.9rem;border-bottom:6px solid var(--edge)">
+          <div style="display:grid;gap:.5rem">
+            <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">sources</code>
+            <h2 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.045em">Cited often, typed once</h2>
+          </div>
+          <code style="font-size:.7rem;color:var(--faint)">{{ sourceCount }}</code>
+        </div>
+        <div data-adm-cols2="" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,330px);gap:1.25rem;align-items:start">
+          <div style="display:grid;gap:.8rem;min-width:0">
+            <div style="display:grid;gap:.5rem;padding:.8rem;border:2px solid var(--edge);background:var(--surface)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.75rem">
+                <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">add</code>
+                <code style="font-size:.64rem;color:var(--faint)">BibTeX · DOI · URL</code>
+              </div>
+              <textarea value="{{ paste }}" onChange="{{ setPaste }}" rows="3" placeholder="@article{roth2002, author = {Roth, A. E.}, title = {The economist as engineer}, journal = {Econometrica}, year = {2002}}" style="padding:.5rem .6rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem;line-height:1.6" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></textarea>
+              <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+                <button onClick="{{ addSource }}" style="height:34px;padding:0 .85rem;border:2px solid var(--edge);border-radius:3px;background:var(--edge);color:var(--paper);font-size:.82rem;font-weight:600;cursor:pointer" style-active="transform:translate(1px,1px)">Add source</button>
+                <p style="font-size:.76rem;line-height:1.5;color:var(--muted);flex:1;min-width:min(100%,220px)">BibTeX is parsed in full. A bare DOI or URL makes a stub and leaves the fields to you.</p>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+              <div style="display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;flex-wrap:wrap">
+                <sc-for list="{{ srcTypeBtns }}" as="tb" hint-placeholder-count="7">
+                  <button onClick="{{ tb.on }}" style="height:30px;padding:0 .6rem;border-right:1px solid var(--line);background:{{ tb.bg }};color:{{ tb.fg }};font-size:.74rem;font-weight:600;cursor:pointer">{{ tb.label }}</button>
+                </sc-for>
+              </div>
+              <label style="display:flex;align-items:center;gap:.45rem;flex:1;min-width:min(100%,160px);height:30px;padding:0 .6rem;border:1px solid var(--line);border-radius:3px;background:var(--surface)">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="var(--faint)" stroke-width="1.35" stroke-linecap="square" style="flex:none"><path d="M2.5 2.5h8v8h-8z M10.5 10.5 13.5 13.5"></path></svg>
+                <input value="{{ srcQuery }}" onChange="{{ setSrcQuery }}" placeholder="author, title, key" style="flex:1;background:transparent;border:0;outline:none;font-size:.78rem">
+              </label>
+            </div>
+            <div style="display:grid;gap:.4rem">
+              <sc-for list="{{ sourceList }}" as="s" hint-placeholder-count="6">
+                <div onClick="{{ s.on }}" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.75rem;align-items:center;padding:.6rem .7rem;border:{{ s.bd }};background:{{ s.bg }};cursor:pointer" style-hover="background:var(--tint)">
+                  <div style="display:grid;gap:.25rem;min-width:0">
+                    <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline">
+                      <code style="font-size:.72rem;font-weight:700;color:var(--b-text)">{{ s.key }}</code>
+                      <code style="font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">{{ s.type }}</code>
+                      <code style="font-size:.62rem;color:{{ s.usedCol }}">{{ s.used }}</code>
+                    </div>
+                    <span style="font-size:.86rem;line-height:1.5;color:var(--muted)">{{ s.cite }}</span>
+                  </div>
+                  <button onClick="{{ s.insert }}" style="height:30px;padding:0 .6rem;border:1px solid var(--line);border-radius:2px;font-size:.74rem;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="border-color:var(--edge);background:var(--surface)">Cite →</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;gap:.7rem;padding:.9rem;border:1px solid var(--line);background:var(--surface);align-content:start">
+            <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">entry</code>
+            <div style="display:flex;flex-wrap:wrap;gap:.3rem">
+              <sc-for list="{{ srcTypeSel }}" as="ts" hint-placeholder-count="6">
+                <button onClick="{{ ts.on }}" style="height:28px;padding:0 .5rem;border:{{ ts.bd }};border-radius:2px;background:{{ ts.bg }};font-size:.72rem;font-weight:600;cursor:pointer">{{ ts.label }}</button>
+              </sc-for>
+            </div>
+            <sc-for list="{{ srcFields }}" as="f" hint-placeholder-count="9">
+              <label style="display:grid;gap:.2rem"><code style="font-size:.64rem;color:var(--muted)">{{ f.label }}</code><input value="{{ f.v }}" onChange="{{ f.on }}" style="height:30px;padding:0 .45rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></label>
+            </sc-for>
+            <sc-if value="{{ hasSrcNote }}" hint-placeholder-val="{{ false }}">
+              <p style="padding:.5rem .6rem;border-left:2px solid var(--r);background:var(--sunk);font-size:.74rem;line-height:1.5;color:var(--muted)">{{ srcNote }}</p>
+            </sc-if>
+            <div style="display:grid;gap:.35rem;padding:.6rem;background:var(--sunk);border-left:2px solid var(--edge)">
+              <code style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">as it will print</code>
+              <span style="font-size:.82rem;line-height:1.55">{{ srcPreview }}</span>
+            </div>
+            <button onClick="{{ srcInsert }}" style="height:36px;border:2px solid var(--edge);border-radius:3px;background:var(--edge);color:var(--paper);font-size:.82rem;font-weight:600;cursor:pointer" style-active="transform:translate(1px,1px)">Cite in the open article</button>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isDeploy }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Deploy" style="min-height:100vh;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,3vw,2rem) 3rem;display:grid;gap:1.5rem;align-content:start;min-width:0">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;padding-bottom:.9rem;border-bottom:6px solid var(--edge)">
+          <div style="display:grid;gap:.5rem">
+            <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">publish · deploy</code>
+            <h2 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.045em">What the world sees</h2>
+            <code style="font-size:.72rem;color:var(--muted)">{{ repoLine }}</code>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+            <button onClick="{{ deploy }}" disabled="{{ deployOff }}" style="height:44px;padding:0 1.1rem;border:2px solid {{ deployBd }};border-radius:3px;background:{{ deployBg }};color:{{ deployFg }};font-size:.95rem;font-weight:600;cursor:{{ deployCur }}" style-active="transform:translate(1px,1px)">{{ deployLabel }}</button>
+            <code style="font-size:.66rem;color:var(--faint)">{{ deployHint }}</code>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:1px">
+          <sc-for list="{{ pipeline }}" as="p" hint-placeholder-count="3">
+            <div style="padding:1rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);border-top:6px solid {{ p.plate }};display:grid;gap:.5rem;align-content:start">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.5rem">
+                <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:{{ p.col }}">{{ p.tag }}</code>
+                <code style="font-size:.64rem;color:var(--faint)">{{ p.where }}</code>
+              </div>
+              <span style="font-family:'Hepta Slab',serif;font-weight:700;font-size:1.6rem;letter-spacing:-0.03em">{{ p.n }}</span>
+              <p style="font-size:.82rem;line-height:1.55;color:var(--muted)">{{ p.body }}</p>
+              <sc-if value="{{ p.link }}" hint-placeholder-val="{{ false }}"><a href="{{ p.link }}" style="font-family:'Cousine',monospace;font-size:.68rem;justify-self:start">{{ p.linkLabel }}</a></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div data-adm-cols2="" style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:1.25rem;align-items:start">
+          <div style="border:2px solid var(--edge);background:var(--surface)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.55rem .8rem;background:var(--edge);color:var(--paper)">
+              <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase">staged for the next build</code>
+              <code style="font-size:.66rem;opacity:.75">{{ stagedCount }}</code>
+            </div>
+            <sc-for list="{{ staged }}" as="s" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:.8rem;padding:.65rem .8rem;border-bottom:1px solid var(--hair);align-items:baseline">
+                <code style="font-size:.66rem;font-weight:700;color:{{ s.col }};letter-spacing:.08em;text-transform:uppercase">{{ s.kind }}</code>
+                <div style="display:grid;gap:.15rem;min-width:0">
+                  <span style="font-size:.9rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.title }}</span>
+                  <code style="font-size:.64rem;color:var(--faint)">{{ s.detail }}</code>
+                </div>
+                <button onClick="{{ s.on }}" style="font-family:'Cousine',monospace;font-size:.66rem;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--hair)" style-hover="color:var(--ink)">open</button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ nothingStaged }}" hint-placeholder-val="{{ false }}">
+              <p style="padding:1.1rem .8rem;font-size:.86rem;line-height:1.6;color:var(--faint)">The live site matches the working copy. Nothing to push.</p>
+            </sc-if>
+            <div style="padding:.6rem .8rem;border-top:1px solid var(--line);background:var(--sunk)">
+              <p style="font-size:.8rem;line-height:1.6;color:var(--muted)">{{ modelNote }}</p>
+            </div>
+          </div>
+
+          <div style="display:grid;gap:1.25rem">
+            <div style="border:1px solid var(--line);background:var(--code)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.45rem .7rem;border-bottom:1px solid var(--hair)">
+                <code style="font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">build log</code>
+                <code style="font-size:.64rem;color:{{ buildCol }}">{{ buildState }}</code>
+              </div>
+              <div style="padding:.7rem;display:grid;gap:.15rem;max-height:15rem;overflow-y:auto">
+                <sc-for list="{{ log }}" as="l" hint-placeholder-count="4">
+                  <code style="font-size:.72rem;line-height:1.7;color:{{ l.col }}">{{ l.t }}</code>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="border:1px solid var(--line);background:var(--surface)">
+              <div style="padding:.55rem .8rem;border-bottom:1px solid var(--line)">
+                <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">scheduled</code>
+              </div>
+              <sc-for list="{{ queue }}" as="q" hint-placeholder-count="1">
+                <div style="display:grid;gap:.15rem;padding:.6rem .8rem;border-bottom:1px solid var(--hair)">
+                  <span style="font-size:.88rem;font-weight:600">{{ q.title }}</span>
+                  <code style="font-size:.66rem;color:var(--g-text)">{{ q.when }}</code>
+                </div>
+              </sc-for>
+              <p style="padding:.6rem .8rem;font-size:.78rem;line-height:1.55;color:var(--faint)">A scheduled piece is committed by the cron on the box, not by this page. If the box is off, nothing goes live.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isPages }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Pages" style="min-height:100vh;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,3vw,2rem) 3rem;display:grid;gap:1.25rem;align-content:start;min-width:0">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;padding-bottom:.9rem;border-bottom:6px solid var(--edge)">
+          <div style="display:grid;gap:.5rem">
+            <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">pages</code>
+            <h2 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.045em">One page, plus one per piece</h2>
+          </div>
+          <code style="font-size:.7rem;color:{{ pageDirtyCol }}">{{ pageDirtyMsg }}</code>
+        </div>
+
+        <div style="display:grid;gap:.5rem;padding:1rem;border-left:6px solid var(--g);background:var(--surface)">
+          <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--g-text)">the recommendation</code>
+          <p style="font-size:1rem;line-height:1.62;max-width:74ch">Have one page. A bio, then everything you have written, listed in full — no nav, no landing page that sends the reader elsewhere to start reading. Each article still gets its own URL, because writing that cannot be linked to cannot be cited, and a working paper nobody can cite is a PDF nobody found.</p>
+          <p style="font-size:.9rem;line-height:1.62;color:var(--muted);max-width:74ch">So: a single index that <em>is</em> the site map, and one page per article. Research and writing become sections of that page, not destinations. Add a second page only when the thing is genuinely not writing — a CV, say.</p>
+        </div>
+
+        <div data-adm-cols2="" style="display:grid;grid-template-columns:minmax(0,370px) minmax(0,1fr);gap:1.25rem;align-items:start">
+          <div style="display:grid;gap:.7rem;min-width:0">
+            <div style="display:grid;gap:.5rem;padding:.85rem;border:2px solid var(--edge);background:var(--surface)">
+              <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">index · {{ pageUrl }}</code>
+              <label style="display:grid;gap:.2rem"><code style="font-size:.66rem;color:var(--muted)">headline</code><input value="{{ pageHeadline }}" onChange="{{ setPageHeadline }}" style="height:36px;padding:0 .5rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.85rem" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></label>
+              <label style="display:grid;gap:.2rem"><code style="font-size:.66rem;color:var(--muted)">standfirst · optional, usually empty</code><textarea value="{{ pageStandfirst }}" onChange="{{ setPageStandfirst }}" rows="2" style="padding:.45rem .5rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.78rem;line-height:1.55" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></textarea></label>
+              <div style="display:grid;gap:.35rem;padding-top:.4rem;border-top:1px solid var(--hair)">
+                <code style="font-size:.66rem;color:var(--muted)">header shelf</code>
+                <sc-for list="{{ pageShelf }}" as="sh" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem;align-items:center">
+                    <span style="display:inline-flex;align-items:center;gap:.4rem;justify-self:start;padding:.25rem .5rem;background:{{ sh.bg }};border:{{ sh.bd }};color:{{ sh.col }};font-family:'Cousine',monospace;font-size:.7rem;font-weight:700">{{ sh.label }}</span>
+                    <code style="font-size:.62rem;color:var(--faint)">{{ sh.note }}</code>
+                  </div>
+                </sc-for>
+                <p style="font-size:.72rem;line-height:1.5;color:var(--faint)">Edited in the repo, not here — three buttons is the set, and a settings screen that can add a fourth will get one.</p>
+              </div>
+            </div>
+            <sc-for list="{{ pageSections }}" as="sec" hint-placeholder-count="4">
+              <div style="display:grid;gap:.5rem;padding:.75rem;border:{{ sec.bd }};background:var(--surface)">
+                <div style="display:flex;align-items:center;gap:.4rem">
+                  <code style="font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);flex:1">{{ sec.kind }}</code>
+                  <button onClick="{{ sec.toggle }}" style="font-family:'Cousine',monospace;font-size:.62rem;color:{{ sec.onCol }};cursor:pointer;border-bottom:1px solid currentColor">{{ sec.onLabel }}</button>
+                  <button onClick="{{ sec.up }}" title="Move up" style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--hair);border-radius:2px;color:var(--muted);cursor:pointer" style-hover="border-color:var(--edge);color:var(--ink)">
+                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M8 13V3M4.5 6.5 8 3l3.5 3.5"></path></svg>
+                  </button>
+                  <button onClick="{{ sec.down }}" title="Move down" style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--hair);border-radius:2px;color:var(--muted);cursor:pointer" style-hover="border-color:var(--edge);color:var(--ink)">
+                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M8 3v10M4.5 9.5 8 13l3.5-3.5"></path></svg>
+                  </button>
+                </div>
+                <input value="{{ sec.title }}" onChange="{{ sec.setTitle }}" style="height:32px;padding:0 .45rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-family:'Hepta Slab',serif;font-weight:700;font-size:.9rem" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none">
+                <sc-if value="{{ sec.hasBody }}" hint-placeholder-val="{{ false }}">
+                  <textarea value="{{ sec.body }}" onChange="{{ sec.setBody }}" rows="4" style="padding:.45rem .5rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem;line-height:1.6" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></textarea>
+                </sc-if>
+                <sc-if value="{{ sec.isWriting }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-wrap:wrap;gap:.3rem">
+                    <sc-for list="{{ sec.modeBtns }}" as="mb2" hint-placeholder-count="3">
+                      <button onClick="{{ mb2.on }}" style="height:28px;padding:0 .5rem;border:{{ mb2.bd }};border-radius:2px;background:{{ mb2.bg }};font-size:.72rem;font-weight:600;cursor:pointer">{{ mb2.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="border:2px solid var(--edge);background:var(--surface);min-width:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.45rem .8rem;border-bottom:1px solid var(--line)">
+              <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">live · {{ pageUrl }}</code>
+              <code style="font-size:.64rem;color:var(--faint)">the whole site, one scroll</code>
+            </div>
+            <div style="padding:clamp(1.25rem,3vw,2.25rem);display:grid;gap:1.6rem;justify-items:start">
+              <div style="display:grid;gap:.7rem;max-width:60ch">
+                <h1 style="font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-0.05em;line-height:1.02">{{ pageHeadline }}</h1>
+                <p style="font-family:'Hepta Slab',serif;font-weight:200;font-size:clamp(1.05rem,2.2vw,1.4rem);line-height:1.34;letter-spacing:-0.02em;color:var(--muted)">{{ pageStandfirst }}</p>
+              </div>
+              <sc-for list="{{ pagePreview }}" as="pv" hint-placeholder-count="3">
+                <div style="display:grid;gap:.7rem;width:100%;max-width:66ch;padding-top:.9rem;border-top:1px solid var(--line)">
+                  <h3 style="font-size:1.25rem">{{ pv.title }}</h3>
+                  <sc-if value="{{ pv.hasBody }}" hint-placeholder-val="{{ false }}">
+                    <p style="font-size:1rem;line-height:1.65;max-width:64ch">{{ pv.body }}</p>
+                  </sc-if>
+                  <sc-if value="{{ pv.hasItems }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid;gap:0">
+                      <sc-for list="{{ pv.items }}" as="it2" hint-placeholder-count="3">
+                        <div style="display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:.7rem;align-items:baseline;padding:.5rem 0;border-bottom:1px solid var(--hair)">
+                          <span style="width:22px;height:22px;display:grid;place-items:center;background:{{ it2.plate }};color:var(--paper);font-family:'Hepta Slab',serif;font-weight:900;font-size:.78rem">{{ it2.letter }}</span>
+                          <span style="font-size:1rem;line-height:1.45">{{ it2.title }}</span>
+                          <code style="font-size:.66rem;color:var(--faint);white-space:nowrap">{{ it2.meta }}</code>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isMedia }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Figures" style="min-height:100vh;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,3vw,2rem) 3rem;display:grid;gap:1.25rem;align-content:start;min-width:0">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;padding-bottom:.9rem;border-bottom:6px solid var(--edge)">
+          <div style="display:grid;gap:.5rem">
+            <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">figures · images</code>
+            <h2 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.045em">The things that are not prose</h2>
+          </div>
+          <code style="font-size:.7rem;color:var(--faint)">{{ mediaStat }}</code>
+        </div>
+        <p style="font-size:1rem;line-height:1.62;max-width:70ch;color:var(--muted)">Two kinds live here, and they are not the same thing. An <strong style="color:var(--ink)">image</strong> is a file: drop it, name it, insert it. A <strong style="color:var(--ink)">plot</strong> is code the site runs at build time — it lives in the repo, and this page only lists it, shows where it is used, and gives you the one line that puts it in an article.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:1rem">
+          <button onClick="{{ noop }}" style="border:1px dashed var(--line);background:var(--sunk);min-height:11rem;display:grid;place-items:center;gap:.4rem;align-content:center;cursor:pointer;background-image:repeating-linear-gradient(45deg,var(--hair) 0 1px,transparent 1px 9px)" style-hover="border-color:var(--edge)">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" stroke-width="1.35" stroke-linecap="square"><path d="M8 10.5V3M4.5 6.5 8 3l3.5 3.5M2.5 13.5h11"></path></svg>
+            <code style="font-size:.68rem;color:var(--muted)">drop a file · or paste</code>
+          </button>
+          <sc-for list="{{ media }}" as="m" hint-placeholder-count="5">
+            <div style="border:1px solid var(--line);background:var(--surface);display:grid;grid-template-rows:auto 1fr;cursor:pointer" style-hover="border-color:var(--edge);box-shadow:3px 3px 0 var(--shadow)">
+              <div style="height:7.5rem;display:grid;place-items:center;background:{{ m.tileBg }};background-image:{{ m.tileArt }};border-bottom:1px solid var(--hair)">
+                <code style="font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--paper);padding:.25rem .5rem">{{ m.kind }}</code>
+              </div>
+              <div style="padding:.55rem .65rem;display:grid;gap:.2rem;align-content:start">
+                <code style="font-size:.7rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.name }}</code>
+                <code style="font-size:.62rem;color:var(--faint)">{{ m.spec }}</code>
+                <code style="font-size:.62rem;color:{{ m.usedCol }}">{{ m.used }}</code>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Settings" style="min-height:100vh;padding:clamp(1.25rem,3vw,2rem) clamp(1rem,3vw,2rem) 3rem;display:grid;gap:1.25rem;align-content:start;min-width:0">
+        <div style="display:grid;gap:.5rem;padding-bottom:.9rem;border-bottom:6px solid var(--edge)">
+          <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">site settings</code>
+          <h2 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.045em">The parts that are the same every time</h2>
+        </div>
+        <div data-adm-cols2="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1.25rem;align-items:start">
+
+          <div style="display:grid;gap:.7rem;padding:1rem;border:1px solid var(--line);background:var(--surface);align-content:start">
+            <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">identity</code>
+            <label style="display:grid;gap:.25rem"><code style="font-size:.68rem;color:var(--muted)">name</code><input value="{{ siteName }}" onChange="{{ setSiteName }}" style="height:40px;padding:0 .6rem;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:.9rem" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></label>
+            <label style="display:grid;gap:.25rem"><code style="font-size:.68rem;color:var(--muted)">bio · shown on the index</code><textarea value="{{ bio }}" onChange="{{ setBio }}" rows="4" style="padding:.5rem .6rem;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:.82rem;line-height:1.6" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></textarea></label>
+            <div style="display:grid;gap:.4rem;padding-top:.3rem;border-top:1px solid var(--hair)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.5rem">
+                <code style="font-size:.68rem;color:var(--muted)">links · shown as icons in the header</code>
+              </div>
+              <sc-for list="{{ links }}" as="lk" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:.45rem;align-items:center">
+                  <span style="width:26px;height:26px;display:grid;place-items:center;color:var(--muted)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{ lk.icon }}"></path></svg>
+                  </span>
+                  <input value="{{ lk.url }}" onChange="{{ lk.setUrl }}" aria-label="{{ lk.label }} url" style="height:30px;padding:0 .4rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.74rem" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none">
+                  <button onClick="{{ lk.toggle }}" style="font-family:'Cousine',monospace;font-size:.62rem;color:{{ lk.shownCol }};cursor:pointer;border-bottom:1px solid currentColor;white-space:nowrap">{{ lk.shown }}</button>
+                </div>
+              </sc-for>
+              <p style="font-size:.74rem;line-height:1.5;color:var(--faint)">Three is the set. Email is deliberately absent — it lives in the CV, where someone who wants it will look.</p>
+            </div>
+          </div>
+
+          <div style="display:grid;gap:.6rem;padding:1rem;border:1px solid var(--line);background:var(--surface);align-content:start">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:.75rem">
+              <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">cv.md</code>
+              <code style="font-size:.64rem;color:var(--faint)">{{ cvStat }}</code>
+            </div>
+            <p style="font-size:.82rem;line-height:1.6;color:var(--muted)">The CV is the one page that is not writing, and the only second page the site has. Same markdown, same registers-free layout, reachable from the header button.</p>
+            <textarea value="{{ cvSrc }}" onChange="{{ setCvSrc }}" rows="12" spellcheck="false" style="padding:.5rem .6rem;background:var(--paper);border:1px solid var(--line);border-radius:2px;font-size:.76rem;line-height:1.7" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></textarea>
+            <button onClick="{{ cvOpen }}" style="height:34px;border:1px solid var(--line);border-radius:3px;font-size:.8rem;font-weight:600;cursor:pointer" style-hover="border-color:var(--edge)">Preview as the reader gets it</button>
+          </div>
+
+          <div style="display:grid;gap:.8rem;padding:1rem;border:1px solid var(--line);background:var(--surface);align-content:start">
+            <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">registers · the coloured cap</code>
+            <sc-for list="{{ regRows }}" as="rr" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:.6rem;align-items:center;padding-bottom:.6rem;border-bottom:1px solid var(--hair)">
+                <span style="width:30px;height:30px;display:grid;place-items:center;background:{{ rr.plate }};color:var(--paper);font-family:'Hepta Slab',serif;font-weight:900;font-size:1rem">{{ rr.letter }}</span>
+                <div style="display:grid;gap:.1rem">
+                  <span style="font-size:.9rem;font-weight:600">{{ rr.label }}</span>
+                  <code style="font-size:.64rem;color:var(--faint)">{{ rr.plateName }}</code>
+                </div>
+                <code style="font-size:.7rem;color:var(--muted)">{{ rr.count }}</code>
+              </div>
+            </sc-for>
+            <p style="font-size:.8rem;line-height:1.6;color:var(--muted)">Three registers, three plates, and no fourth. A register is a promise about the kind of thing a piece is — adding one is a bigger decision than it looks.</p>
+          </div>
+
+          <div style="display:grid;gap:.8rem;padding:1rem;border:2px solid var(--edge);background:var(--surface);align-content:start">
+            <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">publishing</code>
+            <sc-for list="{{ modelOpts }}" as="mo" hint-placeholder-count="2">
+              <button onClick="{{ mo.on }}" style="display:grid;grid-template-columns:14px minmax(0,1fr);gap:.6rem;padding:.6rem;border:{{ mo.bd }};border-radius:3px;background:{{ mo.bg }};text-align:left;cursor:pointer;align-items:start" style-hover="border-color:var(--edge)">
+                <span style="width:12px;height:12px;margin-top:.2rem;border:1px solid var(--edge);background:{{ mo.dot }}"></span>
+                <span style="display:grid;gap:.2rem">
+                  <span style="font-size:.9rem;font-weight:600">{{ mo.label }}</span>
+                  <span style="font-size:.8rem;line-height:1.55;color:var(--muted)">{{ mo.body }}</span>
+                </span>
+              </button>
+            </sc-for>
+            <div style="display:grid;gap:.4rem;padding-top:.4rem;border-top:1px solid var(--hair)">
+              <label style="display:grid;gap:.25rem"><code style="font-size:.68rem;color:var(--muted)">repository</code><input value="{{ repo }}" onChange="{{ setRepo }}" style="height:36px;padding:0 .6rem;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:.8rem"></label>
+              <label style="display:grid;gap:.25rem"><code style="font-size:.68rem;color:var(--muted)">branch</code><input value="{{ branch }}" onChange="{{ setBranch }}" style="height:36px;padding:0 .6rem;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:.8rem"></label>
+              <label style="display:grid;gap:.25rem"><code style="font-size:.68rem;color:var(--muted)">domain</code><input value="{{ domain }}" onChange="{{ setDomain }}" style="height:36px;padding:0 .6rem;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:.8rem"></label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+  </main>
+</div>
+
+<sc-if value="{{ selMenuOn }}" hint-placeholder-val="{{ false }}">
+  <div data-adm-float="" style="position:fixed;left:{{ fx }};top:{{ fy }};min-width:198px;background:var(--surface);border:2px solid var(--edge);box-shadow:5px 5px 0 var(--shadow);z-index:60;animation:adm-in .12s ease-out">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.35rem .5rem;border-bottom:1px solid var(--hair)">
+      <code style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">{{ selWords }}</code>
+      <div style="display:flex;gap:.25rem">
+        <sc-for list="{{ markBtns }}" as="mb" hint-placeholder-count="3">
+          <button onClick="{{ mb.on }}" title="{{ mb.title }}" style="width:20px;height:20px;border:1px solid var(--line);background:{{ mb.solid }};cursor:pointer"></button>
+        </sc-for>
+      </div>
+    </div>
+    <sc-for list="{{ annotBtns }}" as="ab" hint-placeholder-count="6">
+      <button onClick="{{ ab.on }}" style="width:100%;display:flex;align-items:center;gap:.55rem;padding:.42rem .5rem;border-bottom:1px solid var(--hair);cursor:pointer;text-align:left;font-size:.82rem;font-weight:500;color:{{ ab.col }}" style-hover="background:var(--sunk)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square" style="flex:none"><path d="{{ ab.icon }}"></path></svg>
+        <span style="flex:1">{{ ab.label }}</span><code style="font-size:.6rem;color:var(--faint)">{{ ab.kbd }}</code>
+      </button>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ paletteOn }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closePalette }}" style="position:fixed;inset:0;background:var(--scrim);z-index:70;display:grid;align-items:start;justify-items:center;padding:clamp(2rem,10vh,6rem) 1rem">
+    <div onClick="{{ stop }}" style="width:min(100%,560px);background:var(--surface);border:2px solid var(--edge);box-shadow:6px 6px 0 var(--shadow);animation:adm-in .12s ease-out">
+      <div style="display:flex;align-items:center;gap:.55rem;padding:.6rem .75rem;border-bottom:1px solid var(--line)">
+        <code style="font-size:.66rem;color:var(--faint)">›</code>
+        <input value="{{ paletteQ }}" onChange="{{ setPaletteQ }}" onKeyDown="{{ paletteKey }}" placeholder="type a command" data-adm-palette-input="" style="flex:1;background:transparent;border:0;outline:none;font-size:.95rem">
+        <code style="font-size:.62rem;color:var(--faint)">esc</code>
+      </div>
+      <div style="max-height:min(52vh,26rem);overflow-y:auto">
+        <sc-for list="{{ commands }}" as="c" hint-placeholder-count="6">
+          <button onClick="{{ c.on }}" onMouseEnter="{{ c.hover }}" style="width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.65rem;align-items:center;padding:.5rem .75rem;border-bottom:1px solid var(--hair);background:{{ c.bg }};cursor:pointer;text-align:left">
+            <span style="width:.45rem;height:.45rem;background:{{ c.dot }}"></span>
+            <span style="display:grid;gap:.1rem;min-width:0">
+              <span style="font-size:.88rem;font-weight:600">{{ c.label }}</span>
+              <code style="font-size:.62rem;color:var(--faint)">{{ c.group }}</code>
+            </span>
+            <code style="font-size:.66rem;color:var(--faint)">{{ c.kbd }}</code>
+          </button>
+        </sc-for>
+        <sc-if value="{{ noCommands }}" hint-placeholder-val="{{ false }}">
+          <p style="padding:1rem .75rem;font-size:.85rem;color:var(--faint)">No command matches. Nothing happens, which is correct.</p>
+        </sc-if>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.9rem;padding:.45rem .75rem;border-top:1px solid var(--line);background:var(--sunk)">
+        <code style="font-size:.62rem;color:var(--faint)">↑↓ move</code>
+        <code style="font-size:.62rem;color:var(--faint)">↵ run</code>
+        <code style="font-size:.62rem;color:var(--faint)">⌘1–7 screens</code>
+        <code style="font-size:.62rem;color:var(--faint)">⌘\ panes</code>
+        <code style="font-size:.62rem;color:var(--faint)">⌘Z undo</code>
+        <code style="font-size:.62rem;color:var(--faint)">⌘⇧H sidenote</code>
+        <code style="font-size:.62rem;color:var(--faint)">⌘⇧C cite</code>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ citePickerOn }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeCite }}" style="position:fixed;inset:0;background:var(--scrim);z-index:70;display:grid;align-items:start;justify-items:center;padding:clamp(2rem,10vh,6rem) 1rem">
+    <div onClick="{{ stop }}" style="width:min(100%,600px);background:var(--surface);border:2px solid var(--edge);box-shadow:6px 6px 0 var(--shadow);animation:adm-in .12s ease-out">
+      <div style="display:flex;align-items:center;gap:.55rem;padding:.6rem .75rem;border-bottom:1px solid var(--line)">
+        <code style="font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--b-text)">cite</code>
+        <input value="{{ citeQ }}" onChange="{{ setCiteQ }}" onKeyDown="{{ citeKey }}" placeholder="author, year, or key" data-adm-cite-input="" style="flex:1;background:transparent;border:0;outline:none;font-size:.95rem">
+        <code style="font-size:.62rem;color:var(--faint)">esc</code>
+      </div>
+      <div style="max-height:min(52vh,26rem);overflow-y:auto">
+        <sc-for list="{{ citeList }}" as="cs" hint-placeholder-count="5">
+          <button onClick="{{ cs.on }}" onMouseEnter="{{ cs.hover }}" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.65rem;align-items:baseline;padding:.5rem .75rem;border-bottom:1px solid var(--hair);background:{{ cs.bg }};cursor:pointer;text-align:left">
+            <span style="display:grid;gap:.15rem;min-width:0">
+              <span style="font-size:.88rem;line-height:1.4">{{ cs.short }}</span>
+              <code style="font-size:.62rem;color:var(--b-text)">{{ cs.key }}</code>
+            </span>
+            <code style="font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)">{{ cs.type }}</code>
+          </button>
+        </sc-for>
+        <sc-if value="{{ noCites }}" hint-placeholder-val="{{ false }}">
+          <p style="padding:1rem .75rem;font-size:.85rem;line-height:1.6;color:var(--faint)">Nothing matches. Press ↵ to open Sources and paste the BibTeX.</p>
+        </sc-if>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.9rem;padding:.45rem .75rem;border-top:1px solid var(--line);background:var(--sunk)">
+        <code style="font-size:.62rem;color:var(--faint)">↵ insert [@key]</code>
+        <code style="font-size:.62rem;color:var(--faint)">the reference list rebuilds itself</code>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:1.6rem;transform:translateX(-50%);z-index:80;padding:.5rem .8rem;background:var(--edge);color:var(--paper);font-size:.82rem;font-weight:500;box-shadow:4px 4px 0 var(--shadow);animation:adm-in .12s ease-out">{{ toast }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Surface&quot;},&quot;annotate&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;menu&quot;,&quot;inspector&quot;,&quot;both&quot;],&quot;default&quot;:&quot;both&quot;,&quot;tsType&quot;:&quot;'menu' | 'inspector' | 'both'&quot;,&quot;section&quot;:&quot;Annotation gesture&quot;},&quot;deployModel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;staged&quot;,&quot;immediate&quot;],&quot;default&quot;:&quot;staged&quot;,&quot;tsType&quot;:&quot;'staged' | 'immediate'&quot;,&quot;section&quot;:&quot;Publishing&quot;},&quot;typewriter&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Writing&quot;}}">
+const REG = {
+  research: { letter: 'S', plate: 'var(--g)', col: 'var(--g-text)', label: 'science', plateName: 'plate 1 · green · a result to defend', plateShort: 'plate 1 · green' },
+  notes: { letter: 'N', plate: 'var(--b)', col: 'var(--b-text)', label: 'notebook', plateName: 'plate 3 · blue · worked through, or built', plateShort: 'plate 3 · blue' },
+  argument: { letter: 'O', plate: 'var(--r)', col: 'var(--r-text)', label: 'opinion', plateName: 'plate 2 · red · a position, on the record', plateShort: 'plate 2 · red' },
+};
+
+const STATES = {
+  draft: { label: 'draft', bd: '1px dashed var(--line)', bg: 'transparent', fg: 'var(--muted)', dot: 'var(--line)' },
+  scheduled: { label: 'scheduled', bd: '1px solid var(--edge)', bg: 'var(--mark-c)', fg: 'var(--ink)', dot: 'var(--edge)' },
+  unlisted: { label: 'unlisted', bd: '1px solid var(--b)', bg: 'transparent', fg: 'var(--b-text)', dot: 'var(--b)' },
+  published: { label: 'published', bd: '1px solid var(--g)', bg: 'transparent', fg: 'var(--g-text)', dot: 'var(--g)' },
+};
+
+const MARKS = {
+  c: { solid: '#deee2e', field: 'var(--mark-c)', title: 'Citron — came back to this', fence: '==' },
+  p: { solid: '#ff4fa3', field: 'var(--mark-p)', title: 'Pink — disagreement', fence: '~~' },
+  b: { solid: '#40ccff', field: 'var(--mark-b)', title: 'Cyan — worth keeping', fence: '++' },
+};
+
+const LEAD = [
+  '> Written after the third time I explained a deviation to somebody six weeks after shipping it, and could not remember whether it had been a decision.',
+  '',
+  'Every system I have written starts strict and ends apologetic. The strictness is easy: pick four radii, three faces, six slots, and refuse. What is hard is the third month, when a screen arrives that the system describes accurately and serves badly — and the honest move is to break something.',
+  '',
+  'The reluctance is not aesthetic, it is administrative. ==A violation has to be explained to someone later==, and explanation is expensive, so teams quietly prefer a page that is uniformly mediocre to one that is excellent with a footnote.^[Sidenotes sit in the margin at reading height rather than at the foot of the page. This one was written by selecting the sentence it belongs to and pressing ⌘⇧H.]',
+  '',
+  'The proposal is administrative too: write the exceptions *into* the contract, give each one a budget, and mark them so nobody has to guess whether a deviation was intent or ?[drift](Drift — an unnamed deviation that accumulates because no one owns it. Distinguished from a breach only by whether it was declared.).',
+  '',
+  '## A budget, formally',
+  '',
+  'Let v be the number of licensed violations visible in one view. Attention does not accumulate; it divides. The move is the one design economics has made for twenty years [@roth2002]: stop arguing about the ideal and start pricing the deviation [@budish2011, p. 1063].',
+  '',
+  '$$ w(v) = w_max / v $$',
+  '',
+  'At v = 1 the exception carries full weight. At v = 2 each carries half — ~~worse than none~~, because the reader now has two candidates for the important thing and no way to choose.',
+  '',
+  '---',
+  '',
+  ':::def Licensed breach. | A deviation named in the contract, budgeted per view, and marked so a reader can tell intent from drift.',
+  '',
+  'The three plates are assigned by position, not meaning, so syntax colour carries no semantic claim:',
+  '',
+  '```ts',
+  '// one licence per view — law 00 is not advisory',
+  'export function grant(held: Licence[]) {',
+  '  if (held.length > 1) return { active: null };',
+  '  return { active: held[0] ?? null };',
+  '}',
+  '```',
+  '',
+  '![Figure 1. The same frame takes a plotted figure, a placeholder, or a photograph. Captions are 13px, tight under the frame, number in ink.](figure 1 — breach cost by law)',
+  '',
+  '## What it costs to run',
+  '',
+  '- Every breach is named in the contract before it ships — the same discipline a mechanism gets [@gale1962; @hylland1979].',
+  '- ++One licence per view.++ Two cancel, which is law 00 and not advisory.',
+  '- A breach used twice is an undeclared token. Name it, or stop.^[The second appearance is the tell. If it recurs it is not an exception, it is a component nobody has written states for.]',
+  '',
+  'That is the argument. The rest is bookkeeping — and bookkeeping is what this console is for.',
+].join('\n');
+
+const DOCS = [
+  { id: 'd1', title: 'On the reluctance of systems to break their own rules', slug: 'systems-reluctance', register: 'research', state: 'draft', edited: '4 min ago', behind: true, schedule: '2026-08-04 09:00', dek: 'Why consistency is cheap, exceptions are expensive, and a system that has never violated itself has probably never been used for anything difficult.', src: LEAD },
+  { id: 'd2', title: 'A single neuron, doing linear regression', slug: 'one-neuron', register: 'notes', state: 'published', edited: '2 days ago', behind: false, schedule: '', dek: 'A weekend spent learning what is left over once the analogy closes.', src: 'I spent a weekend learning how a single neuron performs linear regression, and the surprise was how little was left over once the analogy closed.\n\n## The setup\n\nOne input, one weight, one bias, and a squared error. That is the whole apparatus.' },
+  { id: 'd3', title: 'There is no neutral allocation', slug: 'no-neutral-allocation', register: 'argument', state: 'published', edited: '1 week ago', behind: true, schedule: '', dek: 'Pretending otherwise is the most common political act in technical work.', src: 'There is no neutral way to allocate a scarce thing, and pretending otherwise is the most common political act in technical work.\n\n## Where the choice hides\n\nIt hides in the default, and the default is never argued for.' },
+  { id: 'd4', title: 'Matching markets, and the cost of a tidy mechanism', slug: 'tidy-mechanism', register: 'research', state: 'scheduled', edited: '3 days ago', behind: false, schedule: '2026-08-04 09:00', dek: 'Strategy-proofness is bought with something, and the price is rarely on the invoice.', src: 'Strategy-proofness is bought with something.\n\n## The invoice\n\nWhat you pay is usually efficiency, and usually quietly.' },
+  { id: 'd5', title: 'Notes on reading 40 papers in a fortnight', slug: 'forty-papers', register: 'notes', state: 'unlisted', edited: '3 weeks ago', behind: false, schedule: '', dek: 'A method, and an argument against the method.', src: 'Forty papers in a fortnight is not reading. It is triage, and triage has its own literacy.' },
+  { id: 'd6', title: 'The index page is an argument', slug: 'index-argument', register: 'argument', state: 'draft', edited: '1 month ago', behind: false, schedule: '', dek: 'What you list first is what you believe.', src: 'What you list first is what you believe. An index sorted by date is a claim that recency is the most important fact about a piece of writing.' },
+];
+
+const MEDIA = [
+  { name: 'breach-cost.plot.ts', kind: 'plot · code', spec: 'built at deploy · 620×260', used: 'systems-reluctance', plot: true },
+  { name: 'gradient-descent.plot.ts', kind: 'plot · interactive', spec: 'built at deploy · step slider', used: 'one-neuron', plot: true },
+  { name: 'xor-surface.png', kind: 'image', spec: '1840×1100 · 214 kB', used: 'systems-reluctance' },
+  { name: 'desk-1.jpg', kind: 'image', spec: '2400×1600 · 640 kB', used: '' },
+  { name: 'plates-scan.jpg', kind: 'image', spec: '1600×1600 · 380 kB', used: 'index · about' },
+];
+
+const ICON = {
+  note: 'M3.5 2h9v12h-9z M5.5 5.5h5M5.5 8h5M5.5 10.5h3',
+  layers: 'M8 2 12.5 6.5 8 11 3.5 6.5z M4 9.5 8 13.5l4-4',
+  upload: 'M8 10.5V3M4.5 6.5 8 3l3.5 3.5M2.5 13.5h11',
+  grid: 'M2.5 2.5h4v4h-4z M9.5 2.5h4v4h-4z M2.5 9.5h4v4h-4z M9.5 9.5h4v4h-4z',
+  ruler: 'M2 5.5h12v5H2z M5 5.5v2M8 5.5v2M11 5.5v2',
+  highlight: 'M3.5 3h6M3.5 6h9M2.5 9h11v3.5h-11z',
+  quote: 'M3 3v10M6.5 5h7M6.5 8h7M6.5 11h4.5',
+  info: 'M2.5 2.5h11v11h-11z M8 7.5v4',
+  link: 'M9.5 4.5h3v3M12.5 4.5 9 8M6.5 11.5h-3v-3M3.5 11.5 7 8',
+  box: 'M2.5 2.5h11v11h-11z',
+  brackets: 'M5.5 2.5h-3v11h3M10.5 2.5h3v11h-3',
+  columns: 'M2.5 2.5h11v11h-11z M8 2.5v11',
+};
+
+const SOURCES = [
+  { key: 'roth2002', type: 'paper', authors: 'Roth, A. E.', year: '2002', title: 'The economist as engineer: game theory, experimentation, and computation as tools for design economics', container: 'Econometrica', volume: '70(4)', pages: '1341–1378', doi: '10.1111/1468-0262.00335', url: '' },
+  { key: 'gale1962', type: 'paper', authors: 'Gale, D. and Shapley, L. S.', year: '1962', title: 'College admissions and the stability of marriage', container: 'American Mathematical Monthly', volume: '69(1)', pages: '9–15', doi: '10.2307/2312726', url: '' },
+  { key: 'abdulkadiroglu2003', type: 'paper', authors: 'Abdulkadiroğlu, A. and Sönmez, T.', year: '2003', title: 'School choice: a mechanism design approach', container: 'American Economic Review', volume: '93(3)', pages: '729–747', doi: '10.1257/000282803322157061', url: '' },
+  { key: 'budish2011', type: 'paper', authors: 'Budish, E.', year: '2011', title: 'The combinatorial assignment problem: approximate competitive equilibrium from equal incomes', container: 'Journal of Political Economy', volume: '119(6)', pages: '1061–1103', doi: '10.1086/664613', url: '' },
+  { key: 'hylland1979', type: 'paper', authors: 'Hylland, A. and Zeckhauser, R.', year: '1979', title: 'The efficient allocation of individuals to positions', container: 'Journal of Political Economy', volume: '87(2)', pages: '293–314', doi: '10.1086/260757', url: '' },
+  { key: 'tufte2001', type: 'book', authors: 'Tufte, E. R.', year: '2001', title: 'The visual display of quantitative information', container: '', publisher: 'Graphics Press', volume: '2nd ed.', pages: '', doi: '', url: '' },
+  { key: 'ubl2026', type: 'working', authors: 'Ubl, F.', year: '2026', title: 'Licensed deviation: exception budgets in rule-based allocation', container: '', publisher: '', volume: '', pages: '', doi: '', url: 'felixubl.at/licensed-deviation', note: 'draft — do not circulate' },
+  { key: 'wcag22', type: 'web', authors: 'W3C', year: '2023', title: 'Web content accessibility guidelines 2.2', container: 'w3.org', publisher: '', volume: '', pages: '', doi: '', url: 'w3.org/TR/WCAG22/' },
+];
+
+const SRC_TYPES = { paper: 'paper', book: 'book', chapter: 'chapter', working: 'working paper', web: 'web', data: 'dataset' };
+
+function fmtSource(s) {
+  const head = [s.authors, s.year ? '(' + s.year + ')' : ''].filter(Boolean).join(' ');
+  const tail = [];
+  if (s.container) tail.push(s.container + (s.volume ? ' ' + s.volume : '') + (s.pages ? ', ' + s.pages : ''));
+  else if (s.publisher) tail.push([s.publisher, s.volume].filter(Boolean).join(', '));
+  if (s.type === 'working') tail.push('Working paper');
+  if (s.doi) tail.push('doi:' + s.doi);
+  else if (s.url) tail.push(s.url);
+  return [head ? head + '.' : '', s.title ? s.title + '.' : '', tail.join(' · ')].filter(Boolean).join(' ');
+}
+
+function shortSource(s) {
+  const who = (s.authors || 'unknown').split(' and ')[0].split(',')[0];
+  return who + ' ' + (s.year || '—') + ' · ' + (s.title || 'untitled').slice(0, 64);
+}
+
+function parseBib(txt) {
+  const head = /@(\w+)\s*\{\s*([^,]+),([\s\S]*)/.exec(txt);
+  if (!head) return null;
+  const kinds = { article: 'paper', book: 'book', incollection: 'chapter', inbook: 'chapter', unpublished: 'working', techreport: 'working', misc: 'web', online: 'web', dataset: 'data' };
+  const f = {};
+  const fr = /(\w+)\s*=\s*(?:\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}|"([^"]*)"|([^,\n}]+))/g;
+  let m;
+  while ((m = fr.exec(head[3]))) f[m[1].toLowerCase()] = (m[2] || m[3] || m[4] || '').trim();
+  const num = f.number ? '(' + f.number + ')' : '';
+  return {
+    key: head[2].trim(), type: kinds[head[1].toLowerCase()] || 'paper',
+    authors: (f.author || '').replace(/\s+and\s+/g, ' and '), year: f.year || '',
+    title: f.title || '', container: f.journal || f.booktitle || '',
+    publisher: f.publisher || f.institution || '', volume: (f.volume || '') + num,
+    pages: (f.pages || '').replace('--', '–'), doi: f.doi || '', url: f.url || '', note: f.note || '',
+  };
+}
+
+const defRun = (o) => Object.assign({ isSpan: false, isRef: false, isTerm: false, isLink: false, isCite: false, text: '', wt: '400', fs: 'normal', bg: 'transparent', ff: 'inherit', sz: '1em', pad: '0', n: '', def: '', href: '#', col: 'var(--b-text)' }, o);
+
+const RX = /\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|==([^=]+)==|~~([^~]+)~~|\+\+([^+]+)\+\+|\^\[([^\]]+)\]|\?\[([^\]]+)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\[@([^\]]+)\]/g;
+
+function citeRun(body, ctx) {
+  const parts = body.split(';').map((p) => p.trim()).filter(Boolean);
+  const nums = [];
+  const tips = [];
+  let bad = false;
+  parts.forEach((p) => {
+    const bits = p.replace(/^@/, '').split(',');
+    const key = bits.shift().trim();
+    const loc = bits.join(',').trim();
+    const found = (ctx.sources || []).filter((s) => s.key === key)[0];
+    if (!found) { bad = true; nums.push('?' + key); return; }
+    let at = ctx.cites.indexOf(key);
+    if (at < 0) { ctx.cites.push(key); at = ctx.cites.length - 1; }
+    nums.push(String(at + 1) + (loc ? ', ' + loc : ''));
+    tips.push(fmtSource(found));
+  });
+  return defRun({
+    isCite: true, text: '[' + nums.join(', ') + ']',
+    def: bad ? 'No source with that key. Add it in Sources.' : tips.join('\n'),
+    col: bad ? 'var(--r-text)' : 'var(--b-text)',
+  });
+}
+
+function runsOf(s, refs, base, ctx) {
+  const out = [];
+  const off = base || 0;
+  const cx = ctx || { sources: [], cites: [] };
+  let last = 0, m;
+  RX.lastIndex = 0;
+  const txt = (t) => { if (t) out.push(defRun({ isSpan: true, text: t })); };
+  while ((m = RX.exec(s))) {
+    txt(s.slice(last, m.index));
+    last = RX.lastIndex;
+    if (m[1]) out.push(defRun({ isSpan: true, text: m[1], wt: '600' }));
+    else if (m[2]) out.push(defRun({ isSpan: true, text: m[2], fs: 'italic' }));
+    else if (m[3]) out.push(defRun({ isSpan: true, text: m[3], ff: "'Cousine', monospace", sz: '.9em', bg: 'var(--code)', pad: '.05em .2em' }));
+    else if (m[4]) out.push(defRun({ isSpan: true, text: m[4], bg: MARKS.c.field, pad: '.04em .06em' }));
+    else if (m[5]) out.push(defRun({ isSpan: true, text: m[5], bg: MARKS.p.field, pad: '.04em .06em' }));
+    else if (m[6]) out.push(defRun({ isSpan: true, text: m[6], bg: MARKS.b.field, pad: '.04em .06em' }));
+    else if (m[7]) { refs.push(m[7]); out.push(defRun({ isRef: true, n: String(off + refs.length) })); }
+    else if (m[8]) out.push(defRun({ isTerm: true, text: m[8], def: m[9] }));
+    else if (m[10]) out.push(defRun({ isLink: true, text: m[10], href: m[11] }));
+    else if (m[12]) out.push(citeRun(m[12], cx));
+  }
+  txt(s.slice(last));
+  return out.length ? out : [defRun({ isSpan: true, text: '' })];
+}
+
+const defBlock = (o) => Object.assign({
+  isP: false, isH2: false, isH3: false, isLede: false, isRule: false, isEq: false,
+  isDef: false, isList: false, isCode: false, isFig: false,
+  text: '', body: '', runs: [], items: [], lines: [], notes: [], hasNotes: false,
+  cols: 'minmax(0,66ch) minmax(0,20ch)', bg: 'transparent', hasCap: false, cap: '', capCol: 'var(--g)',
+  from: 0, to: 0,
+}, o);
+
+const NARROW = 'minmax(0,1fr)';
+
+function parse(src, capCol, sources) {
+  const lines = src.split('\n');
+  const blocks = [];
+  const allNotes = [];
+  const ctx = { sources: sources || [], cites: [] };
+  let i = 0, firstPara = true, ledeDone = false;
+  const isBreak = (L) => !L.trim() || /^(#{2,3} |> |---|```|\$\$|:::|!\[|[-*] )/.test(L);
+  while (i < lines.length) {
+    const L = lines[i];
+    if (!L.trim()) { i++; continue; }
+    const from = i;
+    const refs = [];
+    if (L.startsWith('```')) {
+      const lang = L.slice(3).trim() || 'text';
+      const body = [];
+      i++;
+      while (i < lines.length && !lines[i].startsWith('```')) { body.push(lines[i]); i++; }
+      i++;
+      blocks.push(defBlock({ isCode: true, text: lang, cols: NARROW, from, to: i - 1, lines: body.map((t) => ({ t: t || ' ', col: /^\s*\/\//.test(t) ? 'var(--faint)' : 'var(--ink)' })) }));
+      continue;
+    }
+    if (L.trim().startsWith('$$')) {
+      const inner = L.trim().replace(/^\$\$/, '').replace(/\$\$$/, '').trim();
+      blocks.push(defBlock({ isEq: true, text: inner, cols: NARROW, from, to: i }));
+      i++;
+      continue;
+    }
+    if (L.startsWith(':::')) {
+      const rest = L.slice(3).replace(/^def\s*/, '');
+      const parts = rest.split('|');
+      blocks.push(defBlock({ isDef: true, text: (parts[0] || '').trim(), body: (parts[1] || '').trim(), cols: NARROW, from, to: i }));
+      i++;
+      continue;
+    }
+    if (L.startsWith('![')) {
+      const m = /^!\[([^\]]*)\]\(([^)]*)\)/.exec(L);
+      blocks.push(defBlock({ isFig: true, text: m ? m[1] : '', body: m ? m[2] : 'figure', cols: NARROW, from, to: i }));
+      i++;
+      continue;
+    }
+    if (L.startsWith('### ')) { blocks.push(defBlock({ isH3: true, text: L.slice(4), from, to: i })); i++; continue; }
+    if (L.startsWith('## ')) { blocks.push(defBlock({ isH2: true, text: L.slice(3), from, to: i })); i++; continue; }
+    if (L.startsWith('---')) { blocks.push(defBlock({ isRule: true, from, to: i })); i++; continue; }
+    if (L.startsWith('> ')) { blocks.push(defBlock({ isLede: true, text: L.slice(2), from, to: i })); ledeDone = true; i++; continue; }
+    if (/^[-*] /.test(L)) {
+      const items = [];
+      const listBase = allNotes.length;
+      while (i < lines.length && /^[-*] /.test(lines[i])) { items.push({ runs: runsOf(lines[i].slice(2), refs, listBase, ctx) }); i++; }
+      const notes = refs.map((t, k) => ({ n: String(allNotes.length + k + 1), text: t }));
+      refs.forEach((t) => allNotes.push(t));
+      blocks.push(defBlock({ isList: true, items, from, to: i - 1, notes, hasNotes: notes.length > 0 }));
+      continue;
+    }
+    const para = [L];
+    i++;
+    while (i < lines.length && !isBreak(lines[i])) { para.push(lines[i]); i++; }
+    let text = para.join(' ');
+    let cap = '', hasCap = false;
+    if (firstPara) {
+      firstPara = false;
+      const first = text.charAt(0);
+      if (/[A-Za-z]/.test(first)) { cap = first; hasCap = true; text = text.slice(1); }
+    }
+    const startRefs = allNotes.length;
+    const runs = runsOf(text, refs, startRefs, ctx);
+    const notes = refs.map((t, k) => ({ n: String(startRefs + k + 1), text: t }));
+    refs.forEach((t) => allNotes.push(t));
+    blocks.push(defBlock({ isP: true, runs, hasCap, cap, capCol, notes, hasNotes: notes.length > 0, from, to: i - 1 }));
+  }
+  blocks.forEach((b) => { if (b.hasNotes && b.cols === NARROW) b.cols = 'minmax(0,66ch) minmax(0,20ch)'; });
+  const refList = ctx.cites.map((k, n) => {
+    const s = (sources || []).filter((x) => x.key === k)[0] || { key: k };
+    return { n: '[' + (n + 1) + ']', key: k, cite: fmtSource(s), short: shortSource(s), link: s.url ? 'https://' + s.url.replace(/^https?:\/\//, '') : (s.doi ? 'https://doi.org/' + s.doi : ''), linkLabel: s.doi ? 'doi.org ↗' : s.url ? 'link ↗' : '' };
+  });
+  return { blocks, notes: allNotes, refs: refList, cites: ctx.cites };
+}
+
+const wordsOf = (s) => (s.replace(/```[\s\S]*?```/g, ' ').replace(/[#>*=~+`$\[\]()!^?|:\-]/g, ' ').match(/\S+/g) || []).length;
+
+class Component extends DCLogic {
+  state = {
+    screen: 'write', mode: null, activeId: 'd1',
+    docs: DOCS.map((d) => Object.assign({}, d)),
+    pane: 'split', inspector: true, typewriter: null, narrow: false,
+    caret: 0, sel: null, selMenu: null,
+    palette: false, paletteQ: '', paletteIx: 0,
+    saved: 'saved', savedAt: 'just now', toast: '',
+    filter: 'all', query: '',
+    building: false, log: [
+      { t: '$ preprint build --incremental', col: 'var(--muted)' },
+      { t: '  6 sources · 4 published · 1 unlisted', col: 'var(--faint)' },
+      { t: '  ✓ 18.2s · commit 8f2a1c4 · pushed to gh-pages', col: 'var(--g-text)' },
+    ],
+    siteName: 'Felix Ubl', bio: 'I work on what allocation rules do to the people they bind — matching, priority, and the exceptions a mechanism quietly needs to survive contact with the world. Doctoral researcher in Vienna.',
+    repo: 'felixubl/felixubl.github.io', branch: 'main', domain: 'fubl.org',
+    model: null,
+    sources: SOURCES.map((s) => Object.assign({}, s)),
+    links: [
+      { label: 'github', url: 'github.com/felixubl', icon: 'M12 .5a11.5 11.5 0 0 0-3.64 22.42c.58.1.79-.25.79-.55v-2.1c-3.2.7-3.88-1.4-3.88-1.4-.53-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.18-1.49 3.14-1.18 3.14-1.18.63 1.59.24 2.76.12 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.26 5.69.42.36.79 1.06.79 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 12 .5z', on: true },
+      { label: 'bluesky', url: 'bsky.app/profile/fubl.org', icon: 'M5.77 3.61C8.32 5.53 11.07 9.4 12 11.48c.93-2.08 3.68-5.95 6.23-7.87 1.84-1.38 4.77-2.44 4.77.9 0 .67-.38 5.6-.6 6.4-.79 2.78-3.62 3.49-6.14 3.06 4.4.75 5.52 3.23 3.1 5.71-4.6 4.71-6.61-1.18-7.13-2.69-.1-.28-.14-.4-.14-.29 0-.11-.05.01-.14.29-.52 1.51-2.53 7.4-7.13 2.69-2.42-2.48-1.3-4.96 3.1-5.71-2.52.43-5.35-.28-6.14-3.06-.22-.8-.6-5.73-.6-6.4 0-3.34 2.93-2.28 4.77-.9z', on: true },
+      { label: 'linkedin', url: 'linkedin.com/in/felixubl', icon: 'M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3V9zm6.5 0h3.83v1.64h.05c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.35c0-1.28-.02-2.92-1.78-2.92-1.78 0-2.05 1.39-2.05 2.83V21h-4V9z', on: true },
+    ],
+    cvSrc: '## Positions\n\n2024– · Doctoral researcher, market design — institution\n2022–2024 · previous position\n\n## Education\n\n2024– · PhD Economics, institution\n2022 · MSc Economics, institution\n\n## Working papers\n\n- Licensed deviation: exception budgets in rule-based allocation (2026)\n- Tie-breaking as distributive policy in school assignment (in preparation)',
+    srcSel: 'roth2002', srcQuery: '', srcType: 'all', paste: '',
+    citePicker: false, citeQ: '', citeIx: 0,
+    histTick: 0,
+    pagesDirty: false,
+    page: {
+      headline: 'Felix Ubl',
+      standfirst: 'Economics and market design. Everything I have written is on this page.',
+      sections: [
+        { id: 'bio', kind: 'bio', title: 'About', body: 'I work on how allocation rules behave once real people are bound by them — matching, priority, and the exceptions a mechanism quietly needs. Currently at the intersection of market design and the parts of software that decide who gets what.', mode: '', on: true },
+        { id: 'writing', kind: 'writing', title: 'Writing', body: '', mode: 'all', on: true },
+        { id: 'research', kind: 'research', title: 'Research', body: 'Working papers are here in full, as pages rather than attachments. There is no reason to make you email me for a PDF, and a paper you can link to one sentence of is a paper someone can argue with.', mode: '', on: true },
+        { id: 'links', kind: 'links', title: 'Elsewhere', body: '', mode: '', on: false },
+      ],
+    },
+  };
+
+  get mode() { return this.state.mode ?? this.props.mode ?? 'light'; }
+  get typewriter() { return this.state.typewriter ?? this.props.typewriter ?? false; }
+  get model() { return this.state.model ?? this.props.deployModel ?? 'staged'; }
+  get annotate() { return this.props.annotate ?? 'both'; }
+  get doc() { return this.state.docs.find((d) => d.id === this.state.activeId) || this.state.docs[0]; }
+
+  componentDidMount() {
+    document.body.setAttribute('data-mode', this.mode);
+    this._mirror = document.createElement('div');
+    this._mirror.setAttribute('aria-hidden', 'true');
+    this._mirror.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre-wrap;word-wrap:break-word';
+    document.body.appendChild(this._mirror);
+
+    this.onKey = (e) => {
+      const meta = e.metaKey || e.ctrlKey;
+      if (e.key === 'Escape') {
+        if (this.state.palette) { this.setState({ palette: false }); return; }
+        if (this.state.citePicker) { this.setState({ citePicker: false }); return; }
+        if (this.state.selMenu) { this.setState({ selMenu: null }); return; }
+      }
+      if (e.altKey && this.state.screen === 'write' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault(); this.moveLine(e.key === 'ArrowUp' ? -1 : 1); return;
+      }
+      if (meta && e.key.toLowerCase() === 'k') { e.preventDefault(); this.openPalette(); return; }
+      if (!meta) return;
+      const k = e.key.toLowerCase();
+      if (k === 's') { e.preventDefault(); this.flash('saved · nothing was ever unsaved'); return; }
+      if (['1', '2', '3', '4', '5', '6', '7'].indexOf(e.key) >= 0) {
+        e.preventDefault();
+        this.setState({ screen: ['write', 'library', 'sources', 'pages', 'media', 'deploy', 'settings'][Number(e.key) - 1], palette: false });
+        return;
+      }
+      if (k === 'z') { e.preventDefault(); this.step(e.shiftKey ? 1 : -1); return; }
+      if (k === 'y') { e.preventDefault(); this.step(1); return; }
+      if (k === 'c' && e.shiftKey) { e.preventDefault(); this.setState({ citePicker: true, citeQ: '', citeIx: 0 }); this._focusCite = true; return; }
+      if (e.key === '\\') { e.preventDefault(); this.cyclePane(); return; }
+      if (this.state.screen !== 'write') return;
+      if (k === 'b') { e.preventDefault(); this.wrap('**', '**'); }
+      else if (k === 'i') { e.preventDefault(); this.wrap('*', '*'); }
+      else if (k === 'h' && e.shiftKey) { e.preventDefault(); this.sidenote(); }
+      else if (k === 'h') { e.preventDefault(); this.mark('c'); }
+      else if (k === 'e') { e.preventDefault(); this.wrap('`', '`'); }
+      else if (k === 'j') { e.preventDefault(); this.setState({ inspector: !this.state.inspector }); }
+    };
+    document.addEventListener('keydown', this.onKey);
+    this.onDocDown = (e) => {
+      if (!this.state.selMenu) return;
+      if (e.target.closest && e.target.closest('[data-adm-float]')) return;
+      this.setState({ selMenu: null });
+    };
+    document.addEventListener('mousedown', this.onDocDown);
+    this.onResize = () => {
+      const n = window.innerWidth <= 980;
+      if (n !== this.state.narrow) this.setState({ narrow: n, inspector: n ? false : this.state.inspector });
+    };
+    window.addEventListener('resize', this.onResize);
+    this.onResize();
+  }
+
+  componentDidUpdate() {
+    document.body.setAttribute('data-mode', this.mode);
+    if (this._restore) {
+      const ta = this.ta();
+      if (ta) { ta.focus(); ta.setSelectionRange(this._restore[0], this._restore[1]); }
+      this._restore = null;
+      this.scrollTypewriter();
+    }
+    if (this._focusPalette) {
+      const el = document.querySelector('[data-adm-palette-input]');
+      if (el) el.focus();
+      this._focusPalette = false;
+    }
+    if (this._focusCite) {
+      const el = document.querySelector('[data-adm-cite-input]');
+      if (el) el.focus();
+      this._focusCite = false;
+    }
+    if (this._pendingCite && this.ta()) {
+      const token = this._pendingCite;
+      this._pendingCite = null;
+      const ta = this.ta();
+      const b = ta.value.length;
+      this._restore = [b + token.length, b + token.length];
+      this.setSrc(ta.value + token, b + token.length);
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onKey);
+    document.removeEventListener('mousedown', this.onDocDown);
+    window.removeEventListener('resize', this.onResize);
+    if (this._mirror) this._mirror.remove();
+    clearInterval(this._build);
+    clearTimeout(this._saveT);
+    clearTimeout(this._toastT);
+  }
+
+  ta() { return document.querySelector('textarea[aria-label="Article source"]'); }
+
+  flash(msg) {
+    clearTimeout(this._toastT);
+    this.setState({ toast: msg });
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 2200);
+  }
+
+  patch(fields) {
+    this.setState((s) => ({ docs: s.docs.map((d) => (d.id === s.activeId ? Object.assign({}, d, fields) : d)) }));
+  }
+
+  markSaving() {
+    clearTimeout(this._saveT);
+    this.setState({ saved: 'saving' });
+    this._saveT = setTimeout(() => this.setState({ saved: 'saved', savedAt: 'just now' }), 650);
+  }
+
+  hist() {
+    if (!this._hist) this._hist = {};
+    const id = this.state.activeId;
+    if (!this._hist[id]) this._hist[id] = { stack: [{ src: this.doc.src, caret: 0 }], ix: 0, t: 0 };
+    return this._hist[id];
+  }
+
+  setSrc(v, caret) {
+    const h = this.hist();
+    const now = Date.now();
+    const at = typeof caret === 'number' ? caret : (this.ta() ? this.ta().selectionStart : 0);
+    h.stack = h.stack.slice(0, h.ix + 1);
+    if (now - h.t < 550 && h.ix > 0) h.stack[h.ix] = { src: v, caret: at };
+    else { h.stack.push({ src: v, caret: at }); h.ix = h.stack.length - 1; }
+    h.t = now;
+    this.patch({ src: v, behind: true });
+    this.markSaving();
+  }
+
+  step(dir) {
+    const h = this.hist();
+    const next = h.ix + dir;
+    if (next < 0 || next >= h.stack.length) { this.flash(dir < 0 ? 'nothing left to undo' : 'nothing to redo'); return; }
+    h.ix = next;
+    h.t = 0;
+    const snap = h.stack[next];
+    this._restore = [snap.caret, snap.caret];
+    this.patch({ src: snap.src, behind: true });
+    this.setState((s) => ({ histTick: s.histTick + 1, selMenu: null }));
+    this.markSaving();
+  }
+
+  clip(kind) {
+    const ta = this.ta();
+    if (!ta) return;
+    const a = ta.selectionStart, b = ta.selectionEnd;
+    if (kind === 'paste') {
+      if (!navigator.clipboard || !navigator.clipboard.readText) { this.flash('paste with ⌘V — the browser will not hand it over otherwise'); return; }
+      navigator.clipboard.readText().then((t) => {
+        const next = ta.value.slice(0, a) + t + ta.value.slice(b);
+        this._restore = [a + t.length, a + t.length];
+        this.setSrc(next, a + t.length);
+      }, () => this.flash('paste with ⌘V'));
+      return;
+    }
+    if (a === b) { this.flash('nothing selected'); return; }
+    const text = ta.value.slice(a, b);
+    if (navigator.clipboard) navigator.clipboard.writeText(text);
+    if (kind === 'cut') {
+      const next = ta.value.slice(0, a) + ta.value.slice(b);
+      this._restore = [a, a];
+      this.setSrc(next, a);
+    } else this.flash(text.split(/\s+/).length + ' words copied');
+    this.setState({ selMenu: null });
+  }
+
+  selectAll() { const ta = this.ta(); if (ta) { ta.focus(); ta.setSelectionRange(0, ta.value.length); } }
+
+  moveLine(dir) {
+    const ta = this.ta();
+    if (!ta) return;
+    const lines = ta.value.split('\n');
+    const at = ta.value.slice(0, ta.selectionStart).split('\n').length - 1;
+    const to = at + dir;
+    if (to < 0 || to >= lines.length) return;
+    const cut = lines.splice(at, 1)[0];
+    lines.splice(to, 0, cut);
+    const pos = lines.slice(0, to).join('\n').length + (to ? 1 : 0);
+    this._restore = [pos, pos];
+    this.setSrc(lines.join('\n'), pos);
+  }
+
+  insertCite(key) {
+    const ta = this.ta();
+    const token = '[@' + key + ']';
+    if (!ta) { this.setState({ citePicker: false, screen: 'write' }); this._pendingCite = token; return; }
+    const b = ta.selectionEnd;
+    const next = ta.value.slice(0, b) + token + ta.value.slice(b);
+    this._restore = [b + token.length, b + token.length];
+    this.setSrc(next, b + token.length);
+    this.setState({ citePicker: false, selMenu: null, screen: 'write' });
+    this.flash('cited · ' + key + ' — the reference list rebuilt itself');
+  }
+
+  addSource() {
+    const raw = this.state.paste.trim();
+    if (!raw) { this.flash('paste BibTeX, a DOI, or a URL'); return; }
+    let entry = parseBib(raw);
+    if (!entry) {
+      const doi = /10\.\d{4,}\/\S+/.exec(raw);
+      if (doi) entry = { key: 'doi' + Date.now().toString(36).slice(-4), type: 'paper', authors: '', year: '', title: '', container: '', publisher: '', volume: '', pages: '', doi: doi[0], url: '', note: 'resolved fields pending — the box fetches Crossref on the next sync' };
+      else {
+        const host = raw.replace(/^https?:\/\//, '').split('/')[0];
+        if (!host) { this.flash('not BibTeX, not a DOI, not a URL'); return; }
+        entry = { key: host.replace(/[^a-z0-9]/gi, '').slice(0, 10) + new Date().getFullYear(), type: 'web', authors: '', year: String(new Date().getFullYear()), title: '', container: host, publisher: '', volume: '', pages: '', doi: '', url: raw.replace(/^https?:\/\//, ''), note: '' };
+      }
+    }
+    if (this.state.sources.some((s) => s.key === entry.key)) entry.key = entry.key + 'b';
+    this.setState((s) => ({ sources: [entry].concat(s.sources), srcSel: entry.key, paste: '' }));
+    this.flash('added · ' + entry.key);
+  }
+
+  patchSource(key, fields) {
+    this.setState((s) => ({ sources: s.sources.map((x) => (x.key === key ? Object.assign({}, x, fields) : x)) }));
+  }
+
+  scrollTypewriter() {
+    if (!this.typewriter) return;
+    const ta = this.ta();
+    if (!ta || !this._mirror) return;
+    const cs = getComputedStyle(ta);
+    this._mirror.style.font = cs.font;
+    this._mirror.style.fontFamily = cs.fontFamily;
+    this._mirror.style.fontSize = cs.fontSize;
+    this._mirror.style.lineHeight = cs.lineHeight;
+    this._mirror.style.letterSpacing = cs.letterSpacing;
+    this._mirror.style.tabSize = cs.tabSize;
+    this._mirror.style.width = (ta.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) + 'px';
+    this._mirror.textContent = ta.value.slice(0, ta.selectionStart) + '\u200b';
+    const h = this._mirror.scrollHeight;
+    ta.scrollTop = Math.max(0, h - ta.clientHeight / 2);
+  }
+
+  wrap(pre, post, inner) {
+    const ta = this.ta();
+    if (!ta) return;
+    const a = ta.selectionStart, b = ta.selectionEnd;
+    const mid = a === b ? (inner || '') : ta.value.slice(a, b);
+    const next = ta.value.slice(0, a) + pre + mid + post + ta.value.slice(b);
+    this._restore = [a + pre.length, a + pre.length + mid.length];
+    this.setSrc(next);
+    this.setState({ selMenu: null });
+  }
+
+  mark(k) { this.wrap(MARKS[k].fence, MARKS[k].fence, 'marked'); }
+
+  sidenote() {
+    const ta = this.ta();
+    if (!ta) return;
+    const b = ta.selectionEnd;
+    const note = 'the note goes here';
+    const next = ta.value.slice(0, b) + '^[' + note + ']' + ta.value.slice(b);
+    this._restore = [b + 2, b + 2 + note.length];
+    this.setSrc(next);
+    this.setState({ selMenu: null });
+  }
+
+  term() {
+    const ta = this.ta();
+    if (!ta) return;
+    const a = ta.selectionStart, b = ta.selectionEnd;
+    const word = a === b ? 'term' : ta.value.slice(a, b);
+    const def = 'what it means';
+    const next = ta.value.slice(0, a) + '?[' + word + '](' + def + ')' + ta.value.slice(b);
+    const at = a + 2 + word.length + 2;
+    this._restore = [at, at + def.length];
+    this.setSrc(next);
+    this.setState({ selMenu: null });
+  }
+
+  figure() {
+    const ta = this.ta();
+    if (!ta) return;
+    const b = ta.selectionEnd;
+    const line = '\n\n![Figure 2. What the figure shows.](figure 2 — what belongs here)\n';
+    const next = ta.value.slice(0, b) + line + ta.value.slice(b);
+    this._restore = [b + line.length, b + line.length];
+    this.setSrc(next);
+    this.setState({ selMenu: null, screen: 'write' });
+  }
+
+  jump(line) {
+    const ta = this.ta();
+    if (!ta) return;
+    const pos = ta.value.split('\n').slice(0, line).join('\n').length + (line ? 1 : 0);
+    this._restore = [pos, pos];
+    this.setState({ caret: pos });
+  }
+
+  cyclePane() {
+    const order = this.state.narrow ? ['source', 'read'] : ['split', 'source', 'read'];
+    this.setState((s) => ({ pane: order[(order.indexOf(s.pane) + 1) % 3] }));
+  }
+
+  openPalette() { this._focusPalette = true; this.setState({ palette: true, paletteQ: '', paletteIx: 0 }); }
+
+  runDeploy() {
+    if (this.state.building) return;
+    const lines = [
+      { t: '$ preprint build --incremental', col: 'var(--muted)' },
+      { t: '  reading 6 sources from /srv/preprint/content', col: 'var(--faint)' },
+      { t: '  rendering figures · 2 plots', col: 'var(--faint)' },
+      { t: '  ✓ index · 4 published, 1 unlisted, 1 draft skipped', col: 'var(--faint)' },
+      { t: '  committing to ' + this.state.repo + ' (' + this.state.branch + ')', col: 'var(--faint)' },
+      { t: '  ✓ 16.4s · commit c31d90e · live', col: 'var(--g-text)' },
+    ];
+    this.setState({ building: true, log: [] });
+    let k = 0;
+    this._build = setInterval(() => {
+      if (k >= lines.length) {
+        clearInterval(this._build);
+        this.setState((s) => ({
+          building: false,
+          docs: s.docs.map((d) => Object.assign({}, d, { behind: false })),
+        }));
+        this.flash('live · felixubl.at updated');
+        return;
+      }
+      const ln = lines[k];
+      k++;
+      this.setState((s) => ({ log: s.log.concat([ln]) }));
+    }, 420);
+  }
+
+  newDoc() {
+    const id = 'n' + Date.now().toString(36);
+    const doc = { id, title: 'Untitled', slug: 'untitled', register: 'notes', state: 'draft', edited: 'just now', behind: true, schedule: '', dek: '', src: 'The first sentence is the hard one.' };
+    this.setState((s) => ({ docs: [doc].concat(s.docs), activeId: id, screen: 'write', pane: 'split' }));
+  }
+
+  renderVals() {
+    const st = this.state;
+    const dark = this.mode === 'dark';
+    const doc = this.doc;
+    const reg = REG[doc.register] || REG.notes;
+    const parsed = parse(doc.src, reg.plate, st.sources);
+    const caretLine = doc.src.slice(0, st.caret).split('\n').length - 1;
+    const blocks = parsed.blocks.map((b) => Object.assign({}, b, {
+      bg: caretLine >= b.from && caretLine <= b.to ? 'var(--tint)' : 'transparent',
+    }));
+    const words = wordsOf(doc.src);
+    const mins = Math.max(1, Math.round(words / 220));
+    const outline = parsed.blocks.filter((b) => b.isH2 || b.isH3).map((b) => ({
+      label: (b.isH3 ? '· ' : '') + b.text,
+      short: b.text.length > 22 ? b.text.slice(0, 22) + '…' : b.text,
+      pad: b.isH3 ? '.6rem' : '0',
+      col: caretLine >= b.from ? 'var(--ink)' : 'var(--muted)',
+      on: () => this.jump(b.from),
+    }));
+
+    const pageStaged = st.pagesDirty ? [{
+      title: 'index — the one page', kind: 'page', col: 'var(--b-text)',
+      detail: st.page.sections.filter((x) => x.on).length + ' sections · bio, writing, research',
+      on: () => this.setState({ screen: 'pages' }),
+    }] : [];
+    const staged = pageStaged.concat(st.docs.filter((d) => d.behind).map((d) => ({
+      title: d.title,
+      kind: d.state === 'draft' ? 'draft · held' : d.state === 'scheduled' ? 'scheduled' : 'edited',
+      col: d.state === 'draft' ? 'var(--faint)' : d.state === 'scheduled' ? 'var(--ink)' : 'var(--r-text)',
+      detail: d.state === 'draft' ? 'stays off the site until you flip it' : d.slug + ' · ' + wordsOf(d.src) + ' words',
+      on: () => this.setState({ activeId: d.id, screen: 'write' }),
+    })));
+    const pushable = st.docs.filter((d) => d.behind && d.state !== 'draft').length + (st.pagesDirty ? 1 : 0);
+
+    const h = this._hist && this._hist[st.activeId];
+    const canUndo = !!h && h.ix > 0;
+    const canRedo = !!h && h.ix < h.stack.length - 1;
+
+    const commandDefs = [
+      { label: 'Undo', group: 'edit', kbd: '⌘Z', dot: canUndo ? 'var(--edge)' : 'var(--line)', run: () => this.step(-1) },
+      { label: 'Redo', group: 'edit', kbd: '⌘⇧Z', dot: canRedo ? 'var(--edge)' : 'var(--line)', run: () => this.step(1) },
+      { label: 'Cut', group: 'edit', kbd: '⌘X', dot: 'var(--edge)', run: () => this.clip('cut') },
+      { label: 'Copy', group: 'edit', kbd: '⌘C', dot: 'var(--edge)', run: () => this.clip('copy') },
+      { label: 'Paste', group: 'edit', kbd: '⌘V', dot: 'var(--edge)', run: () => this.clip('paste') },
+      { label: 'Select all', group: 'edit', kbd: '⌘A', dot: 'var(--edge)', run: () => this.selectAll() },
+      { label: 'Move line up', group: 'edit', kbd: '⌥↑', dot: 'var(--edge)', run: () => this.moveLine(-1) },
+      { label: 'Move line down', group: 'edit', kbd: '⌥↓', dot: 'var(--edge)', run: () => this.moveLine(1) },
+      { label: 'Cite a source', group: 'annotate', kbd: '⌘⇧C', dot: 'var(--b)', run: () => { this._focusCite = true; this.setState({ citePicker: true, citeQ: '', citeIx: 0 }); } },
+      { label: 'Go to the editor', group: 'navigate', kbd: '⌘1', dot: 'var(--edge)', run: () => this.setState({ screen: 'write' }) },
+      { label: 'Go to the library', group: 'navigate', kbd: '⌘2', dot: 'var(--edge)', run: () => this.setState({ screen: 'library' }) },
+      { label: 'Go to sources', group: 'navigate', kbd: '⌘3', dot: 'var(--edge)', run: () => this.setState({ screen: 'sources' }) },
+      { label: 'Go to pages', group: 'navigate', kbd: '⌘4', dot: 'var(--edge)', run: () => this.setState({ screen: 'pages' }) },
+      { label: 'Go to figures', group: 'navigate', kbd: '⌘5', dot: 'var(--edge)', run: () => this.setState({ screen: 'media' }) },
+      { label: 'Go to publish & deploy', group: 'navigate', kbd: '⌘6', dot: 'var(--edge)', run: () => this.setState({ screen: 'deploy' }) },
+      { label: 'Go to settings', group: 'navigate', kbd: '⌘7', dot: 'var(--edge)', run: () => this.setState({ screen: 'settings' }) },
+      { label: 'New article', group: 'write', kbd: '', dot: 'var(--g)', run: () => this.newDoc() },
+      { label: 'Cycle panes — source, split, read', group: 'write', kbd: '⌘\\', dot: 'var(--g)', run: () => this.cyclePane() },
+      { label: this.typewriter ? 'Typewriter mode off' : 'Typewriter mode on', group: 'write', kbd: '', dot: 'var(--g)', run: () => this.setState({ typewriter: !this.typewriter }) },
+      { label: st.inspector ? 'Hide inspector' : 'Show inspector', group: 'write', kbd: '⌘J', dot: 'var(--g)', run: () => this.setState({ inspector: !st.inspector }) },
+      { label: 'Highlight — citron', group: 'annotate', kbd: '⌘H', dot: MARKS.c.solid, run: () => this.mark('c') },
+      { label: 'Highlight — pink', group: 'annotate', kbd: '', dot: MARKS.p.solid, run: () => this.mark('p') },
+      { label: 'Highlight — cyan', group: 'annotate', kbd: '', dot: MARKS.b.solid, run: () => this.mark('b') },
+      { label: 'Add a sidenote', group: 'annotate', kbd: '⌘⇧H', dot: 'var(--b)', run: () => this.sidenote() },
+      { label: 'Define a term', group: 'annotate', kbd: '', dot: 'var(--b)', run: () => this.term() },
+      { label: 'Insert a figure', group: 'annotate', kbd: '', dot: 'var(--b)', run: () => this.figure() },
+      { label: 'Publish this piece', group: 'publish', kbd: '', dot: 'var(--g)', run: () => { this.patch({ state: 'published', behind: true }); this.flash('published · staged for the next deploy'); } },
+      { label: 'Unpublish this piece', group: 'publish', kbd: '', dot: 'var(--r)', run: () => { this.patch({ state: 'draft', behind: true }); this.flash('back to draft · staged for removal'); } },
+      { label: 'Deploy ' + pushable + ' change' + (pushable === 1 ? '' : 's'), group: 'publish', kbd: '', dot: 'var(--r)', run: () => { this.setState({ screen: 'deploy' }); this.runDeploy(); } },
+      { label: dark ? 'Light mode' : 'Dark mode', group: 'surface', kbd: '', dot: 'var(--edge)', run: () => this.setState({ mode: dark ? 'light' : 'dark' }) },
+    ];
+    const q = st.paletteQ.trim().toLowerCase();
+    const filteredCmds = commandDefs.filter((c) => !q || (c.label + ' ' + c.group).toLowerCase().indexOf(q) >= 0);
+    const ix = Math.min(st.paletteIx, Math.max(0, filteredCmds.length - 1));
+    this._cmds = filteredCmds;
+
+    const filters = ['all', 'draft', 'published', 'unlisted', 'scheduled'];
+    const docList = st.docs.filter((d) => {
+      if (st.filter !== 'all' && d.state !== st.filter) return false;
+      const qq = st.query.trim().toLowerCase();
+      if (!qq) return true;
+      return (d.title + ' ' + d.slug + ' ' + d.src).toLowerCase().indexOf(qq) >= 0;
+    }).map((d) => {
+      const r = REG[d.register] || REG.notes;
+      const s = STATES[d.state] || STATES.draft;
+      const w = wordsOf(d.src);
+      return {
+        title: d.title, slug: d.slug + '.md', letter: r.letter, plate: r.plate,
+        state: s.label, bd: s.bd, bg: s.bg, fg: s.fg, dot: s.dot,
+        len: w > 999 ? (w / 1000).toFixed(1) + 'k words' : w + ' words',
+        edited: d.edited, behind: d.behind,
+        rowBg: d.id === st.activeId ? 'var(--tint)' : 'transparent',
+        on: () => this.setState({ activeId: d.id, screen: 'write' }),
+      };
+    });
+
+    const sTok = STATES[doc.state] || STATES.draft;
+    const selText = st.selMenu ? st.selMenu.text : '';
+    const narrow = st.narrow;
+    const effPane = narrow && st.pane === 'split' ? 'source' : st.pane;
+    const showSource = effPane !== 'read';
+    const showPreview = effPane !== 'source';
+    const inlineInsp = st.inspector && st.screen === 'write' && effPane !== 'read' && !narrow;
+    const inspectorOn = st.inspector && st.screen === 'write' && (narrow || effPane !== 'read');
+    const paneCols = effPane === 'split' ? (inlineInsp ? 'minmax(0,1fr) minmax(0,1fr) auto' : 'minmax(0,1fr) minmax(0,1fr)')
+      : inlineInsp ? 'minmax(0,1fr) auto' : 'minmax(0,1fr)';
+
+    const annotBtns = [
+      { label: 'Sidenote', kbd: '⌘⇧H', icon: ICON.note, col: 'var(--b-text)', on: () => this.sidenote() },
+      { label: 'Define', kbd: '', icon: ICON.info, col: 'var(--b-text)', on: () => this.term() },
+      { label: 'Bold', kbd: '⌘B', icon: ICON.box, col: 'var(--ink)', on: () => this.wrap('**', '**', 'bold') },
+      { label: 'Italic', kbd: '⌘I', icon: ICON.quote, col: 'var(--ink)', on: () => this.wrap('*', '*', 'italic') },
+      { label: 'Code', kbd: '⌘E', icon: ICON.brackets, col: 'var(--ink)', on: () => this.wrap('`', '`', 'code') },
+      { label: 'Figure', kbd: '', icon: ICON.grid, col: 'var(--ink)', on: () => this.figure() },
+    ];
+
+    return {
+      plateBlend: dark ? 'screen' : 'multiply',
+      modeNext: dark ? 'Light mode' : 'Dark mode',
+      toggleMode: () => this.setState({ mode: dark ? 'light' : 'dark' }),
+      noop: () => this.flash('not wired in this design'),
+      stop: (e) => e.stopPropagation(),
+
+      nav: [
+        { key: 'write', label: 'Write', icon: ICON.note, kbd: '⌘1' },
+        { key: 'library', label: 'Library', icon: ICON.layers, kbd: '⌘2' },
+        { key: 'sources', label: 'Sources', icon: ICON.quote, kbd: '⌘3' },
+        { key: 'pages', label: 'Pages', icon: ICON.columns, kbd: '⌘4' },
+        { key: 'media', label: 'Figures', icon: ICON.grid, kbd: '⌘5' },
+        { key: 'deploy', label: 'Deploy', icon: ICON.upload, kbd: '⌘6', badge: pushable ? String(pushable) : '' },
+        { key: 'settings', label: 'Settings', icon: ICON.ruler, kbd: '⌘7' },
+      ].map((n) => {
+        const on = st.screen === n.key;
+        return {
+          label: n.label, icon: n.icon, kbd: n.kbd, badge: n.badge || '',
+          bar: on ? 'var(--edge)' : 'transparent',
+          bg: on ? 'var(--tint)' : 'transparent',
+          fg: on ? 'var(--ink)' : 'var(--muted)',
+          wt: on ? '600' : '400',
+          op: on ? '1' : '.75',
+          on: () => this.setState({ screen: n.key }),
+        };
+      }),
+
+      isWrite: st.screen === 'write', isLibrary: st.screen === 'library',
+      isDeploy: st.screen === 'deploy', isMedia: st.screen === 'media',
+      isSettings: st.screen === 'settings', isSources: st.screen === 'sources',
+      isPages: st.screen === 'pages',
+
+      undo: () => this.step(-1), redo: () => this.step(1),
+      undoCol: canUndo ? 'var(--muted)' : 'var(--faint)',
+      redoCol: canRedo ? 'var(--muted)' : 'var(--faint)',
+      undoBd: canUndo ? 'var(--line)' : 'var(--hair)',
+      redoBd: canRedo ? 'var(--line)' : 'var(--hair)',
+
+      refs: parsed.refs, hasRefs: parsed.refs.length > 0,
+      refCount: parsed.refs.length + (parsed.refs.length === 1 ? ' source cited' : ' sources cited'),
+      openCite: () => { this._focusCite = true; this.setState({ citePicker: true, citeQ: '', citeIx: 0 }); },
+      citedList: parsed.refs.map((r) => ({
+        n: r.n, text: r.short,
+        on: () => { const at = doc.src.indexOf('[@' + r.key); if (at >= 0) this.jump(doc.src.slice(0, at).split('\n').length - 1); },
+      })),
+
+      title: doc.title, titleShown: doc.title || 'Untitled',
+      setTitle: (e) => { this.patch({ title: e.target.value }); this.markSaving(); },
+      dek: doc.dek, setDek: (e) => { this.patch({ dek: e.target.value }); this.markSaving(); },
+      slug: doc.slug, setSlug: (e) => this.patch({ slug: e.target.value }),
+      schedule: doc.schedule, setSchedule: (e) => this.patch({ schedule: e.target.value }),
+      isScheduled: doc.state === 'scheduled',
+      source: doc.src,
+      setSource: (e) => { this.setState({ caret: e.target.selectionStart }); this.setSrc(e.target.value); },
+      trackCaret: (e) => { this.setState({ caret: e.target.selectionStart }); if (this.typewriter) this.scrollTypewriter(); },
+      onSelectUp: (e) => {
+        const ta = e.target;
+        const text = ta.value.slice(ta.selectionStart, ta.selectionEnd).trim();
+        this.setState({ caret: ta.selectionStart });
+        if (!text || this.annotate === 'inspector') { if (st.selMenu) this.setState({ selMenu: null }); return; }
+        this.setState({ selMenu: { text, x: Math.min(e.clientX, window.innerWidth - 214), y: Math.min(e.clientY + 12, window.innerHeight - 240) } });
+      },
+
+      regBtns: Object.keys(REG).map((k) => ({
+        letter: REG[k].letter, title: REG[k].label,
+        bd: doc.register === k ? '2px solid var(--edge)' : '1px solid var(--line)',
+        bg: doc.register === k ? 'var(--tint)' : 'transparent',
+        fg: REG[k].col,
+        on: () => this.patch({ register: k, behind: true }),
+      })),
+      regLabel: reg.label, regCol: reg.col, regPlate: reg.plate,
+      metaDate: doc.slug + '.md · edited ' + doc.edited,
+      metaCount: words + ' words · ' + mins + ' min',
+
+      stateLabel: sTok.label, stateBd: sTok.bd, stateBg: sTok.bg, stateFg: sTok.fg, stateDot: sTok.dot,
+      toggleStateMenu: () => this.setState({ inspector: true }),
+      stateMenuOn: false,
+      stateBtns: Object.keys(STATES).map((k) => ({
+        label: STATES[k].label + (k === 'unlisted' ? ' · link only' : k === 'scheduled' ? ' · a date' : ''),
+        bd: doc.state === k ? '2px solid var(--edge)' : '1px solid var(--line)',
+        bg: doc.state === k ? STATES[k].bg === 'transparent' ? 'var(--tint)' : STATES[k].bg : 'transparent',
+        fg: doc.state === k ? 'var(--ink)' : 'var(--muted)',
+        dot: STATES[k].dot,
+        on: () => { this.patch({ state: k, behind: true }); this.flash(k === 'published' ? 'published · staged for the next deploy' : k + ' · staged'); },
+      })),
+
+      pane: effPane, paneCols, showSource, showPreview, inspectorOn, narrow,
+      inspPos: narrow ? 'fixed' : 'relative',
+      inspInset: narrow ? '0' : 'auto',
+      inspZ: narrow ? '55' : 'auto',
+      inspW: narrow ? '100%' : '260px',
+      paneBtns: (narrow ? ['source', 'read'] : ['source', 'split', 'read']).map((p) => ({
+        label: p === 'source' ? 'src' : p === 'split' ? 'split' : 'read',
+        title: p === 'read' ? 'The page, full width' : p === 'source' ? 'Source only' : 'Source and page',
+        bg: effPane === p ? 'var(--edge)' : 'transparent',
+        fg: effPane === p ? 'var(--paper)' : 'var(--muted)',
+        on: () => this.setState({ pane: p }),
+      })),
+      toggleInspector: () => this.setState({ inspector: !st.inspector }),
+      inspBd: st.inspector ? 'var(--edge)' : 'var(--line)',
+      inspBg: st.inspector ? 'var(--tint)' : 'transparent',
+      inspAnnotate: this.annotate !== 'menu',
+
+      savedMsg: st.saved === 'saving' ? 'saving…' : 'saved · ' + st.savedAt,
+      savedCol: st.saved === 'saving' ? 'var(--faint)' : 'var(--g-text)',
+      previewNote: caretLine >= 0 ? 'following the cursor' : '',
+      blocks,
+
+      wordStat: words + ' words · ' + mins + ' min read',
+      caretStat: 'line ' + (caretLine + 1) + ' of ' + doc.src.split('\n').length,
+      typewriter: this.typewriter,
+      toggleTypewriter: () => this.setState({ typewriter: !this.typewriter }),
+      twLabel: this.typewriter ? 'typewriter on' : 'typewriter off',
+      twCol: this.typewriter ? 'var(--g-text)' : 'var(--faint)',
+      offlineMsg: 'local-first · saved on the box, queued if it is offline',
+      hasOutline: outline.length > 0, noOutline: outline.length === 0, outline,
+      noteCount: parsed.notes.length,
+      noteList: parsed.notes.map((t, k) => ({
+        n: String(k + 1), text: t.length > 96 ? t.slice(0, 96) + '…' : t,
+        on: () => { const at = doc.src.indexOf(t); if (at >= 0) this.jump(doc.src.slice(0, at).split('\n').length - 1); },
+      })),
+
+      markBtns: Object.keys(MARKS).map((k) => ({ solid: MARKS[k].solid, title: MARKS[k].title, on: () => this.mark(k) })),
+      annotBtns,
+      selMenuOn: !!st.selMenu,
+      fx: st.selMenu ? st.selMenu.x + 'px' : '0px',
+      fy: st.selMenu ? st.selMenu.y + 'px' : '0px',
+      selWords: selText ? (selText.split(/\s+/).length + ' words selected') : 'no selection',
+      selLabel: selText ? selText.split(/\s+/).length + ' words' : 'place the cursor',
+      selCol: selText ? 'var(--g-text)' : 'var(--faint)',
+
+      libStats: [
+        { label: 'published', val: String(st.docs.filter((d) => d.state === 'published').length), col: 'var(--g)', note: 'on the index' },
+        { label: 'drafts', val: String(st.docs.filter((d) => d.state === 'draft').length), col: 'var(--ink)', note: 'never leave the box' },
+        { label: 'unlisted', val: String(st.docs.filter((d) => d.state === 'unlisted').length), col: 'var(--b)', note: 'live, link only' },
+        { label: 'unpushed', val: String(pushable), col: 'var(--r)', note: pushable ? 'the site is behind' : 'site matches' },
+      ],
+      filters: filters.map((f) => ({
+        label: f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1),
+        bg: st.filter === f ? 'var(--edge)' : 'transparent',
+        fg: st.filter === f ? 'var(--paper)' : 'var(--muted)',
+        on: () => this.setState({ filter: f }),
+      })),
+      query: st.query, setQuery: (e) => this.setState({ query: e.target.value }),
+      docList, emptyList: docList.length === 0,
+      newDoc: () => this.newDoc(),
+      goDeploy: () => this.setState({ screen: 'deploy' }),
+      stagedLabel: pushable ? pushable + ' unpushed' : 'site up to date',
+
+      repoLine: st.repo + ' · ' + st.branch + ' → ' + st.domain,
+      pipeline: [
+        { tag: 'working copy', where: 'hetzner', plate: 'var(--edge)', col: 'var(--faint)', n: st.docs.length + ' files', body: 'Everything you have written, saved as you type. Drafts live here and only here.', link: '', linkLabel: '' },
+        { tag: 'staged', where: 'next build', plate: 'var(--r)', col: 'var(--r-text)', n: pushable + (pushable === 1 ? ' change' : ' changes'), body: this.model === 'staged' ? 'Flipping a state stages it. Nothing moves until you deploy.' : 'Immediate mode: a state change deploys on its own.', link: '', linkLabel: '' },
+        { tag: 'live', where: 'github pages', plate: 'var(--g)', col: 'var(--g-text)', n: String(st.docs.filter((d) => d.state === 'published').length + st.docs.filter((d) => d.state === 'unlisted').length) + ' pages', body: 'Static, built at deploy, no server. Last build 4 minutes ago · commit 8f2a1c4.', link: 'https://' + st.domain, linkLabel: st.domain + ' ↗' },
+      ],
+      staged, stagedCount: pushable + ' publishable · ' + (staged.length - pushable) + ' held',
+      nothingStaged: staged.length === 0,
+      modelNote: this.model === 'staged'
+        ? 'Two switches, on purpose: a piece becomes published when you say so, and the site changes when you deploy. You can flip three things and think about it overnight.'
+        : 'One switch: publishing a piece runs the build immediately. Fewer steps, and no moment where the site and your intent disagree.',
+      deploy: () => this.runDeploy(),
+      deployOff: st.building || pushable === 0,
+      deployLabel: st.building ? 'Building…' : pushable ? 'Deploy ' + pushable + ' change' + (pushable === 1 ? '' : 's') : 'Nothing to deploy',
+      deployBd: st.building || !pushable ? 'var(--line)' : 'var(--edge)',
+      deployBg: st.building || !pushable ? 'transparent' : 'var(--edge)',
+      deployFg: st.building || !pushable ? 'var(--faint)' : 'var(--paper)',
+      deployCur: st.building || !pushable ? 'not-allowed' : 'pointer',
+      deployHint: st.building ? 'commits, then pushes to gh-pages' : 'drafts are never pushed',
+      log: st.log, buildState: st.building ? 'running' : 'idle',
+      buildCol: st.building ? 'var(--r-text)' : 'var(--faint)',
+      queue: st.docs.filter((d) => d.state === 'scheduled').map((d) => ({ title: d.title, when: 'goes live ' + (d.schedule || 'unset') })),
+
+      mediaStat: MEDIA.length + ' items · 2 plots · 1.2 MB',
+      media: MEDIA.map((m) => ({
+        name: m.name, kind: m.kind, spec: m.spec,
+        used: m.used ? 'used in ' + m.used : 'unused',
+        usedCol: m.used ? 'var(--muted)' : 'var(--r-text)',
+        tileBg: m.plot ? 'var(--code)' : 'var(--sunk)',
+        tileArt: m.plot ? 'repeating-linear-gradient(0deg,var(--hair) 0 1px,transparent 1px 12px)' : 'repeating-linear-gradient(45deg,var(--hair) 0 1px,transparent 1px 9px)',
+      })),
+
+      siteName: st.siteName, setSiteName: (e) => this.setState({ siteName: e.target.value }),
+      bio: st.bio, setBio: (e) => this.setState({ bio: e.target.value }),
+      links: st.links.map((lk, k) => ({
+        label: lk.label, url: lk.url, icon: lk.icon,
+        shown: lk.on ? 'in header' : 'hidden',
+        shownCol: lk.on ? 'var(--g-text)' : 'var(--faint)',
+        setUrl: (e) => this.setState((s) => ({ links: s.links.map((x, j) => (j === k ? Object.assign({}, x, { url: e.target.value }) : x)) })),
+        toggle: () => this.setState((s) => ({ links: s.links.map((x, j) => (j === k ? Object.assign({}, x, { on: !x.on }) : x)) })),
+      })),
+      cvSrc: st.cvSrc,
+      setCvSrc: (e) => { this.setState({ cvSrc: e.target.value }); this.markSaving(); },
+      cvStat: wordsOf(st.cvSrc) + ' words · one page when printed',
+      cvOpen: () => this.flash('cv.md is a page like any other — it just never appears in Writing'),
+      regRows: Object.keys(REG).map((k) => ({
+        letter: REG[k].letter, plate: REG[k].plate, label: REG[k].label, plateName: REG[k].plateName,
+        count: st.docs.filter((d) => d.register === k).length + ' pieces',
+      })),
+      modelOpts: [
+        { key: 'staged', label: 'Stage, then deploy', body: 'States change instantly on the box. One button pushes them all to the live site.' },
+        { key: 'immediate', label: 'Publish is deploy', body: 'Flipping a piece to published builds and pushes straight away.' },
+      ].map((m) => ({
+        label: m.label, body: m.body,
+        bd: this.model === m.key ? '2px solid var(--edge)' : '1px solid var(--line)',
+        bg: this.model === m.key ? 'var(--tint)' : 'transparent',
+        dot: this.model === m.key ? 'var(--edge)' : 'transparent',
+        on: () => this.setState({ model: m.key }),
+      })),
+      repo: st.repo, setRepo: (e) => this.setState({ repo: e.target.value }),
+      branch: st.branch, setBranch: (e) => this.setState({ branch: e.target.value }),
+      domain: st.domain, setDomain: (e) => this.setState({ domain: e.target.value }),
+
+      srcTypeBtns: ['all'].concat(Object.keys(SRC_TYPES)).map((t) => ({
+        label: t === 'all' ? 'All' : SRC_TYPES[t],
+        bg: st.srcType === t ? 'var(--edge)' : 'transparent',
+        fg: st.srcType === t ? 'var(--paper)' : 'var(--muted)',
+        on: () => this.setState({ srcType: t }),
+      })),
+      srcQuery: st.srcQuery, setSrcQuery: (e) => this.setState({ srcQuery: e.target.value }),
+      paste: st.paste, setPaste: (e) => this.setState({ paste: e.target.value }),
+      addSource: () => this.addSource(),
+      sourceCount: st.sources.length + ' entries · ' + st.sources.filter((s) => st.docs.some((d) => d.src.indexOf('[@' + s.key) >= 0)).length + ' cited somewhere',
+      sourceList: st.sources.filter((s) => {
+        if (st.srcType !== 'all' && s.type !== st.srcType) return false;
+        const q2 = st.srcQuery.trim().toLowerCase();
+        if (!q2) return true;
+        return (s.key + ' ' + s.authors + ' ' + s.title + ' ' + (s.container || '') + ' ' + (s.year || '')).toLowerCase().indexOf(q2) >= 0;
+      }).map((s) => {
+        const used = st.docs.filter((d) => d.src.indexOf('[@' + s.key) >= 0).length;
+        return {
+          key: s.key, type: SRC_TYPES[s.type] || s.type, cite: fmtSource(s), short: shortSource(s),
+          used: used ? 'cited in ' + used : 'never cited',
+          usedCol: used ? 'var(--g-text)' : 'var(--faint)',
+          bg: st.srcSel === s.key ? 'var(--tint)' : 'transparent',
+          bd: st.srcSel === s.key ? '2px solid var(--edge)' : '1px solid var(--hair)',
+          on: () => this.setState({ srcSel: s.key }),
+          insert: () => this.insertCite(s.key),
+        };
+      }),
+      srcFields: (() => {
+        const s = st.sources.filter((x) => x.key === st.srcSel)[0] || st.sources[0];
+        if (!s) return [];
+        return [
+          { label: 'key · what you type', v: s.key, f: 'key' },
+          { label: 'authors', v: s.authors || '', f: 'authors' },
+          { label: 'year', v: s.year || '', f: 'year' },
+          { label: 'title', v: s.title || '', f: 'title' },
+          { label: 'journal · book · site', v: s.container || s.publisher || '', f: 'container' },
+          { label: 'volume · edition', v: s.volume || '', f: 'volume' },
+          { label: 'pages', v: s.pages || '', f: 'pages' },
+          { label: 'doi', v: s.doi || '', f: 'doi' },
+          { label: 'url', v: s.url || '', f: 'url' },
+        ].map((row) => ({ label: row.label, v: row.v, on: (e) => this.patchSource(s.key, { [row.f]: e.target.value }) }));
+      })(),
+      srcPreview: (() => {
+        const s = st.sources.filter((x) => x.key === st.srcSel)[0] || st.sources[0];
+        return s ? fmtSource(s) : '';
+      })(),
+      srcTypeSel: (() => {
+        const s = st.sources.filter((x) => x.key === st.srcSel)[0] || st.sources[0];
+        return Object.keys(SRC_TYPES).map((t) => ({
+          label: SRC_TYPES[t],
+          bd: s && s.type === t ? '2px solid var(--edge)' : '1px solid var(--line)',
+          bg: s && s.type === t ? 'var(--tint)' : 'transparent',
+          on: () => { if (s) this.patchSource(s.key, { type: t }); },
+        }));
+      })(),
+      srcInsert: () => this.insertCite(st.srcSel),
+      srcNote: (() => { const s = st.sources.filter((x) => x.key === st.srcSel)[0]; return s && s.note ? s.note : ''; })(),
+      hasSrcNote: (() => { const s = st.sources.filter((x) => x.key === st.srcSel)[0]; return !!(s && s.note); })(),
+
+      citePickerOn: st.citePicker,
+      closeCite: () => this.setState({ citePicker: false }),
+      citeQ: st.citeQ,
+      setCiteQ: (e) => this.setState({ citeQ: e.target.value, citeIx: 0 }),
+      citeKey: (e) => {
+        const list = this._citeList || [];
+        if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ citeIx: Math.min(list.length - 1, st.citeIx + 1) }); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ citeIx: Math.max(0, st.citeIx - 1) }); }
+        else if (e.key === 'Enter') {
+          e.preventDefault();
+          const s = list[Math.min(st.citeIx, list.length - 1)];
+          if (s) this.insertCite(s.key); else this.setState({ citePicker: false, screen: 'sources' });
+        }
+      },
+      citeList: (() => {
+        const q3 = st.citeQ.trim().toLowerCase();
+        const list = st.sources.filter((s) => !q3 || (s.key + ' ' + s.authors + ' ' + s.title + ' ' + (s.year || '')).toLowerCase().indexOf(q3) >= 0);
+        this._citeList = list;
+        const cix = Math.min(st.citeIx, Math.max(0, list.length - 1));
+        return list.map((s, k) => ({
+          key: s.key, short: shortSource(s), type: SRC_TYPES[s.type] || s.type,
+          bg: k === cix ? 'var(--tint)' : 'transparent',
+          hover: () => this.setState({ citeIx: k }),
+          on: () => this.insertCite(s.key),
+        }));
+      })(),
+      noCites: (this._citeList || []).length === 0,
+
+      pageHeadline: st.page.headline,
+      setPageHeadline: (e) => this.setState((s) => ({ page: Object.assign({}, s.page, { headline: e.target.value }), pagesDirty: true })),
+      pageShelf: [
+        { label: 'workshop.fubl.org', note: 'citron · live', bg: 'var(--mark-c)', bd: '2px solid var(--edge)', col: 'var(--ink)' },
+        { label: 'projects.fubl.org', note: 'formal · soon', bg: 'transparent', bd: '1px solid var(--line)', col: 'var(--faint)' },
+        { label: 'cv', note: 'ink · always', bg: 'var(--edge)', bd: '2px solid var(--edge)', col: 'var(--paper)' },
+      ],
+      pageStandfirst: st.page.standfirst,
+      setPageStandfirst: (e) => this.setState((s) => ({ page: Object.assign({}, s.page, { standfirst: e.target.value }), pagesDirty: true })),
+      pageSections: st.page.sections.map((sec, k) => ({
+        title: sec.title, kind: sec.kind, body: sec.body, hasBody: sec.kind === 'bio' || sec.kind === 'research',
+        onLabel: sec.on ? 'shown' : 'hidden',
+        onCol: sec.on ? 'var(--g-text)' : 'var(--faint)',
+        bd: sec.on ? '1px solid var(--line)' : '1px dashed var(--line)',
+        setTitle: (e) => this.setState((s) => ({ page: Object.assign({}, s.page, { sections: s.page.sections.map((x, j) => (j === k ? Object.assign({}, x, { title: e.target.value }) : x)) }), pagesDirty: true })),
+        setBody: (e) => this.setState((s) => ({ page: Object.assign({}, s.page, { sections: s.page.sections.map((x, j) => (j === k ? Object.assign({}, x, { body: e.target.value }) : x)) }), pagesDirty: true })),
+        toggle: () => this.setState((s) => ({ page: Object.assign({}, s.page, { sections: s.page.sections.map((x, j) => (j === k ? Object.assign({}, x, { on: !x.on }) : x)) }), pagesDirty: true })),
+        up: () => this.setState((s) => {
+          if (k === 0) return {};
+          const arr = s.page.sections.slice();
+          arr.splice(k - 1, 0, arr.splice(k, 1)[0]);
+          return { page: Object.assign({}, s.page, { sections: arr }), pagesDirty: true };
+        }),
+        down: () => this.setState((s) => {
+          if (k === s.page.sections.length - 1) return {};
+          const arr = s.page.sections.slice();
+          arr.splice(k + 1, 0, arr.splice(k, 1)[0]);
+          return { page: Object.assign({}, s.page, { sections: arr }), pagesDirty: true };
+        }),
+        isWriting: sec.kind === 'writing',
+        modeBtns: ['all', 'latest', 'register'].map((mo) => ({
+          label: mo === 'all' ? 'Everything' : mo === 'latest' ? 'Latest 3' : 'By register',
+          bd: sec.mode === mo ? '2px solid var(--edge)' : '1px solid var(--line)',
+          bg: sec.mode === mo ? 'var(--tint)' : 'transparent',
+          on: () => this.setState((s) => ({ page: Object.assign({}, s.page, { sections: s.page.sections.map((x, j) => (j === k ? Object.assign({}, x, { mode: mo }) : x)) }), pagesDirty: true })),
+        })),
+      })),
+      pagePreview: st.page.sections.filter((sec) => sec.on).map((sec) => {
+        const live = st.docs.filter((d) => d.state === 'published');
+        let items = [];
+        if (sec.kind === 'writing') {
+          const pick = sec.mode === 'latest' ? live.slice(0, 3) : live;
+          items = pick.map((d) => {
+            const r = REG[d.register] || REG.notes;
+            return { title: d.title, meta: sec.mode === 'register' ? r.label : 'edited ' + d.edited, letter: r.letter, plate: r.plate };
+          });
+        } else if (sec.kind === 'research') {
+          items = st.sources.filter((s) => s.type === 'working').map((s) => ({ title: s.title, meta: 'working paper · ' + (s.year || ''), letter: 'W', plate: 'var(--g)' }))
+            .concat(live.filter((d) => d.register === 'research').map((d) => ({ title: d.title, meta: 'science · ' + d.edited, letter: 'S', plate: 'var(--g)' })));
+        } else if (sec.kind === 'links') {
+          items = st.links.filter((lk) => lk.on).map((lk) => ({ title: lk.url, meta: lk.label, letter: lk.label.charAt(0).toUpperCase(), plate: 'var(--b)' }));
+        }
+        return { title: sec.title, body: sec.body, hasBody: !!sec.body, items, hasItems: items.length > 0 };
+      }),
+      pageUrl: st.domain,
+      pageDirtyMsg: st.pagesDirty ? 'edited · staged for the next deploy' : 'matches the live site',
+      pageDirtyCol: st.pagesDirty ? 'var(--r-text)' : 'var(--faint)',
+
+      paletteOn: st.palette,
+      openPalette: () => this.openPalette(),
+      closePalette: () => this.setState({ palette: false }),
+      paletteQ: st.paletteQ,
+      setPaletteQ: (e) => this.setState({ paletteQ: e.target.value, paletteIx: 0 }),
+      paletteKey: (e) => {
+        const list = this._cmds || [];
+        if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ paletteIx: Math.min(list.length - 1, st.paletteIx + 1) }); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ paletteIx: Math.max(0, st.paletteIx - 1) }); }
+        else if (e.key === 'Enter') {
+          e.preventDefault();
+          const c = list[Math.min(st.paletteIx, list.length - 1)];
+          this.setState({ palette: false });
+          if (c) c.run();
+        }
+      },
+      commands: filteredCmds.map((c, k) => ({
+        label: c.label, group: c.group, kbd: c.kbd, dot: c.dot,
+        bg: k === ix ? 'var(--tint)' : 'transparent',
+        hover: () => this.setState({ paletteIx: k }),
+        on: () => { this.setState({ palette: false }); c.run(); },
+      })),
+      noCommands: filteredCmds.length === 0,
+
+      toast: st.toast, toastOn: !!st.toast,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

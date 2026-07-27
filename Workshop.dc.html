@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="./styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--pp-paper);
+    color: var(--pp-ink);
+    font-family: var(--pp-font-body);
+    cursor: var(--pp-cursor-arrow);
+    /* The halftone screen. Not decoration — this is how a plate is actually
+       laid down, and it is the one texture both systems agree on. */
+    background-image: radial-gradient(var(--pp-screen-dot) 1px, transparent 1.5px);
+    background-size: 15px 15px;
+    /* Pinned to the viewport: the screen is ON the paper, and the work slides
+       over it. The press does not move when you turn the page. */
+    background-attachment: fixed;
+  }
+  a { color: var(--pp-plate-3-text); text-underline-offset: 3px; }
+  a:hover { color: var(--pp-ink); }
+
+  /* Category washes. Translucent on purpose — the halftone screen has to stay
+     visible through a card, or the card stops being paper. color-mix means each
+     wash tracks its plate through the mode switch for free. */
+  :root {
+    --pp-screen-dot: var(--pp-hair);
+    --w-wash-1: color-mix(in srgb, var(--pp-plate-1) 8%, transparent);
+    --w-wash-2: color-mix(in srgb, var(--pp-plate-2) 7%, transparent);
+    --w-wash-3: color-mix(in srgb, var(--pp-plate-3) 7%, transparent);
+    --w-wash-0: color-mix(in srgb, var(--pp-ink) 4%, transparent);
+  }
+
+  /* The workshop takes the system's dark mode unchanged — one dark for every
+     surface, or the family stops looking related. It adjusts exactly two things,
+     both of which are about this page's own devices rather than the palette:
+     the halftone screen needs more presence on a dark ground to survive at all,
+     and the category washes need roughly double the strength to register. */
+  body[data-mode='dark'] {
+    --pp-screen-dot: rgba(239, 238, 232, .16);
+    --w-wash-1: color-mix(in srgb, var(--pp-plate-1) 14%, transparent);
+    --w-wash-2: color-mix(in srgb, var(--pp-plate-2) 14%, transparent);
+    --w-wash-3: color-mix(in srgb, var(--pp-plate-3) 14%, transparent);
+    --w-wash-0: color-mix(in srgb, var(--pp-ink) 7%, transparent);
+  }
+
+  /* Sticker chips are OPAQUE in both modes, with near-black text always. A
+     translucent marker is right behind body copy and wrong on a sticker: over a
+     dark ground it turns into a dim smudge, and the original workshop's badges
+     were loud precisely because they were solid ink on solid stock. */
+  :root {
+    --w-chip-live: #deee2e;
+    --w-chip-soon: #40ccff;
+    --w-chip-ink: #171716;
+  }
+  @media (max-width: 700px) {
+    [data-w-masthead] { grid-template-columns: minmax(0, 1fr) !important; }
+  }
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:grid;grid-template-rows:auto auto 1fr auto">
+
+  <header data-w-masthead="" style="max-width:1280px;width:100%;margin:0 auto;padding:clamp(2rem,6vw,4.25rem) var(--pp-gutter) clamp(1.75rem,4vw,2.75rem);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(1.25rem,4vw,2.5rem);align-items:start">
+    <div style="display:grid;gap:1.1rem;justify-items:start">
+      <code style="font-family:var(--pp-font-mono);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--pp-faint)">fubl.org · workshop</code>
+
+      <h1 style="margin:0;font-family:var(--pp-font-display);font-weight:900;font-size:clamp(2.4rem,7.5vw,4.6rem);line-height:1;letter-spacing:-0.055em;text-wrap:balance">Felix'
+        <span style="display:inline-block;background:var(--pp-marker-citron);box-shadow:3px 3px 0 var(--pp-edge);padding:.02em .18em;transform:rotate({{ tilt }})">Workshop</span>
+      </h1>
+
+      <p style="margin:0;max-width:52ch;font-size:var(--pp-size-lede);line-height:var(--pp-leading-lede);letter-spacing:var(--pp-track-lede);font-family:var(--pp-font-display);font-weight:200;color:var(--pp-muted)">Small self-serve tools, built one at a time and left running. No accounts, no uploads that don't come back to you.</p>
+
+      <div style="display:flex;align-items:center;gap:.55rem;padding:.4rem .7rem .4rem .55rem;border:1px solid var(--pp-plate-1);background:var(--pp-surface)">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="var(--pp-plate-1-text)" stroke-width="1.35" stroke-linecap="square" aria-hidden="true"><path d="M3.5 7.5h9v6h-9z M5.5 7.5V6l1.5-1.5h2L10.5 6v1.5"></path><path d="M7.4 9.6h1.2v2.2H7.4z" fill="var(--pp-plate-1-text)" stroke="none"></path></svg>
+        <code style="font-family:var(--pp-font-mono);font-size:.72rem;letter-spacing:.04em;color:var(--pp-plate-1-text)">every tool runs in your browser · nothing is uploaded</code>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:.5rem;flex:none">
+      <code style="font-family:var(--pp-font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pp-faint)">{{ modeLabel }}</code>
+      <button type="button" onClick="{{ toggleMode }}" aria-label="Toggle colour mode" style="height:32px;padding:0 .65rem;display:inline-flex;align-items:center;gap:.45rem;background:transparent;border:1px solid var(--pp-line);border-radius:3px;cursor:{{ pointer }};font-family:var(--pp-font-body);font-size:.78rem;font-weight:600;color:var(--pp-ink)">
+        <span style="width:.65rem;height:.65rem;background:var(--pp-ink);display:block"></span>{{ modeNext }}
+      </button>
+    </div>
+  </header>
+
+  <div style="height:0;border-top:6px dashed var(--pp-plate-2)"></div>
+
+  <main style="max-width:1280px;width:100%;margin:0 auto;padding:clamp(1.75rem,4vw,2.75rem) var(--pp-gutter) clamp(2.5rem,6vw,4rem);display:grid;gap:1.25rem;align-content:start">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:1rem">
+      <div style="display:flex;align-items:center;gap:.7rem">
+        <div style="display:flex;gap:2px" aria-hidden="true">
+          <span style="width:22px;height:7px;background:var(--pp-plate-1)"></span>
+          <span style="width:22px;height:7px;background:var(--pp-plate-2)"></span>
+          <span style="width:22px;height:7px;background:var(--pp-plate-3)"></span>
+          <span style="width:22px;height:7px;background:var(--pp-line)"></span>
+        </div>
+        <code style="font-family:var(--pp-font-mono);font-size:.7rem;letter-spacing:.1em;color:var(--pp-faint)">{{ tally }}</code>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:20px">
+
+      <a href="draw-svg/" style="display:grid;gap:.55rem;align-content:start;padding:1.15rem;text-decoration:none;color:inherit;background:var(--pp-surface);border:2px solid var(--pp-edge);border-radius:var(--pp-radius-lg);box-shadow:{{ castLive }};cursor:{{ pointer }};transform:rotate({{ tiltCard }})" style-hover="box-shadow:{{ castLiveHover }}" style-active="box-shadow:{{ castLivePress }};transform:{{ pressCard }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem">
+          <h3 style="margin:0;font-family:var(--pp-font-display);font-weight:700;font-size:1.22rem;letter-spacing:-0.03em;line-height:1.1">Draw SVG</h3>
+          <span style="flex:none;display:inline-flex;align-items:center;gap:.3rem;padding:.16rem .55rem;border-radius:var(--pp-radius-pill);background:var(--w-chip-live);color:var(--w-chip-ink);border:2px solid var(--pp-edge);box-shadow:2px 2px 0 var(--pp-edge);font-family:var(--pp-font-mono);font-size:var(--pp-size-label);font-weight:700;letter-spacing:.06em;transform:rotate({{ tilt }})">Live</span>
+        </div>
+        <p style="margin:0;font-size:.92rem;line-height:1.58;color:var(--pp-muted)">Set a pixel-sized canvas, draw freehand in any color, and export exactly what you drew as a real SVG file.</p>
+        <span style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.35rem;font-family:var(--pp-font-mono);font-size:.74rem;font-weight:700;color:var(--pp-plate-2-text)">Open tool
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square" aria-hidden="true"><path d="M2.5 8h10M8.5 4l4 4-4 4"></path></svg>
+        </span>
+      </a>
+
+      <sc-for list="{{ soon }}" as="t" hint-placeholder-count="6">
+        <div style="display:grid;gap:.55rem;align-content:start;padding:1.15rem;background:{{ t.wash }};border:2px dashed;border-color:{{ t.ink }};border-radius:var(--pp-radius-lg);transform:rotate({{ t.tilt }})">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem">
+            <h3 style="margin:0;font-family:var(--pp-font-display);font-weight:700;font-size:1.22rem;letter-spacing:-0.03em;line-height:1.1">{{ t.name }}</h3>
+            <span style="flex:none;padding:.16rem .55rem;border-radius:var(--pp-radius-pill);background:var(--w-chip-soon);border:2px solid var(--pp-edge);box-shadow:2px 2px 0 var(--pp-edge);font-family:var(--pp-font-mono);font-size:var(--pp-size-label);font-weight:700;letter-spacing:.04em;color:var(--w-chip-ink);white-space:nowrap;transform:rotate({{ tiltUp }})">Coming soon</span>
+          </div>
+          <p style="margin:0;font-size:.92rem;line-height:1.58;color:var(--pp-muted)">{{ t.desc }}</p>
+        </div>
+      </sc-for>
+
+    </div>
+  </main>
+
+  <footer style="max-width:1280px;width:100%;margin:0 auto;padding:1.5rem var(--pp-gutter) 3rem">
+    <div style="height:0;border-top:3px dashed var(--pp-plate-2);margin-bottom:1.25rem"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:1.5rem 2rem;align-items:flex-end;justify-content:space-between">
+      <p style="margin:0;max-width:64ch;font-size:.86rem;line-height:1.6;color:var(--pp-faint)">Every tool in this workshop runs entirely in your browser. Nothing you upload, draw, or edit is ever sent to a server, and this workshop is <a href="https://github.com/felixubl/workshop" target="_blank" rel="noopener">open source</a>, so you don't have to take my word for it.</p>
+
+      <div style="display:grid;gap:.5rem;justify-items:start">
+        <a href="https://fubl.org" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--pp-muted);cursor:{{ pointer }}" style-hover="color:var(--pp-ink)">
+          <span style="position:relative;display:block;width:19px;height:19px;flex:none">
+            <span style="position:absolute;left:0;top:0;width:13px;height:13px;background:var(--pp-plate-1);mix-blend-mode:{{ blend }}"></span>
+            <span style="position:absolute;left:6px;top:2px;width:13px;height:13px;background:var(--pp-plate-2);mix-blend-mode:{{ blend }}"></span>
+            <span style="position:absolute;left:3px;top:6px;width:13px;height:13px;background:var(--pp-plate-3);mix-blend-mode:{{ blend }}"></span>
+          </span>
+          <code style="font-family:var(--pp-font-mono);font-size:.78rem;letter-spacing:.06em">fubl.org</code>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M8.5 3.5h4v4M12.5 3.5 8 8"></path></svg>
+        </a>
+        <a href="https://github.com/felixubl/workshop" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--pp-muted);cursor:{{ pointer }}" style-hover="color:var(--pp-ink)">
+          <span style="display:inline-flex;width:19px;justify-content:center;flex:none">
+            <svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
+          </span>
+          <code style="font-family:var(--pp-font-mono);font-size:.78rem;letter-spacing:.06em">felixubl/workshop</code>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M8.5 3.5h4v4M12.5 3.5 8 8"></path></svg>
+        </a>
+        <code style="font-family:var(--pp-font-mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pp-faint);margin-top:.15rem">Preprint rev 15</code>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;mode&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;light&quot;, &quot;dark&quot;], &quot;default&quot;: &quot;light&quot;, &quot;tsType&quot;: &quot;'light' | 'dark'&quot;, &quot;section&quot;: &quot;Press&quot; },
+  &quot;castDepth&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;min&quot;: 0, &quot;max&quot;: 10, &quot;step&quot;: 1, &quot;default&quot;: 5, &quot;unit&quot;: &quot;px&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Press&quot; },
+  &quot;plateInk&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;category&quot;, &quot;position&quot;, &quot;green&quot;, &quot;red&quot;, &quot;blue&quot;], &quot;default&quot;: &quot;category&quot;, &quot;tsType&quot;: &quot;'category' | 'position' | 'green' | 'red' | 'blue'&quot;, &quot;section&quot;: &quot;Press&quot; },
+  &quot;stickerTilt&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;min&quot;: -3, &quot;max&quot;: 3, &quot;step&quot;: 0.5, &quot;default&quot;: -1.5, &quot;unit&quot;: &quot;deg&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Press&quot; }
+}">
+/* Felix' Workshop, set in PREPRINT.
+
+   The merge premise: both looks are print artifacts of the same press.
+   PREPRINT is printed, then annotated by hand. The workshop is printed, then
+   the stickers got slapped on. Concretely, the workshop's loud palette already
+   IS this system's two ink families — #ff2e6e is plate 2, #c6f232 is the citron
+   marker, #00b8ac is plate 1 — so nothing had to be invented, only recognised.
+
+   What carried over, and what it became:
+   - halftone dot grid   → kept, and justified: it is how a plate is laid down,
+                           which makes it functional texture rather than decor.
+   - hard offset shadow  → kept, and RENAMED: the cast is the same silhouette
+                           printed again in a plate ink, off register. That is
+                           the system's own mark, so the workshop's coloured
+                           shadow and this system's hard shadow are one thing.
+   - sticker tilt        → kept on badges and the wordmark only, and declared as
+                           a token. Twenty tilted cards is noise; a tilted
+                           sticker is a sticker.
+   - pill radius         → badges keep it (they are tags — legal here). Cards,
+                           buttons and icon buttons move to the cut scale.
+   - film grain          → dropped. Misregistration says "printed" better, and
+                           grain over body text costs contrast for nothing.
+   - round icons         → the arc-moon became a plain square with a 45° half
+                           fill, and the circle-globe became the plate mark
+                           itself, since fubl.org IS this system. The GitHub
+                           button keeps the real octocat: it is a third-party
+                           brand mark on an outbound link, where recognition
+                           outranks the angle law. That is the only curve on
+                           the page, and it is not ours to redraw.
+
+   The one licensed breach of law 07 (uniform density): the masthead takes far
+   more air than the grid, and the 6px spine marks where that stops. */
+
+const CAST_INKS = { green: 'var(--pp-plate-1)', red: 'var(--pp-plate-2)', blue: 'var(--pp-plate-3)' };
+
+/* The register. A plate carries no meaning in the system at large, but a page
+   may DECLARE one locally — the reading page does it with drop caps (green
+   research, blue notes, red argument), and this is the same move for tools:
+   green handles documents, pink handles anything you can see or hear, blue
+   handles data and machinery. "Odds & ends" gets no plate, which is honest — the
+   things that fit no category should not be given a colour that implies one.
+
+   The register is UNNAMED on purpose. A category label on every card is
+   nineteen words doing the work one colour already does, and naming a family
+   forces every tool to justify its membership. Unnamed, the colour is a quiet
+   sort you notice on the second visit — the ink bar under the Tools rule is the
+   only hint, and it explains nothing. */
+const REGISTER = {
+  1: { ink: 'var(--pp-plate-1)', text: 'var(--pp-plate-1-text)', wash: 'var(--w-wash-1)' },
+  2: { ink: 'var(--pp-plate-2)', text: 'var(--pp-plate-2-text)', wash: 'var(--w-wash-2)' },
+  3: { ink: 'var(--pp-plate-3)', text: 'var(--pp-plate-3-text)', wash: 'var(--w-wash-3)' },
+  0: { ink: 'var(--pp-line)', text: 'var(--pp-faint)', wash: 'var(--w-wash-0)' },
+};
+
+const SOON = [
+  ['PDF Toolkit', 'Merge, split, reorder, and compress PDFs, remove or extract pages, add page numbers, convert scanned pages to searchable text, and export pages as images — everything the average PDF site does, plus a "make this acceptable for upload" mode that fits a file to a target size and format. Runs fully client-side: your documents never leave your browser.', 1],
+  ['Metadata Cleaner', 'See exactly what\u2019s hiding in a file — camera EXIF and GPS in photos, author and edit history in PDFs, tracked changes in office documents — then strip it in one click. Works on images, PDFs, and most common document formats.', 1],
+  ['Image Toolkit', 'Convert between PNG/JPEG/WebP/AVIF/HEIC, remove backgrounds, resize or pad without distorting, batch-rename, and generate favicons, app-icon sets, and social-media sizes from one source image. Also home to the pixel randomizer: every color gets swapped for a new, unrelated random one, consistently, so identical pixels always match but neighbors can end up worlds apart.', 2],
+  ['SVG Toolkit', 'Upload an existing SVG to keep editing it in Draw SVG, or reach for the deeper tools here: optimize and simplify paths, replace colors, convert strokes and text to paths, normalize the viewBox, and build sprites from a folder of icons. The flagship: "Fix my SVG," which auto-resolves clipping, missing viewBoxes, and oversized canvases in one pass.', 2],
+  ['QR Code & Barcodes', 'Generate QR codes styled to match this site instead of plain black squares, still verified to scan cleanly, plus Wi-Fi, contact-card, and calendar-event QR codes, barcode generation and reading, and batch generation from a CSV for print-ready label sheets.', 2],
+  ['Random Number Generator', 'Draw random numbers from uniform, normal, exponential, binomial, Poisson, and other distributions, in up to ten dimensions at once, with an optional seed for reproducible runs. Export the results as a table, CSV, or JSON.', 3],
+  ['Audio Toolkit', 'Convert between MP3/WAV/M4A/OGG, trim, join, and normalize volume, remove silence, extract audio from video, and compress to a target file size. Also generates waveform images and strips audio metadata.', 2],
+  ['Video Toolkit', 'Trim without re-encoding, strip audio, extract a frame, convert to and from GIF, compress to a target size, and fix aspect ratio or orientation. Plus subtitle conversion and timing shifts, and loop/boomerang clip generation.', 2],
+  ['Text & Document Utilities', 'Clean up pasted text: dedupe and sort lines, fix smart quotes and invisible Unicode characters, diff two files, and convert between Markdown, HTML, and plain text. Also formats and minifies JSON, YAML, CSS, and SQL, and counts tokens for common AI models.', 1],
+  ['CSV & Spreadsheet Toolkit', '"Fix this CSV" detects encoding, delimiter, and broken rows automatically, plus merge, split, dedupe, and diff CSV files, convert to and from XLSX and JSON, reshape wide/long data, and pull a random sample of rows.', 1],
+  ['Developer Tools', 'JSON/JWT/Base64/URL formatting and decoding, UUID and hash generation, a regex tester, cron explainer, and converters for cURL, TypeScript types, and Zod schemas — the everyday grab-bag of things a browser tab full of separate sites usually handles.', 3],
+  ['Font Tools', 'Convert TTF/OTF to WOFF2, preview every glyph, detect missing characters, subset a font down to the characters you actually use, and generate a ready-to-paste @font-face block.', 2],
+  ['Color & Design Tools', 'Convert between HEX/RGB/HSL/OKLCH, check and auto-repair contrast, extract a palette from an image, build tint/shade scales, and preview a palette under different types of color-vision deficiency.', 2],
+  ['Archive & File Tools', 'Zip and unzip files entirely in-browser, strip macOS junk files from an archive, find duplicates by hash, generate and verify checksums, and sanitize or bulk-rename a folder of filenames.', 3],
+  ['Geospatial Tools', 'Convert between GPX, KML, and GeoJSON, extract or remove GPS data from photos, calculate distances, and simplify or merge GPX tracks.', 3],
+  ['Calendar & Date Tools', 'View and convert ICS files, merge calendars, shift event times, fix timezone mistakes, and generate a recurring-event ICS from a plain-language rule.', 1],
+  ['Email Tools', 'View EML files and their attachments, inspect headers with a plain-language SPF/DKIM/DMARC explanation, preview HTML emails at different widths, and strip tracking pixels from saved HTML.', 1],
+  ['Odds & Ends', 'The stuff that doesn\u2019t fit a category: webpage-to-PDF, an invoice photo to structured CSV, a slider to compare two image versions, a signature photo to a transparent PNG/SVG, and a passport-photo sheet at exact print dimensions.', 0],
+];
+
+class Component extends DCLogic {
+  state = { mode: null, pressing: false };
+
+  componentDidMount() {
+    this.sync();
+    this.down = () => this.setState({ pressing: true });
+    this.up = () => this.setState({ pressing: false });
+    document.addEventListener('mousedown', this.down);
+    document.addEventListener('mouseup', this.up);
+  }
+
+  componentDidUpdate() { this.sync(); }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.down);
+    document.removeEventListener('mouseup', this.up);
+  }
+
+  mode() { return this.state.mode || this.props.mode || 'light'; }
+
+  sync() { document.body.setAttribute('data-mode', this.mode()); }
+
+  renderVals() {
+    const mode = this.mode();
+    const depth = this.props.castDepth ?? 5;
+    const scheme = this.props.plateInk || 'category';
+    // Plate 3 casts behind the live card by default — chosen by position in the
+    // grid, not by what "live" means. Law 05.
+    // Draw SVG is a picture tool, so its cast is plate 2 under the register.
+    const liveInk = scheme === 'category' ? 'var(--pp-plate-2)'
+      : scheme === 'position' ? 'var(--pp-plate-3)'
+      : CAST_INKS[scheme];
+    const t = this.props.stickerTilt ?? -1.5;
+    const cast = (n) => n + 'px ' + n + 'px 0 ' + liveInk;
+
+    return {
+      blend: mode === 'dark' ? 'screen' : 'multiply',
+      pointer: this.state.pressing ? 'var(--pp-cursor-pressed)' : 'var(--pp-cursor-point)',
+      modeLabel: mode,
+      modeNext: mode === 'dark' ? 'Light' : 'Dark',
+      toggleMode: () => this.setState({ mode: mode === 'dark' ? 'light' : 'dark' }),
+      // Stickers tilt at full strength; cards get a third of it, cycling by
+      // position — the cut-and-pasted rhythm of the original, quiet enough that
+      // eighteen of them still read as a grid rather than a spill.
+      tilt: t + 'deg',
+      tiltUp: -t * 0.85 + 'deg',
+      tiltCard: t * 0.32 + 'deg',
+      pressCard: 'translate(1px,1px) rotate(' + t * 0.32 + 'deg)',
+      tally: '1 live · ' + SOON.length + ' in the queue',
+      // Hover slips the plate further out of register rather than lifting the
+      // card. Press pulls it back in. Nothing moves that a printer could not.
+      castLive: cast(depth),
+      castLiveHover: cast(depth + 3),
+      castLivePress: cast(Math.max(1, depth - 3)),
+
+      soon: SOON.map(([name, desc, reg], i) => {
+        const r = REGISTER[reg];
+        const byPos = REGISTER[(i % 3) + 1];
+        const alt = scheme === 'position' ? byPos : { ink: CAST_INKS[scheme], wash: 'var(--pp-surface)' };
+        return {
+          name, desc,
+          wash: scheme === 'category' ? r.wash : alt.wash,
+          ink: scheme === 'category' ? r.ink : alt.ink,
+          tilt: [t * 0.4, -t * 0.34, t * 0.26][i % 3] + 'deg',
+        };
+      }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HARD RULE — a design system with a licence to disobey</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hepta+Slab:wght@200;300;400;700;800;900&amp;family=Zilla+Slab:wght@400;500;600;700&amp;family=Cousine:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #e9e3d5; color: #191611; font-family: 'Zilla Slab', Georgia, serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  h1, h2, h3, h4 { font-family: 'Hepta Slab', Georgia, serif; font-weight: 800; letter-spacing: -0.035em; line-height: 1.03; }
+  code, kbd, pre { font-family: 'Cousine', ui-monospace, monospace; }
+  a { color: #2b5c6b; text-decoration: none; border-bottom: 1px solid rgba(43,92,107,.45); }
+  a:hover { color: #191611; border-bottom-color: #191611; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  ::selection { background: #d3dc3f; color: #191611; }
+  @keyframes hr-blink { 0%, 55% { opacity: 1 } 56%, 100% { opacity: 0 } }
+  @keyframes hr-sweep { 0% { transform: translateX(-100%) } 100% { transform: translateX(300%) } }
+  @keyframes hr-tick { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+</style>
+</helmet>
+
+<div style="overflow-x:hidden">
+
+  <header style="background:#191611;color:#e9e3d5;padding:clamp(1.75rem,4vw,3rem) 0 0">
+    <div style="max-width:1240px;margin:0 auto;padding:0 clamp(1.25rem,5vw,4rem)">
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(233,227,213,.24)">
+        <code style="font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#b5aa97">Design system · rev 13 · successor to the framework</code>
+        <code style="font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#8a8072">7 laws · 7 licensed breaches</code>
+      </div>
+
+      <h1 style="margin-top:clamp(1.75rem,4vw,3rem);font-size:clamp(3.4rem,15vw,11rem);font-weight:900;letter-spacing:-0.055em;line-height:.84">HARD<br>RULE<span style="color:#d3dc3f">.</span></h1>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:clamp(1.75rem,4vw,3rem);padding:1.5rem 0 clamp(2rem,4vw,3rem);border-top:6px solid #e9e3d5">
+        <p style="font-family:'Hepta Slab',serif;font-weight:300;font-size:clamp(1.15rem,2.6vw,1.75rem);line-height:1.32;letter-spacing:-0.02em;color:#f6f1e6;max-width:26ch">Square corners, weighted rules, one acid that only violations may touch.</p>
+        <p style="font-size:1rem;line-height:1.62;color:#b5aa97;max-width:40ch">Every surface here is trimmed, not moulded. Every icon is built from three angles. Every cursor declares its hotspot. And every screen is permitted exactly one act of disobedience, written into the contract rather than apologised for afterwards.</p>
+        <div style="display:grid;gap:.45rem;align-content:start;font-size:.78rem">
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding-bottom:.45rem;border-bottom:1px solid rgba(233,227,213,.18)"><code style="color:#8a8072">paper</code><code style="color:#e9e3d5">#e9e3d5</code></div>
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding-bottom:.45rem;border-bottom:1px solid rgba(233,227,213,.18)"><code style="color:#8a8072">ink</code><code style="color:#e9e3d5">#191611</code></div>
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding-bottom:.45rem;border-bottom:1px solid rgba(233,227,213,.18)"><code style="color:#8a8072">signal</code><code style="color:#e9663f">#cc3f1d</code></div>
+          <div style="display:flex;justify-content:space-between;gap:1rem"><code style="color:#8a8072">acid · reserved</code><code style="color:#d3dc3f">#d3dc3f</code></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width:1240px;margin:0 auto;padding:0 clamp(1.25rem,5vw,4rem)">
+
+    <section style="padding:clamp(2.5rem,5vw,4.5rem) 0 clamp(2rem,4vw,3.5rem)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">01</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">The contract</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:62ch">Two lists. The left one is not negotiable in any skin, at any size, for any reason. The right one is where a skin becomes itself — and where the old framework made its mistake by keeping the corner on the wrong side of the line.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:1.5rem;margin-top:2rem">
+        <div style="border:2px solid #191611;background:#f6f1e6">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem 1rem;background:#191611;color:#e9e3d5"><code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase">locked · the skeleton</code><code style="font-size:.7rem;color:#d3dc3f">no skin may change these</code></div>
+          <div style="padding:.35rem 1rem 1rem">
+            <sc-for list="{{ locked }}" as="l" hint-placeholder-count="6">
+              <div style="display:flex;gap:.85rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid rgba(25,22,17,.13)">
+                <span style="width:.55rem;height:.55rem;background:#191611;flex:none;transform:translateY(-.15rem)"></span>
+                <div><strong style="font-size:.98rem;font-weight:600">{{ l.t }}</strong><p style="margin-top:.15rem;font-size:.88rem;line-height:1.55;color:#52493c">{{ l.d }}</p></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border:1px solid rgba(25,22,17,.34);background:#f6f1e6">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem 1rem;border-bottom:1px solid rgba(25,22,17,.34)"><code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#52493c">the skin decides</code><code style="font-size:.7rem;color:#cc3f1d">six slots</code></div>
+          <div style="padding:.35rem 1rem 1rem">
+            <sc-for list="{{ skinside }}" as="l" hint-placeholder-count="6">
+              <div style="display:flex;gap:.85rem;align-items:baseline;padding:.7rem 0;border-bottom:1px solid rgba(25,22,17,.13)">
+                <span style="width:.55rem;height:.55rem;border:1px solid rgba(25,22,17,.34);flex:none;transform:translateY(-.15rem)"></span>
+                <div><strong style="font-size:.98rem;font-weight:600">{{ l.t }}</strong><p style="margin-top:.15rem;font-size:.88rem;line-height:1.55;color:#52493c">{{ l.d }}</p></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">02</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Paper, ink, and one thing you may not have</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:60ch">Six slots, each with one job. No mood colours, no tints of tints. The acid at the end is not a slot — it is the ink of exception, and section 11 rations it.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(84px,1fr));margin-top:2rem;border:2px solid #191611;overflow-x:auto">
+        <sc-for list="{{ inks }}" as="i" hint-placeholder-count="7">
+          <div style="border-right:1px solid rgba(25,22,17,.34)">
+            <div style="height:clamp(5rem,11vw,8.5rem);background:{{ i.hex }}"></div>
+            <div style="padding:.6rem .65rem;border-top:1px solid rgba(25,22,17,.34);background:#f6f1e6;display:grid;gap:.2rem">
+              <code style="font-size:.7rem;font-weight:700;color:#191611">{{ i.name }}</code>
+              <code style="font-size:.66rem;color:#8a8072">{{ i.hex }}</code>
+              <p style="margin-top:.15rem;font-size:.76rem;line-height:1.45;color:#52493c">{{ i.job }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:1.25rem;margin-top:1.25rem">
+        <div style="padding:1.1rem 1.2rem;background:#191611;color:#e9e3d5">
+          <h4 style="font-size:1rem;color:#f6f1e6">Ink is used at full strength or not at all</h4>
+          <p style="margin-top:.4rem;font-size:.9rem;line-height:1.6;color:#b5aa97">No 60%-opacity headings, no grey that is really ink pretending to be quiet. If something should be quieter, it gets the muted slot — a colour someone chose on purpose.</p>
+        </div>
+        <div style="padding:1.1rem 1.2rem;border:1px solid rgba(25,22,17,.34)">
+          <h4 style="font-size:1rem">Signal is for consequence, not for brand</h4>
+          <p style="margin-top:.4rem;font-size:.9rem;line-height:1.6;color:#52493c">Vermilion appears on destructive confirmation and on nothing else. A system that paints its logo in the warning colour has no warning colour.</p>
+        </div>
+        <div style="padding:1.1rem 1.2rem;border:2px solid #191611;background:#f2f3d4">
+          <h4 style="font-size:1rem">The acid is rationed</h4>
+          <p style="margin-top:.4rem;font-size:.9rem;line-height:1.6;color:#52493c">Citron may only appear on an element that is currently breaking a law. If you see it twice on one screen, one of the two is a bug.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">03</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Rule weights</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:1rem;align-items:end">
+        <p style="font-size:1.06rem;line-height:1.62;max-width:52ch">The signature of this system. Four weights doing four jobs, so a page has structure you can read at arm's length instead of forty identically-bordered boxes.</p>
+        <p style="font-size:.92rem;line-height:1.7;color:#52493c;max-width:44ch">One border weight is the single largest cause of flatness in a design system. It is also the cheapest thing to fix.</p>
+      </div>
+
+      <div style="display:grid;gap:0;margin-top:2rem;border-top:6px solid #191611">
+        <sc-for list="{{ weights }}" as="w" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:clamp(1rem,3vw,2.5rem);align-items:center;padding:1.15rem 0;border-bottom:1px solid rgba(25,22,17,.13)">
+            <div style="display:flex;align-items:center;gap:1rem;min-width:min(100%,230px)">
+              <code style="font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;width:5.5rem">{{ w.name }}</code>
+              <code style="font-size:.72rem;color:#8a8072;width:3rem">{{ w.px }}</code>
+            </div>
+            <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap">
+              <span style="flex:1 1 120px;min-width:90px;height:0;border-top:{{ w.px }} solid {{ w.col }}"></span>
+              <p style="flex:2 1 260px;font-size:.92rem;line-height:1.55;color:#52493c">{{ w.job }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1px;margin-top:1.5rem">
+        <div style="padding:1.1rem;background:#f6f1e6;box-shadow:0 0 0 1px rgba(25,22,17,.13)">
+          <p style="font-size:.86rem;line-height:1.6;color:#52493c">One weight everywhere:</p>
+          <div style="display:grid;gap:.5rem;margin-top:.75rem">
+            <div style="border:1px solid rgba(25,22,17,.34);padding:.5rem .65rem;font-size:.85rem;color:#52493c">section</div>
+            <div style="border:1px solid rgba(25,22,17,.34);padding:.5rem .65rem;font-size:.85rem;color:#52493c">card</div>
+            <div style="border:1px solid rgba(25,22,17,.34);padding:.5rem .65rem;font-size:.85rem;color:#52493c">row</div>
+          </div>
+          <code style="display:block;margin-top:.75rem;font-size:.7rem;color:#a52f18">no hierarchy — three peers</code>
+        </div>
+        <div style="padding:1.1rem;background:#f6f1e6;box-shadow:0 0 0 1px rgba(25,22,17,.13)">
+          <p style="font-size:.86rem;line-height:1.6;color:#52493c">Weighted:</p>
+          <div style="margin-top:.75rem;border:2px solid #191611;padding:.5rem .65rem">
+            <div style="font-size:.85rem;font-weight:600">section</div>
+            <div style="margin-top:.5rem;border:1px solid rgba(25,22,17,.34);padding:.5rem .65rem;font-size:.85rem;color:#52493c">card
+              <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(25,22,17,.13);font-size:.85rem">row</div>
+            </div>
+          </div>
+          <code style="display:block;margin-top:.75rem;font-size:.7rem;color:#3d6b45">containment is legible</code>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">04</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Type, with an actual jump in it</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:60ch">Three faces, six sizes, and a real gap between each. Hepta Slab carries weight and size; Zilla Slab carries everything a person reads at length; Cousine carries anything the machine said.</p>
+
+      <div style="margin-top:2rem;border-top:2px solid #191611">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:0">
+          <div style="padding:1.25rem 0;border-bottom:1px solid rgba(25,22,17,.13);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;align-items:baseline">
+            <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">display · 900 · -.055em</code>
+            <p style="grid-column:span 2;font-family:'Hepta Slab',serif;font-weight:900;font-size:clamp(2.4rem,7vw,4.6rem);line-height:.92;letter-spacing:-0.05em">Trim, don't mould</p>
+          </div>
+          <div style="padding:1.25rem 0;border-bottom:1px solid rgba(25,22,17,.13);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;align-items:baseline">
+            <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">head · 800</code>
+            <p style="grid-column:span 2;font-family:'Hepta Slab',serif;font-weight:800;font-size:clamp(1.6rem,3.6vw,2.4rem);letter-spacing:-0.035em">Section heads land here</p>
+          </div>
+          <div style="padding:1.25rem 0;border-bottom:1px solid rgba(25,22,17,.13);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;align-items:baseline">
+            <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">lede · 300 · light</code>
+            <p style="grid-column:span 2;font-family:'Hepta Slab',serif;font-weight:300;font-size:clamp(1.15rem,2.4vw,1.6rem);line-height:1.35;letter-spacing:-0.02em;max-width:34ch">The one weight that gets to be quiet and large at the same time.</p>
+          </div>
+          <div style="padding:1.25rem 0;border-bottom:1px solid rgba(25,22,17,.13);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;align-items:baseline">
+            <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">body · 17px · 1.62</code>
+            <p style="grid-column:span 2;font-size:1.0625rem;line-height:1.62;max-width:56ch">Seventeen pixels, not fifteen. A design system that documents itself in 13px is telling you it doesn't expect to be read, and a page nobody reads closely can afford to be sterile.</p>
+          </div>
+          <div style="padding:1.25rem 0;border-bottom:1px solid rgba(25,22,17,.13);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;align-items:baseline">
+            <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">micro · 500</code>
+            <p style="grid-column:span 2;font-size:.86rem;line-height:1.55;color:#52493c;max-width:56ch">Captions, helper text, table cells. Never below 13px, and never used for something a person has to read twice.</p>
+          </div>
+          <div style="padding:1.25rem 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;align-items:baseline">
+            <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">mono · machine</code>
+            <p style="grid-column:span 2;font-family:'Cousine',monospace;font-size:.92rem;line-height:1.7;max-width:56ch">--r-md: 3px; /* values, keys, hotspots, timestamps, anything the system said rather than the writer */</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">05</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Shape law</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:1rem">
+        <p style="font-size:1.06rem;line-height:1.62;max-width:52ch">The <code style="font-size:.9em;color:#cc3f1d">cut</code> scale: 2 · 3 · 4 · 6. Enough to say the paper was trimmed by a person, not enough to say it was moulded in a factory. Pill is not a step — it belongs to tags and nothing else.</p>
+        <div style="display:flex;align-items:flex-end;gap:.9rem;flex-wrap:wrap">
+          <div style="display:grid;gap:.4rem;justify-items:center"><span style="width:3rem;height:3rem;border:1px solid #191611;background:#f6f1e6;border-radius:2px"></span><code style="font-size:.68rem;color:#8a8072">sm 2</code></div>
+          <div style="display:grid;gap:.4rem;justify-items:center"><span style="width:3rem;height:3rem;border:1px solid #191611;background:#f6f1e6;border-radius:3px"></span><code style="font-size:.68rem;color:#8a8072">md 3</code></div>
+          <div style="display:grid;gap:.4rem;justify-items:center"><span style="width:3rem;height:3rem;border:1px solid #191611;background:#f6f1e6;border-radius:4px"></span><code style="font-size:.68rem;color:#8a8072">lg 4</code></div>
+          <div style="display:grid;gap:.4rem;justify-items:center"><span style="width:3rem;height:3rem;border:1px solid #191611;background:#f6f1e6;border-radius:6px"></span><code style="font-size:.68rem;color:#8a8072">xl 6</code></div>
+          <div style="display:grid;gap:.4rem;justify-items:center"><span style="width:3rem;height:3rem;border:1px dashed rgba(25,22,17,.34);border-radius:9999px"></span><code style="font-size:.68rem;color:#a52f18">tags only</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">06</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Icons: three angles, no curves</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:1rem;align-items:end">
+        <p style="font-size:1.06rem;line-height:1.62;max-width:52ch">The whole set is drawn on a 16-unit grid with a 1.75px stroke, using horizontal, vertical and 45° lines only. No arcs, no circles, no curves — a search glass is a square, a status dot is a square, and the family holds together without anyone policing it.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+          <div style="display:grid;gap:.35rem;justify-items:center;padding:.6rem;border:1px solid rgba(25,22,17,.34);background:#f6f1e6"><svg width="30" height="30" viewBox="0 0 16 16" fill="none" stroke="#191611" stroke-width="1.75"><path d="M1 8h14"></path></svg><code style="font-size:.62rem;color:#8a8072">0°</code></div>
+          <div style="display:grid;gap:.35rem;justify-items:center;padding:.6rem;border:1px solid rgba(25,22,17,.34);background:#f6f1e6"><svg width="30" height="30" viewBox="0 0 16 16" fill="none" stroke="#191611" stroke-width="1.75"><path d="M8 1v14"></path></svg><code style="font-size:.62rem;color:#8a8072">90°</code></div>
+          <div style="display:grid;gap:.35rem;justify-items:center;padding:.6rem;border:1px solid rgba(25,22,17,.34);background:#f6f1e6"><svg width="30" height="30" viewBox="0 0 16 16" fill="none" stroke="#191611" stroke-width="1.75"><path d="M2 14 14 2"></path></svg><code style="font-size:.62rem;color:#8a8072">45°</code></div>
+          <div style="display:grid;gap:.35rem;justify-items:center;padding:.6rem;border:1px dashed rgba(165,47,24,.5);background:#f6f1e6"><svg width="30" height="30" viewBox="0 0 16 16" fill="none" stroke="#a52f18" stroke-width="1.75" opacity=".5"><path d="M2 11a6 6 0 0 1 12 0"></path></svg><code style="font-size:.62rem;color:#a52f18">never</code></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,112px),1fr));gap:1px;margin-top:2rem">
+        <sc-for list="{{ icons }}" as="ic" hint-placeholder-count="24">
+          <div style="display:grid;gap:.55rem;justify-items:center;padding:1rem .5rem;background:#f6f1e6;box-shadow:0 0 0 1px rgba(25,22,17,.13);cursor:{{ pointCur }}" style-hover="background:#191611;color:#e9e3d5">
+            <svg width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="{{ ic.d }}"></path></svg>
+            <code style="font-size:.64rem;letter-spacing:.04em">{{ ic.n }}</code>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin-top:1.25rem;font-family:'Cousine',monospace;font-size:.76rem;line-height:1.7;color:#8a8072;max-width:78ch">All 24 icons above use a single path element and the same three angles. Stroke is square-capped: a rounded cap would reintroduce the curve the law removed.</p>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">07</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Pointers</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:62ch">Seven drawn cursors, same three angles as the icons, each one ink filled with a paper keyline so it survives on any surface. Hotspots are declared and locked — a skin may repaint a pointer, never move its point. Hover a tile to take it for a walk.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr));gap:1rem;margin-top:2rem">
+        <sc-for list="{{ cursors }}" as="c" hint-placeholder-count="7">
+          <div style="border:1px solid rgba(25,22,17,.34);background:#f6f1e6;display:grid;gap:.55rem;align-content:start;padding:1rem;cursor:{{ c.cur }}" style-hover="border-color:#191611;box-shadow:3px 3px 0 #191611">
+            <div style="display:grid;place-items:center;height:3.4rem;border:1px solid rgba(25,22,17,.13);background:#e9e3d5;background-image:linear-gradient(45deg,rgba(25,22,17,.05) 25%,transparent 25%,transparent 75%,rgba(25,22,17,.05) 75%);background-size:8px 8px">
+              <span style="width:1.9rem;height:1.9rem;display:block;background-repeat:no-repeat;background-position:center;background-size:contain;background-image:{{ c.art }}"></span>
+            </div>
+            <code style="font-size:.76rem;font-weight:700">{{ c.n }}</code>
+            <p style="font-size:.8rem;line-height:1.5;color:#52493c">{{ c.use }}</p>
+            <code style="font-size:.64rem;color:#cc3f1d">hotspot {{ c.hot }}</code>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1.25rem;margin-top:1.25rem">
+        <div style="padding:1.1rem 1.2rem;border:1px solid rgba(25,22,17,.34);background:#f6f1e6">
+          <h4 style="font-size:1rem">Left to the operating system</h4>
+          <p style="margin-top:.35rem;font-size:.88rem;line-height:1.6;color:#52493c">Four states are never drawn, because a custom version only makes a familiar meaning slower to read.</p>
+          <div style="display:grid;gap:.4rem;margin-top:.9rem">
+            <span style="display:flex;justify-content:space-between;gap:1rem;padding:.45rem .6rem;border:1px solid rgba(25,22,17,.13);font-size:.82rem;color:#52493c;cursor:help">help<code style="font-size:.7rem;color:#8a8072">cursor: help</code></span>
+            <span style="display:flex;justify-content:space-between;gap:1rem;padding:.45rem .6rem;border:1px solid rgba(25,22,17,.13);font-size:.82rem;color:#52493c;cursor:progress">working<code style="font-size:.7rem;color:#8a8072">cursor: progress</code></span>
+            <span style="display:flex;justify-content:space-between;gap:1rem;padding:.45rem .6rem;border:1px solid rgba(25,22,17,.13);font-size:.82rem;color:#52493c;cursor:not-allowed">blocked<code style="font-size:.7rem;color:#8a8072">cursor: not-allowed</code></span>
+            <span style="display:flex;justify-content:space-between;gap:1rem;padding:.45rem .6rem;border:1px solid rgba(25,22,17,.13);font-size:.82rem;color:#52493c;cursor:col-resize">resize<code style="font-size:.7rem;color:#8a8072">cursor: col-resize</code></span>
+          </div>
+        </div>
+        <div style="padding:1.1rem 1.2rem;background:#191611;color:#b5aa97">
+          <h4 style="font-size:1rem;color:#f6f1e6">The pointer is a promise</h4>
+          <p style="margin-top:.35rem;font-size:.88rem;line-height:1.6">Every cursor here states what will happen if you press. <code style="color:#d3dc3f;font-size:.9em">point</code> means something responds. <code style="color:#d3dc3f;font-size:.9em">cross</code> means precision is expected of you. <code style="color:#d3dc3f;font-size:.9em">grab</code> means the surface moves, not the content.</p>
+          <p style="margin-top:.7rem;font-size:.88rem;line-height:1.6">Dropped entirely on touch, where a drawn pointer is a lie about the input device.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section style="background:#191611;color:#e9e3d5;padding:clamp(2.5rem,5vw,4.5rem) 0">
+    <div style="max-width:1240px;margin:0 auto;padding:0 clamp(1.25rem,5vw,4rem)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">08</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem);color:#f6f1e6">Controls</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:62ch;color:#b5aa97">Identical geometry in every skin: 44px standard, 36px compact, 52px prominent. Square-shouldered, 2px on the one that matters, and a pressed state that actually moves. Shown on ink because a control family that only works on paper isn't a family.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:1px;margin-top:2rem">
+        <div style="padding:1.35rem;background:#211d17;box-shadow:0 0 0 1px rgba(233,227,213,.2)">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">hierarchy</code>
+          <div style="display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.9rem">
+            <button style="height:44px;padding:0 1.2rem;background:#e9e3d5;color:#191611;border:2px solid #e9e3d5;border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-hover="background:#f6f1e6" style-active="transform:translate(1px,1px)">Primary</button>
+            <button style="height:44px;padding:0 1.2rem;background:transparent;color:#e9e3d5;border:1px solid rgba(233,227,213,.5);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-hover="border-color:#e9e3d5" style-active="transform:translate(1px,1px)">Secondary</button>
+            <button style="height:44px;padding:0 1.2rem;background:rgba(233,227,213,.12);color:#e9e3d5;border:1px solid transparent;border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-hover="background:rgba(233,227,213,.2)">Tonal</button>
+            <button style="height:44px;padding:0 1.2rem;background:transparent;color:#b5aa97;border:1px solid transparent;border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-hover="color:#e9e3d5">Quiet</button>
+            <button style="height:44px;padding:0 1.2rem;background:#cc3f1d;color:#f6f1e6;border:2px solid #cc3f1d;border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-hover="background:#a52f18;border-color:#a52f18">Delete</button>
+            <button disabled="{{ true }}" style="height:44px;padding:0 1.2rem;background:transparent;color:#52493c;border:1px dashed rgba(233,227,213,.22);border-radius:3px;font-weight:600;font-size:.95rem;cursor:not-allowed">Disabled</button>
+          </div>
+          <p style="margin-top:.9rem;font-size:.82rem;line-height:1.55;color:#8a8072">Primary takes 2px. Secondary takes 1px. Quiet takes none. Border weight <em>is</em> the hierarchy — no fill juggling required.</p>
+        </div>
+
+        <div style="padding:1.35rem;background:#211d17;box-shadow:0 0 0 1px rgba(233,227,213,.2)">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">size &amp; shape</code>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:.9rem">
+            <button style="height:36px;padding:0 .85rem;background:transparent;color:#e9e3d5;border:1px solid rgba(233,227,213,.5);border-radius:2px;font-weight:600;font-size:.85rem;cursor:pointer">Compact 36</button>
+            <button style="height:44px;padding:0 1.1rem;background:transparent;color:#e9e3d5;border:1px solid rgba(233,227,213,.5);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer">Standard 44</button>
+            <button style="height:52px;padding:0 1.4rem;background:#e9e3d5;color:#191611;border:2px solid #e9e3d5;border-radius:4px;font-weight:700;font-size:1.02rem;cursor:pointer">Prominent 52</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:.75rem">
+            <button aria-label="Add" style="width:44px;height:44px;display:grid;place-items:center;background:transparent;color:#e9e3d5;border:1px solid rgba(233,227,213,.5);border-radius:3px;cursor:pointer"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M8 2v12M2 8h12"></path></svg></button>
+            <button aria-label="More" style="width:44px;height:44px;display:grid;place-items:center;background:transparent;color:#b5aa97;border:1px solid transparent;border-radius:3px;cursor:pointer"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="7" width="2" height="2"></rect><rect x="7" y="7" width="2" height="2"></rect><rect x="12" y="7" width="2" height="2"></rect></svg></button>
+            <span style="display:inline-flex;border:1px solid rgba(233,227,213,.5);border-radius:3px;overflow:hidden">
+              <button style="height:44px;padding:0 1rem;background:transparent;color:#e9e3d5;border:0;border-right:1px solid rgba(233,227,213,.5);font-weight:600;font-size:.95rem;cursor:pointer">Issue</button>
+              <button aria-label="Issue options" style="width:40px;height:44px;display:grid;place-items:center;background:transparent;color:#e9e3d5;border:0;cursor:pointer"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M3 6l5 5 5-5"></path></svg></button>
+            </span>
+            <button style="height:44px;padding:0 1.1rem;display:inline-flex;align-items:center;gap:.55rem;background:transparent;color:#e9e3d5;border:1px solid rgba(233,227,213,.5);border-radius:3px;font-weight:600;font-size:.95rem;cursor:progress"><span style="width:.95rem;height:.95rem;border:2px solid rgba(233,227,213,.3);border-top-color:#e9e3d5;animation:hr-tick .9s linear infinite"></span>Working</button>
+          </div>
+          <p style="margin-top:.9rem;font-size:.82rem;line-height:1.55;color:#8a8072">Radius rises with size — 2 / 3 / 4 — so a large button never looks softer than a small one.</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:1px;margin-top:1px">
+        <div style="padding:1.35rem;background:#211d17;box-shadow:0 0 0 1px rgba(233,227,213,.2);display:grid;gap:.9rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">fields</code>
+          <label style="display:grid;gap:.35rem"><code style="font-size:.7rem;color:#b5aa97">accession</code><input value="1974.281" style="height:44px;padding:0 .75rem;background:#191611;border:1px solid rgba(233,227,213,.5);border-radius:3px;font-size:.95rem;color:#e9e3d5;cursor:{{ textCur }}"></label>
+          <label style="display:grid;gap:.35rem"><code style="font-size:.7rem;color:#cc3f1d">invalid</code><input value="1974.28.1.b" style="height:44px;padding:0 .75rem;background:#191611;border:2px solid #cc3f1d;border-radius:3px;font-size:.95rem;color:#e9e3d5"><span style="font-size:.78rem;color:#cc3f1d">Accession numbers take one decimal point.</span></label>
+          <label style="display:grid;gap:.35rem"><code style="font-size:.7rem;color:#b5aa97">select</code>
+            <span style="position:relative;display:block">
+              <select style="width:100%;height:44px;padding:0 2.2rem 0 .75rem;background:#191611;border:1px solid rgba(233,227,213,.5);border-radius:3px;font-size:.95rem;color:#e9e3d5;appearance:none;cursor:pointer"><option>Hard · 0 0 1 2</option><option selected="{{ true }}">Cut · 2 3 4 6</option><option>Soft · 7 11 16 24</option></select>
+              <span style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);pointer-events:none;color:#b5aa97"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M3 6l5 5 5-5"></path></svg></span>
+            </span>
+          </label>
+        </div>
+
+        <div style="padding:1.35rem;background:#211d17;box-shadow:0 0 0 1px rgba(233,227,213,.2);display:grid;gap:1rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">switch, check, choose</code>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+            <span style="font-size:.92rem">Enforce budgets</span>
+            <button onClick="{{ toggleEnforce }}" aria-pressed="{{ enforce }}" style="width:60px;height:30px;padding:2px;border:1px solid rgba(233,227,213,.5);border-radius:2px;background:{{ swBg }};cursor:pointer;display:flex;justify-content:{{ swPos }}">
+              <span style="width:24px;height:24px;background:{{ swKnob }};display:block"></span>
+            </button>
+          </div>
+          <div style="display:grid;gap:.5rem">
+            <sc-for list="{{ checks }}" as="ck" hint-placeholder-count="3">
+              <button onClick="{{ ck.on }}" style="display:flex;align-items:center;gap:.65rem;background:transparent;border:0;padding:0;cursor:pointer;text-align:left;color:#e9e3d5">
+                <span style="width:20px;height:20px;flex:none;border:1px solid rgba(233,227,213,.5);border-radius:2px;display:grid;place-items:center;background:{{ ck.bg }}">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#191611" stroke-width="2.25" stroke-linecap="square" opacity="{{ ck.op }}"><path d="M3 8l4 4 6-6"></path></svg>
+                </span>
+                <span style="font-size:.92rem">{{ ck.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;border:1px solid rgba(233,227,213,.5);border-radius:3px;overflow:hidden">
+            <sc-for list="{{ segs }}" as="sg" hint-placeholder-count="3">
+              <button onClick="{{ sg.on }}" style="flex:1;height:40px;border:0;border-right:1px solid rgba(233,227,213,.5);background:{{ sg.bg }};color:{{ sg.fg }};font-size:.86rem;font-weight:600;cursor:pointer">{{ sg.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:1.35rem;background:#211d17;box-shadow:0 0 0 1px rgba(233,227,213,.2);display:grid;gap:1rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">quantity &amp; range</code>
+          <div style="display:flex;align-items:center;border:1px solid rgba(233,227,213,.5);border-radius:3px;width:fit-content">
+            <button onClick="{{ dec }}" aria-label="Fewer" style="width:44px;height:44px;display:grid;place-items:center;background:transparent;border:0;border-right:1px solid rgba(233,227,213,.5);color:#e9e3d5;cursor:pointer"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M2 8h12"></path></svg></button>
+            <code style="width:64px;text-align:center;font-size:1.05rem;font-weight:700">{{ qty }}</code>
+            <button onClick="{{ inc }}" aria-label="More" style="width:44px;height:44px;display:grid;place-items:center;background:transparent;border:0;border-left:1px solid rgba(233,227,213,.5);color:#e9e3d5;cursor:pointer"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M8 2v12M2 8h12"></path></svg></button>
+          </div>
+          <label style="display:grid;gap:.5rem">
+            <span style="display:flex;justify-content:space-between"><code style="font-size:.7rem;color:#b5aa97">stroke</code><code style="font-size:.78rem;color:#d3dc3f">{{ stroke }}px</code></span>
+            <input type="range" min="1" max="6" step="0.25" value="{{ stroke }}" onInput="{{ setStroke }}" onChange="{{ setStroke }}" style="accent-color:#d3dc3f;height:1.75rem;cursor:ew-resize">
+          </label>
+          <div style="display:grid;place-items:center;height:5rem;border:1px solid rgba(233,227,213,.2);background:#191611">
+            <svg width="52" height="52" viewBox="0 0 16 16" fill="none" stroke="#e9e3d5" stroke-width="{{ stroke }}" stroke-linecap="square"><path d="M2 12l6-6 6 6"></path></svg>
+          </div>
+          <p style="font-size:.8rem;line-height:1.5;color:#8a8072">1.75px is the icon stroke. Anything above 3px stops being an icon and becomes a mark.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="max-width:1240px;margin:0 auto;padding:0 clamp(1.25rem,5vw,4rem)">
+
+    <section style="padding:clamp(2.5rem,5vw,4.5rem) 0">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">09</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Signals</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:60ch">Status is carried by a square, a weight and a word — never by colour alone. Every signal reads correctly in greyscale, which is the only accessibility test that catches everything.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:1.25rem;margin-top:2rem">
+        <div style="display:grid;gap:.6rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">state rows</code>
+          <sc-for list="{{ signals }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;background:#f6f1e6;border-left:6px solid {{ s.col }};box-shadow:0 0 0 1px rgba(25,22,17,.13)">
+              <span style="width:.6rem;height:.6rem;flex:none;background:{{ s.col }}"></span>
+              <strong style="font-size:.9rem;font-weight:600">{{ s.label }}</strong>
+              <code style="margin-left:auto;font-size:.72rem;color:#8a8072">{{ s.code }}</code>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;gap:.75rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">tags · the only pill</code>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+            <span style="padding:.28rem .7rem;border:1px solid rgba(25,22,17,.34);border-radius:9999px;font-size:.76rem;font-weight:600">draft</span>
+            <span style="padding:.28rem .7rem;background:#191611;color:#e9e3d5;border:1px solid #191611;border-radius:9999px;font-size:.76rem;font-weight:600">rev 13</span>
+            <span style="padding:.28rem .7rem;background:#f2ded6;color:#a52f18;border:1px solid #cc3f1d;border-radius:9999px;font-size:.76rem;font-weight:600">breaking</span>
+            <span style="padding:.28rem .7rem;background:#f2f3d4;color:#4d5216;border:1px solid #d3dc3f;border-radius:9999px;font-size:.76rem;font-weight:600">licensed</span>
+          </div>
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072;margin-top:.5rem">progress</code>
+          <div style="height:10px;border:1px solid rgba(25,22,17,.34);background:#e9e3d5;position:relative;overflow:hidden">
+            <span style="position:absolute;inset:1px auto 1px 1px;width:62%;background:#191611"></span>
+          </div>
+          <div style="height:10px;border:1px solid rgba(25,22,17,.34);background:#e9e3d5;position:relative;overflow:hidden">
+            <span style="position:absolute;top:1px;bottom:1px;width:34%;background:#191611;animation:hr-sweep 1.6s linear infinite"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-top:.25rem">
+            <span style="width:.5rem;height:.5rem;background:#3d6b45;animation:hr-blink 1.1s steps(1) infinite"></span>
+            <code style="font-size:.74rem;color:#52493c">live · polling every 4s</code>
+          </div>
+        </div>
+        <div style="display:grid;gap:.75rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">notice</code>
+          <div style="border:2px solid #191611;background:#f6f1e6;padding:.85rem .95rem;display:flex;gap:.7rem;align-items:flex-start">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#191611" stroke-width="1.75" stroke-linecap="square" style="flex:none;margin-top:.1rem"><path d="M8 1.5 14.5 8 8 14.5 1.5 8z M8 4.75v3.5"></path><rect x="7.3" y="10.1" width="1.4" height="1.4" fill="#191611" stroke="none"></rect></svg>
+            <div><strong style="font-size:.92rem;font-weight:600">Two exceptions detected on one view</strong><p style="margin-top:.2rem;font-size:.85rem;line-height:1.55;color:#52493c">Both licences are revoked until one is withdrawn.</p></div>
+          </div>
+          <div style="background:#191611;color:#e9e3d5;padding:.85rem .95rem;display:flex;gap:.7rem;align-items:center">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#d3dc3f" stroke-width="2" stroke-linecap="square" style="flex:none"><path d="M3 8l4 4 6-6"></path></svg>
+            <div style="font-size:.9rem">Tokens published · <code style="font-size:.82rem;color:#b5aa97">rev 13</code></div>
+            <button aria-label="Dismiss" style="margin-left:auto;width:26px;height:26px;display:grid;place-items:center;background:transparent;border:1px solid rgba(233,227,213,.35);color:#e9e3d5;cursor:pointer"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M3 3l10 10M13 3 3 13"></path></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:1px solid rgba(25,22,17,.13)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">10</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Containers &amp; tables</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:60ch">Not everything is a card. A table is a table: fixed tracks, one hairline per row, no rounded shell around it pretending the data is soft.</p>
+
+      <div style="margin-top:2rem;border:2px solid #191611;background:#f6f1e6">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;padding:.7rem .9rem;background:#191611;color:#e9e3d5">
+          <code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase">token ledger</code>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .55rem;border:1px solid rgba(233,227,213,.35)"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><rect x="2.5" y="2.5" width="8" height="8"></rect><path d="M10.5 10.5 14 14"></path></svg><code style="font-size:.7rem">filter</code></span>
+            <code style="font-size:.7rem;color:#b5aa97">4 changed</code>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 110px;gap:1rem;padding:.6rem .9rem;border-bottom:1px solid rgba(25,22,17,.34)">
+          <code style="font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">token</code>
+          <code style="font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">was</code>
+          <code style="font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">now</code>
+          <code style="font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#8a8072">owner</code>
+        </div>
+        <sc-for list="{{ ledger }}" as="row" hint-placeholder-count="5">
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 110px;gap:1rem;padding:.65rem .9rem;border-bottom:1px solid rgba(25,22,17,.13);align-items:baseline;cursor:{{ pointCur }}" style-hover="background:#e9e3d5">
+            <code style="font-size:.84rem">{{ row.k }}</code>
+            <code style="font-size:.84rem;color:#b5aa97;text-decoration:line-through">{{ row.was }}</code>
+            <code style="font-size:.84rem;color:#3d6b45;font-weight:700">{{ row.now }}</code>
+            <code style="font-size:.74rem;color:#52493c">{{ row.who }}</code>
+          </div>
+        </sc-for>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;padding:.7rem .9rem;border-top:1px solid rgba(25,22,17,.34)">
+          <code style="font-size:.74rem;color:#8a8072">radius moved from :root to skin</code>
+          <code style="font-size:.74rem;color:#8a8072;margin-left:auto">rev 12 → rev 13</code>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3.5rem) 0;border-top:6px solid #191611">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">11</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">Exceptions, and their budget</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:1rem;align-items:end">
+        <p style="font-size:1.06rem;line-height:1.62;max-width:52ch">Seven laws, each with one licensed breach and a price. Take a licence below and watch the screen in section 12 change. Take two, and find out what happens.</p>
+        <p style="font-size:.92rem;line-height:1.7;color:#52493c;max-width:44ch">The acid is the tell: anything wearing citron is currently disobeying, on purpose, with permission.</p>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.75rem;padding:1rem;border:2px solid #191611;background:#f6f1e6;align-items:center">
+        <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072;margin-right:.5rem">licences</code>
+        <sc-for list="{{ licences }}" as="lc" hint-placeholder-count="3">
+          <button onClick="{{ lc.on }}" style="height:40px;padding:0 .95rem;border:{{ lc.bd }};border-radius:2px;background:{{ lc.bg }};color:{{ lc.fg }};font-size:.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem">
+            <span style="width:.5rem;height:.5rem;background:{{ lc.dot }}"></span>{{ lc.label }}
+          </button>
+        </sc-for>
+        <code style="margin-left:auto;font-size:.78rem;font-weight:700;color:{{ budgetCol }}">{{ budgetMsg }}</code>
+      </div>
+
+      <div style="margin-top:1.5rem;border-top:2px solid #191611">
+        <div style="display:grid;grid-template-columns:1.1fr 1fr 1.35fr 92px;gap:1.25rem;padding:.7rem 0;border-bottom:1px solid rgba(25,22,17,.34)">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">law</code>
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">licensed breach</code>
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">what earns it</code>
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">budget</code>
+        </div>
+        <sc-for list="{{ laws }}" as="l" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:1.1fr 1fr 1.35fr 92px;gap:1.25rem;padding:1.05rem 0;border-bottom:1px solid rgba(25,22,17,.13);align-items:start">
+            <div style="display:flex;gap:.7rem;align-items:baseline">
+              <code style="font-size:.72rem;color:#b5aa97">{{ l.n }}</code>
+              <h4 style="font-size:1rem;line-height:1.25;letter-spacing:-0.012em">{{ l.rule }}</h4>
+            </div>
+            <p style="font-size:.9rem;line-height:1.55">{{ l.breach }}</p>
+            <p style="font-size:.9rem;line-height:1.55;color:#52493c">{{ l.earn }}</p>
+            <code style="font-size:.72rem;line-height:1.6;color:#cc3f1d;white-space:nowrap">{{ l.budget }}</code>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:1.25rem;margin-top:1.75rem">
+        <div style="border-left:6px solid #191611;padding:.1rem 0 .1rem 1.1rem">
+          <h4 style="font-size:1.02rem">Two exceptions in one view cancel each other</h4>
+          <p style="margin-top:.35rem;font-size:.9rem;line-height:1.6;color:#52493c">Not discouraged — cancelled. A screen needing two breaks has a hierarchy problem, and neither break is doing the work you think it is.</p>
+        </div>
+        <div style="border-left:6px solid #d3dc3f;padding:.1rem 0 .1rem 1.1rem">
+          <h4 style="font-size:1.02rem">An exception used twice is an undeclared token</h4>
+          <p style="margin-top:.35rem;font-size:.9rem;line-height:1.6;color:#52493c">The second time a violation appears, it stops being one. Name it, give it a slot, write its states — or stop using it.</p>
+        </div>
+        <div style="border-left:6px solid #cc3f1d;padding:.1rem 0 .1rem 1.1rem">
+          <h4 style="font-size:1.02rem">The law must survive the breach</h4>
+          <p style="margin-top:.35rem;font-size:.9rem;line-height:1.6;color:#52493c">If breaking a rule makes the rule look arbitrary, the rule was wrong. Delete it and stop calling the result an exception.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:0 0 clamp(3rem,6vw,5rem);border-top:1px solid rgba(25,22,17,.13);padding-top:clamp(2rem,4vw,3.5rem)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#8a8072">12</code>
+        <h2 style="font-size:clamp(1.7rem,4.2vw,2.9rem)">In situ</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.06rem;line-height:1.62;max-width:60ch">One screen, assembled entirely from the parts above. The licence you hold in section 11 is the only thing that changes.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:1.5rem;margin-top:2rem;align-items:start">
+        <div style="border:2px solid #191611;background:#f6f1e6;border-radius:3px;box-shadow:6px 6px 0 rgba(25,22,17,.12)">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;padding:.8rem 1rem;background:#191611;color:#e9e3d5">
+            <div style="display:flex;align-items:center;gap:.65rem">
+              <span style="display:grid;place-items:center;width:1.75rem;height:1.75rem;background:#e9e3d5;color:#191611;font-family:'Hepta Slab',serif;font-weight:900;font-size:.72rem;letter-spacing:-0.04em">HR</span>
+              <strong style="font-family:'Hepta Slab',serif;font-weight:800;font-size:1rem;letter-spacing:-0.02em">Publish tokens</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <span style="padding:.2rem .5rem;border:1px solid rgba(233,227,213,.35);border-radius:9999px;font-size:.7rem;font-weight:600">rev 13</span>
+              <button aria-label="Close" style="width:26px;height:26px;display:grid;place-items:center;background:transparent;border:1px solid rgba(233,227,213,.35);color:#e9e3d5;cursor:pointer"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square"><path d="M3 3l10 10M13 3 3 13"></path></svg></button>
+            </div>
+          </div>
+
+          <div style="display:grid;gap:1rem;padding:1.15rem 1rem">
+            <sc-if value="{{ excScale }}" hint-placeholder-val="{{ false }}">
+              <p style="font-family:'Hepta Slab',serif;font-weight:900;font-size:clamp(1.9rem,5vw,2.9rem);line-height:.96;letter-spacing:-0.045em;max-width:20ch">4 tokens, 12 skins, no going back.</p>
+            </sc-if>
+            <sc-if value="{{ noScale }}" hint-placeholder-val="{{ true }}">
+              <p style="font-size:1.0625rem;line-height:1.6;max-width:44ch">Four tokens will change in all twelve skins. This cannot be undone from here.</p>
+            </sc-if>
+
+            <div style="border:1px solid rgba(25,22,17,.34);border-radius:2px">
+              <sc-for list="{{ ledger }}" as="row" hint-placeholder-count="5">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:.55rem .75rem;border-bottom:1px solid rgba(25,22,17,.13)">
+                  <code style="font-size:.8rem">{{ row.k }}</code>
+                  <div style="display:flex;align-items:baseline;gap:.55rem">
+                    <code style="font-size:.8rem;color:#b5aa97;text-decoration:line-through">{{ row.was }}</code>
+                    <code style="font-size:.8rem;color:#3d6b45;font-weight:700">{{ row.now }}</code>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:.5rem;padding:.55rem .75rem">
+                <span style="width:.45rem;height:.45rem;background:#8a8072;animation:hr-blink 1.1s steps(1) infinite"></span>
+                <code style="font-size:.74rem;color:#8a8072">watching for skin overrides</code>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;padding-top:.9rem;border-top:1px solid rgba(25,22,17,.34)">
+              <sc-if value="{{ excScale }}" hint-placeholder-val="{{ false }}">
+                <button style="height:52px;padding:0 1.5rem;background:#d3dc3f;color:#191611;border:2px solid #191611;border-radius:4px;font-family:'Hepta Slab',serif;font-weight:900;font-size:1.08rem;letter-spacing:-0.02em;cursor:pointer" style-active="transform:translate(2px,2px)">Publish</button>
+              </sc-if>
+              <sc-if value="{{ excAxis }}" hint-placeholder-val="{{ false }}">
+                <button style="height:44px;padding:0 1.25rem;background:#f6f1e6;color:#191611;border:2px solid #191611;border-radius:3px;box-shadow:5px 5px 0 #d3dc3f;font-weight:700;font-size:.98rem;cursor:pointer;transform:rotate(-1.25deg)" style-active="transform:rotate(-1.25deg) translate(2px,2px);box-shadow:3px 3px 0 #d3dc3f">Publish</button>
+              </sc-if>
+              <sc-if value="{{ excAcid }}" hint-placeholder-val="{{ false }}">
+                <button style="height:44px;padding:0 1.25rem;background:#191611;color:#d3dc3f;border:2px solid #d3dc3f;border-radius:3px;font-weight:700;font-size:.98rem;cursor:pointer" style-active="transform:translate(2px,2px)">Publish</button>
+              </sc-if>
+              <sc-if value="{{ excNone }}" hint-placeholder-val="{{ true }}">
+                <button style="height:44px;padding:0 1.25rem;background:#191611;color:#f6f1e6;border:2px solid #191611;border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-active="transform:translate(2px,2px)">Publish</button>
+              </sc-if>
+              <button style="height:44px;padding:0 1.1rem;background:transparent;border:1px solid rgba(25,22,17,.34);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer">Discard</button>
+              <code style="margin-left:auto;font-size:.72rem;color:#8a8072">⌘⏎</code>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ showLaw }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;gap:1.1rem;align-content:start">
+            <div style="display:grid;gap:.35rem;padding-left:1.1rem;border-left:6px solid {{ marginCol }}">
+              <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:{{ marginCol }}">{{ marginKicker }}</code>
+              <p style="font-size:.92rem;line-height:1.6;color:#52493c">{{ marginBody }}</p>
+            </div>
+            <div style="display:grid;gap:.35rem;padding-left:1.1rem;border-left:1px solid rgba(25,22,17,.34)">
+              <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">within contract</code>
+              <p style="font-size:.92rem;line-height:1.6;color:#52493c">44px targets, three faces, the cut scale, pill on the revision tag only, ink at full strength in the header. Discard stays 1px: cancel never competes with confirm.</p>
+            </div>
+            <div style="display:grid;gap:.35rem;padding-left:1.1rem;border-left:1px solid rgba(25,22,17,.13)">
+              <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a8072">why it matters</code>
+              <p style="font-size:.92rem;line-height:1.6;color:#52493c">Withdraw every licence and the screen is not worse — it is flatter, and nothing tells you which of the two actions you cannot take back. That is what the budget buys.</p>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+
+    <footer style="padding:0 0 clamp(3rem,6vw,5rem);border-top:6px solid #191611;padding-top:1.5rem">
+      <div style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:space-between;align-items:baseline">
+        <p style="max-width:54ch;font-size:.92rem;line-height:1.7;color:#52493c">HARD RULE is the framework with the corner given back to the skin and section 11 finally written. Strict where it can afford to be, and licensed exactly once where it can't.</p>
+        <code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#b5aa97">hard rule · rev 13 · 7 laws</code>
+      </div>
+    </footer>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;strict&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Exceptions&quot;},&quot;showLaw&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Exceptions&quot;}}">
+const LOCKED = [
+  { t: '44px standard target', d: 'Ergonomics, not taste. 36 compact, 52 prominent, and nothing between.' },
+  { t: 'Three typefaces', d: 'Hepta Slab, Zilla Slab, Cousine. A skin may not add, swap or drop a face.' },
+  { t: 'Four rule weights', d: 'Hairline, line, structure, spine. The jobs are fixed even if the ink is not.' },
+  { t: 'Six palette slots', d: 'What each slot is FOR is contract. What colour fills it is not.' },
+  { t: 'Icon geometry', d: '16-unit grid, three angles, square caps, one path per glyph.' },
+  { t: 'Cursor hotspots', d: 'Repaint any pointer you like. Never move its point.' },
+];
+
+const SKINSIDE = [
+  { t: 'The radius scale', d: 'hard, cut or soft — declared once, never mixed. This is where the framework went wrong.' },
+  { t: 'Paper and ink values', d: 'Six slots to fill. Full strength or use the muted slot.' },
+  { t: 'Elevation character', d: 'Soft cast, hard offset, or none at all. Two levels maximum either way.' },
+  { t: 'Texture', d: 'Grain, ruling, grid or nothing. Never on top of type.' },
+  { t: 'Which law it breaks', d: 'A skin picks one of the seven and lives with it.' },
+  { t: 'The acid', d: 'One reserved hue for violations. Skins choose it; only exceptions may wear it.' },
+];
+
+const INKS = [
+  { name: 'paper', hex: '#e9e3d5', job: 'the field everything sits on' },
+  { name: 'surface', hex: '#f6f1e6', job: 'containers, one step up' },
+  { name: 'ink', hex: '#191611', job: 'type, rules, full-strength bands' },
+  { name: 'muted', hex: '#52493c', job: 'anything deliberately quiet' },
+  { name: 'faint', hex: '#8a8072', job: 'machine text, metadata' },
+  { name: 'signal', hex: '#cc3f1d', job: 'consequence only — never brand' },
+  { name: 'acid', hex: '#d3dc3f', job: 'reserved: exceptions only' },
+];
+
+const WEIGHTS = [
+  { name: 'hairline', px: '1px', col: 'rgba(25,22,17,.13)', job: 'splits inside a container — rows, cells, stacked fields. Never encloses anything.' },
+  { name: 'line', px: '1px', col: 'rgba(25,22,17,.34)', job: 'the ordinary container edge, and every secondary control.' },
+  { name: 'structure', px: '2px', col: '#191611', job: 'a thing you are meant to notice: the primary panel, the primary button, the one table that matters.' },
+  { name: 'spine', px: '6px', col: '#191611', job: 'once per page. Section breaks that reset the reader, and the margin bar on an annotation.' },
+];
+
+const ICONS = [
+  { n: 'plus', d: 'M8 2v12M2 8h12' },
+  { n: 'minus', d: 'M2 8h12' },
+  { n: 'close', d: 'M3 3l10 10M13 3 3 13' },
+  { n: 'check', d: 'M3 8l4 4 6-6' },
+  { n: 'chevron', d: 'M4 6l4 4 4-4' },
+  { n: 'next', d: 'M2 8h11M9 4l4 4-4 4' },
+  { n: 'diagonal', d: 'M4 12 12 4M7 4h5v5' },
+  { n: 'box', d: 'M2.5 2.5h11v11h-11z' },
+  { n: 'split', d: 'M2.5 2.5h11v11h-11z M8 2.5v11' },
+  { n: 'grid', d: 'M2.5 2.5h4.5v4.5h-4.5z M9 2.5h4.5v4.5h-4.5z M2.5 9h4.5v4.5h-4.5z M9 9h4.5v4.5h-4.5z' },
+  { n: 'brackets', d: 'M5 2.5H2.5v11H5M11 2.5h2.5v11H11' },
+  { n: 'search', d: 'M2.5 2.5h8v8h-8z M10.5 10.5 14 14' },
+  { n: 'filter', d: 'M2 4h12M4 8h8M6 12h4' },
+  { n: 'menu', d: 'M2 4h12M2 8h12M2 12h12' },
+  { n: 'layers', d: 'M8 1.5 12.5 6 8 10.5 3.5 6z M3.5 9l4.5 4.5L12.5 9' },
+  { n: 'rule', d: 'M2 5.5h12v5H2z M5 5.5v2.5M8 5.5v2.5M11 5.5v2.5' },
+  { n: 'lock', d: 'M3.5 7.5h9v6h-9z M5.5 7.5V6l1.5-1.5h2L10.5 6v1.5' },
+  { n: 'view', d: 'M1.5 8 8 1.5 14.5 8 8 14.5z M6.5 6.5h3v3h-3z' },
+  { n: 'download', d: 'M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11' },
+  { n: 'upload', d: 'M8 10.5V2.5M4.5 6 8 2.5 11.5 6M2.5 13.5h11' },
+  { n: 'trash', d: 'M3.5 4.5h9M5 4.5V2.5h6v2M4.5 4.5v9h7v-9M7 7v4M9 7v4' },
+  { n: 'warn', d: 'M8 1.5 14.5 8 8 14.5 1.5 8z M8 4.75v3.5M8 10.4v.6' },
+  { n: 'info', d: 'M2.5 2.5h11v11h-11z M8 7v4.5M8 4.5V5' },
+  { n: 'diff', d: 'M2 5h5M2 11h9M11.5 2.5 14 5l-2.5 2.5' },
+];
+
+const CURSOR_DEFS = [
+  { n: 'arrow', hot: '2 2', fb: 'default', use: 'everything by default — the page, panels, running text.',
+    p: '<path d="M2 2 L2 18 L6.5 13.5 L9.5 20 L12.5 18.6 L9.5 12.4 L16 12.4 Z"/>' },
+  { n: 'point', hot: '8 2', fb: 'pointer', use: 'anything that responds to a press.',
+    p: '<path d="M8 1.5 L13 8 L10 8 L10 19 L6 19 L6 8 L3 8 Z"/>' },
+  { n: 'text', hot: '8 8', fb: 'text', use: 'inputs, and any prose meant to be selected.',
+    p: '<path d="M5 2h6v2H9v12h2v2H5v-2h2V4H5z"/>' },
+  { n: 'cross', hot: '11 11', fb: 'crosshair', use: 'precise placement — a point, a crop, a box.',
+    p: '<path d="M10 1h2v7h-2z M10 14h2v7h-2z M1 10h7v2H1z M14 10h7v2h-7z"/>' },
+  { n: 'grab', hot: '11 11', fb: 'grab', use: 'a surface that pans. Never the content inside it.',
+    p: '<path d="M2 2h7v2H4v5H2z M13 2h7v7h-2V4h-5z M2 13h2v5h5v2H2z M18 13h2v7h-7v-2h5z"/>' },
+  { n: 'move', hot: '11 11', fb: 'move', use: 'an object being dragged to a new position.',
+    p: '<path d="M11 1l4 5h-3v4h4V7l5 4-5 4v-3h-4v4h3l-4 5-4-5h3v-4H6v3l-5-4 5-4v3h4V6H7z"/>' },
+  { n: 'zoom', hot: '10 10', fb: 'zoom-in', use: 'a surface that scales under the pointer.',
+    p: '<path d="M2 2h16v16H2z M2 2h16v2H2z M2 16h16v2H2z M2 2h2v16H2z M16 2h2v16h-2z M9 6h2v3h3v2h-3v3H9v-3H6V9h3z"/>' },
+];
+
+const SIGNALS = [
+  { label: 'Published', col: '#3d6b45', code: 'ok' },
+  { label: 'Awaiting review', col: '#96660f', code: 'pending' },
+  { label: 'Rejected', col: '#cc3f1d', code: 'failed' },
+  { label: 'Breaking a law', col: '#d3dc3f', code: 'licensed' },
+];
+
+const LEDGER = [
+  { k: '--r-sm', was: '7px', now: '2px', who: 'skin' },
+  { k: '--r-md', was: '11px', now: '3px', who: 'skin' },
+  { k: '--r-lg', was: '16px', now: '6px', who: 'skin' },
+  { k: '--r-pill', was: 'any', now: 'tags', who: 'contract' },
+  { k: '--rule-spine', was: '—', now: '6px', who: 'contract' },
+];
+
+const LAWS = [
+  { n: '01', rule: 'Corners follow the skin\u2019s scale.', breach: 'One element may borrow a radius from another scale.', earn: 'Only when a shape must read as a thing you touch rather than a region you are inside.', budget: '1 / view' },
+  { n: '02', rule: 'Type sits on the scale.', breach: 'One line may leave it — size, weight or face.', earn: 'Only when that line is the reason the screen exists. Not a heading: the content itself.', budget: '1 / page' },
+  { n: '03', rule: 'Everything meets the column.', breach: 'One element may cross or bleed past it.', earn: 'Only when the content genuinely continues past the edge. Never for emphasis.', budget: '1 / section' },
+  { n: '04', rule: 'Two elevation levels.', breach: 'One element may cast a hard offset instead of a soft one.', earn: 'Only for something sitting temporarily on top of the work rather than being part of it.', budget: '1 / view' },
+  { n: '05', rule: 'Six palette slots.', breach: 'One element may wear the acid.', earn: 'Only to mark an action that cannot be undone, and never twice in one flow.', budget: '1 / flow' },
+  { n: '06', rule: 'Nothing sits off-axis.', breach: 'One element may rotate, up to 1.5°.', earn: 'Only where the thing depicted is physically loose: a plate, a sticker, a card in a pile.', budget: '1 / page' },
+  { n: '07', rule: 'Density is uniform.', breach: 'One section may take twice the air, or half.', earn: 'Only where a decision is being asked for and the page should visibly slow down first.', budget: '1 / page' },
+];
+
+const cursorUrl = (p) => 'url("data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="#191611" stroke="#f6f1e6" stroke-width="1.1" stroke-linejoin="miter">' + p + '</svg>'
+) + '")';
+
+class Component extends DCLogic {
+  state = { enforce: true, checks: [true, true, false], seg: 1, qty: 4, stroke: 1.75, lic: { scale: true, axis: false, acid: false } };
+
+  toggleLic(k) {
+    this.setState((s) => ({ lic: Object.assign({}, s.lic, { [k]: !s.lic[k] }) }));
+  }
+
+  renderVals() {
+    const st = this.state;
+    const lic = st.lic;
+    const held = ['scale', 'axis', 'acid'].filter((k) => lic[k]);
+    const cancelled = held.length > 1;
+    const active = held.length === 1 ? held[0] : null;
+    const strict = this.props.strict ?? false;
+    const eff = strict ? null : active;
+
+    const cursors = CURSOR_DEFS.map((c) => {
+      const art = cursorUrl(c.p);
+      return { n: c.n, hot: c.hot + ' · ' + c.fb, use: c.use, art, cur: art + ' ' + c.hot + ', ' + c.fb };
+    });
+    const pointCur = cursors[1].cur;
+
+    const licences = [
+      { key: 'scale', label: '02 · scale' },
+      { key: 'axis', label: '06 · axis' },
+      { key: 'acid', label: '05 · acid' },
+    ].map((l) => {
+      const on = lic[l.key];
+      const live = on && !cancelled && !strict;
+      return {
+        label: l.label,
+        on: () => this.toggleLic(l.key),
+        bd: live ? '2px solid #191611' : on ? '2px dashed #cc3f1d' : '1px solid rgba(25,22,17,.34)',
+        bg: live ? '#d3dc3f' : on ? '#f2ded6' : 'transparent',
+        fg: '#191611',
+        dot: live ? '#191611' : on ? '#cc3f1d' : 'rgba(25,22,17,.34)',
+      };
+    });
+
+    let budgetMsg = 'budget clear · 0 of 1 spent';
+    let budgetCol = '#8a8072';
+    if (strict) { budgetMsg = 'strict mode · all licences revoked'; budgetCol = '#cc3f1d'; }
+    else if (cancelled) { budgetMsg = held.length + ' held · both cancelled, law 00'; budgetCol = '#cc3f1d'; }
+    else if (active) { budgetMsg = 'licence ' + (active === 'scale' ? '02' : active === 'axis' ? '06' : '05') + ' in force · 1 of 1 spent'; budgetCol = '#4d5216'; }
+
+    const margins = {
+      scale: ['breaching 02 · scale', 'The confirmation line is set in Hepta Slab 900 at 2.9rem, far outside the scale every other line obeys, and the button takes 52px with the acid. It is the only irreversible action on the screen. Budget: spent.'],
+      axis: ['breaching 06 · axis', 'The publish button sits at −1.25° with a hard 5px acid offset — the only thing off-axis in the entire system. It reads as a physical stamp rather than a control. Budget: spent.'],
+      acid: ['breaching 05 · acid', 'Publish wears citron on ink: a colour no palette slot defines, permitted here because the action cannot be undone. It appears exactly once. Budget: spent.'],
+    };
+    const mg = eff ? margins[eff]
+      : cancelled ? ['two licences held · both void', 'Scale and axis are both claimed, so law 00 applies: two exceptions in one view cancel each other. The button falls back to contract, and the screen is telling you it has a hierarchy problem rather than a styling one.']
+      : ['no licence held', 'Every element obeys. The screen is not worse — it is flatter, and nothing distinguishes the action you cannot take back from the one you can.'];
+
+    return {
+      locked: LOCKED, skinside: SKINSIDE, inks: INKS, weights: WEIGHTS,
+      icons: ICONS, cursors, signals: SIGNALS, ledger: LEDGER, laws: LAWS,
+      pointCur, textCur: cursors[2].cur,
+      licences, budgetMsg, budgetCol,
+      excScale: eff === 'scale', excAxis: eff === 'axis', excAcid: eff === 'acid',
+      excNone: !eff, noScale: eff !== 'scale',
+      marginKicker: mg[0], marginBody: mg[1],
+      marginCol: eff ? '#d3dc3f' : cancelled ? '#cc3f1d' : 'rgba(25,22,17,.34)',
+      showLaw: this.props.showLaw ?? true,
+      enforce: st.enforce,
+      toggleEnforce: () => this.setState({ enforce: !st.enforce }),
+      swBg: st.enforce ? '#191611' : 'transparent',
+      swKnob: st.enforce ? '#d3dc3f' : 'rgba(233,227,213,.45)',
+      swPos: st.enforce ? 'flex-end' : 'flex-start',
+      checks: ['Warn on second exception', 'Block unnamed tokens', 'Allow soft scale in skins'].map((label, i) => ({
+        label,
+        bg: st.checks[i] ? '#d3dc3f' : 'transparent',
+        op: st.checks[i] ? 1 : 0,
+        on: () => this.setState((s) => ({ checks: s.checks.map((v, j) => (j === i ? !v : v)) })),
+      })),
+      segs: ['Hard', 'Cut', 'Soft'].map((label, i) => ({
+        label,
+        bg: st.seg === i ? '#e9e3d5' : 'transparent',
+        fg: st.seg === i ? '#191611' : '#b5aa97',
+        on: () => this.setState({ seg: i }),
+      })),
+      qty: st.qty,
+      inc: () => this.setState((s) => ({ qty: s.qty + 1 })),
+      dec: () => this.setState((s) => ({ qty: Math.max(0, s.qty - 1) })),
+      stroke: st.stroke,
+      setStroke: (e) => this.setState({ stroke: Number(e.target.value) }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

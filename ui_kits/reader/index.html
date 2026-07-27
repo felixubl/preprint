@@ -1,0 +1,381 @@
+<!-- @dsCard group="Reader" viewport="1100x760" -->
+<!-- @startingPoint section="Reading" subtitle="Article with margin notes, figures and the marker layer" viewport="1100x760" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PREPRINT — the reader</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; cursor: var(--pp-cursor-arrow); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 var(--pp-gutter); }
+  [data-pp-article] p { margin: 0; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useRef, useEffect, useCallback } = React;
+
+    const MARKERS = {
+      citron: { field: 'var(--pp-marker-citron)', swatch: '#deee2e' },
+      pink: { field: 'var(--pp-marker-pink)', swatch: '#ff4fa3' },
+      cyan: { field: 'var(--pp-marker-cyan)', swatch: '#40ccff' },
+    };
+
+    const LAWS = [
+      { n: '01', breach: 'a borrowed radius', cost: 'reads as a bug', budget: '1 / view' },
+      { n: '02', breach: 'one line off the scale', cost: 'reads as a mistake', budget: '1 / page' },
+      { n: '03', breach: 'an element crossing the column', cost: 'reads as broken layout', budget: '1 / section' },
+      { n: '05', breach: 'a plate claimed semantically', cost: 'teaches a false rule', budget: '1 / flow' },
+    ];
+
+    const NOTES = [
+      { id: '1', text: 'Notes sit in the margin at reading height rather than collapsing to the foot of the page. Below 820px they fold inline, in source order.' },
+      { id: '2', text: 'A budget is not a limit on quality. It is a limit on how many things one screen is allowed to be about.' },
+    ];
+
+    // ── the figure ──
+    function GradientDescent({ lr, steps }) {
+      const W = 620, H = 260, PAD = 26, Y_MAX = 12;
+      const f = (x) => 0.9 * (x - 1) * (x - 1) + 0.4;
+      const fp = (x) => 1.8 * (x - 1);
+      const half = Math.sqrt((Y_MAX - 0.45) / 0.9);
+      const xMin = 1 - half, xMax = 1 + half;
+      const px = (x) => PAD + ((x - xMin) / (xMax - xMin)) * (W - PAD * 2);
+      const py = (y) => H - PAD - (Math.min(y, Y_MAX) / Y_MAX) * (H - PAD * 2);
+      let curve = '', grid = '';
+      for (let i = 0; i <= 120; i++) { const x = xMin + (i / 120) * (xMax - xMin); curve += (i ? 'L' : 'M') + px(x).toFixed(1) + ' ' + py(f(x)).toFixed(1) + ' '; }
+      for (let gx = Math.ceil(xMin); gx <= Math.floor(xMax); gx++) grid += 'M' + px(gx).toFixed(1) + ' ' + PAD + 'V' + (H - PAD) + ' ';
+      for (let gy = 0; gy <= Y_MAX; gy += 3) grid += 'M' + PAD + ' ' + py(gy).toFixed(1) + 'H' + (W - PAD) + ' ';
+      const xs = [-2.2];
+      for (let i = 0; i < steps; i++) {
+        const nx = xs[xs.length - 1] - lr * fp(xs[xs.length - 1]);
+        if (!isFinite(nx) || Math.abs(nx) > 60) { xs.push(Math.sign(nx) * 60); break; }
+        xs.push(nx);
+      }
+      const cl = (x) => Math.max(xMin, Math.min(xMax, x));
+      const trail = xs.map((x, i) => (i ? 'L' : 'M') + px(cl(x)).toFixed(1) + ' ' + py(f(x)).toFixed(1)).join(' ');
+      return (
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block' }} role="img" aria-label="Gradient descent on a quadratic loss">
+          <path d={grid} stroke="var(--pp-hair)" strokeWidth="1" fill="none" />
+          <path d={curve} stroke="var(--pp-plate-3)" strokeWidth="2" fill="none" />
+          <path d={trail} stroke="var(--pp-plate-2)" strokeWidth="1.5" strokeDasharray="4 3" fill="none" />
+          {xs.map((x, i) => <rect key={i} x={px(cl(x)) - 3.5} y={py(f(x)) - 3.5} width="7" height="7" fill="var(--pp-plate-2)" opacity={i === xs.length - 1 ? 1 : 0.45} />)}
+          <path d={`M${px(1) - 6} ${py(f(1)) + 10}h12M${px(1)} ${py(f(1)) + 4}v12`} stroke="var(--pp-plate-1)" strokeWidth="2" fill="none" />
+          <text x={px(1) - 24} y={257} fontFamily="Cousine, monospace" fontSize="11" fill="var(--pp-plate-1-text)">minimum</text>
+        </svg>
+      );
+    }
+
+    function Reader() {
+      const [mode, setMode] = useState('light');
+      const [lr, setLr] = useState(0.5);
+      const [steps, setSteps] = useState(0);
+      const [running, setRunning] = useState(false);
+      const [hover, setHover] = useState(null);
+      const [menu, setMenu] = useState(null);
+      const [tip, setTip] = useState(null);
+      const [marks, setMarks] = useState(0);
+      const [copied, setCopied] = useState('');
+      const [pct, setPct] = useState(0);
+      const [pressing, setPressing] = useState(false);
+      const panel = useRef(null);
+      const art = useRef(null);
+
+      useEffect(() => { document.body.setAttribute('data-mode', mode); }, [mode]);
+
+      useEffect(() => {
+        if (!running) return;
+        const t = setInterval(() => setSteps((s) => (s >= 14 ? (clearInterval(t), setRunning(false), s) : s + 1)), 420);
+        return () => clearInterval(t);
+      }, [running]);
+
+      const openMenu = useCallback((clientX, clientY, markId, text) => {
+        const p = panel.current.getBoundingClientRect();
+        setMenu({ x: clientX - p.left, y: clientY - p.top, markId, text });
+      }, []);
+
+      useEffect(() => {
+        const onCtx = (e) => {
+          if (!art.current || !art.current.contains(e.target)) return;
+          e.preventDefault();
+          const sel = window.getSelection();
+          const onMark = e.target.closest('[data-pp-mark]');
+          openMenu(e.clientX, e.clientY, onMark ? onMark.dataset.ppId : null,
+            onMark ? onMark.textContent : (sel && !sel.isCollapsed ? sel.toString().trim() : ''));
+        };
+        const onTouch = () => {
+          const sel = window.getSelection();
+          if (!art.current || !sel || sel.isCollapsed) return;
+          const r = sel.getRangeAt(0);
+          if (!art.current.contains(r.commonAncestorContainer)) return;
+          const b = r.getBoundingClientRect();
+          openMenu(b.left, b.bottom + 6, null, sel.toString().trim());
+        };
+        const onClick = (e) => {
+          const m = art.current && e.target.closest('[data-pp-mark]');
+          if (m) { const b = m.getBoundingClientRect(); openMenu(b.left, b.bottom + 4, m.dataset.ppId, m.textContent); return; }
+          if (!e.target.closest('[data-pp-float]')) setMenu(null);
+        };
+        const onOver = (e) => {
+          const t = e.target.closest('[data-pp-term]');
+          if (t) {
+            const p = panel.current.getBoundingClientRect(), r = t.getBoundingClientRect();
+            setTip({ x: r.left - p.left + r.width / 2, y: r.top - p.top - 4, text: t.dataset.ppTerm });
+            return;
+          }
+          setTip(null);
+          const ref = e.target.closest('[data-pp-ref]') || e.target.closest('[data-pp-note]');
+          setHover(ref ? (ref.dataset.ppRef || ref.dataset.ppNote) : null);
+        };
+        const onScroll = () => {
+          if (!art.current) return;
+          const b = art.current.getBoundingClientRect();
+          const total = b.height - window.innerHeight;
+          setPct(total <= 0 ? (b.top < 0 ? 100 : 0) : Math.round(Math.min(100, Math.max(0, (-b.top / total) * 100))));
+        };
+        const down = () => setPressing(true), up = () => setPressing(false);
+        document.addEventListener('contextmenu', onCtx);
+        document.addEventListener('touchend', onTouch);
+        document.addEventListener('click', onClick);
+        document.addEventListener('mouseover', onOver);
+        document.addEventListener('mousedown', down);
+        document.addEventListener('mouseup', up);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+        return () => {
+          document.removeEventListener('contextmenu', onCtx);
+          document.removeEventListener('touchend', onTouch);
+          document.removeEventListener('click', onClick);
+          document.removeEventListener('mouseover', onOver);
+          document.removeEventListener('mousedown', down);
+          document.removeEventListener('mouseup', up);
+          window.removeEventListener('scroll', onScroll);
+        };
+      }, [openMenu]);
+
+      const applyMark = (colour) => {
+        if (menu && menu.markId) {
+          const el = document.querySelector('[data-pp-id="' + menu.markId + '"]');
+          if (el) el.style.background = MARKERS[colour].field;
+          setMenu(null);
+          return;
+        }
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) { setMenu(null); return; }
+        const el = document.createElement('mark');
+        el.dataset.ppMark = '';
+        el.dataset.ppId = 'm' + Date.now().toString(36);
+        el.style.background = MARKERS[colour].field;
+        el.style.cursor = 'var(--pp-cursor-point)';
+        const r = sel.getRangeAt(0);
+        try { r.surroundContents(el); } catch (err) { el.appendChild(r.extractContents()); r.insertNode(el); }
+        sel.removeAllRanges();
+        setMarks((m) => m + 1);
+        setMenu(null);
+      };
+
+      const removeMark = () => {
+        const el = document.querySelector('[data-pp-id="' + menu.markId + '"]');
+        if (el) { const p = el.parentNode; while (el.firstChild) p.insertBefore(el.firstChild, el); p.removeChild(el); p.normalize(); }
+        setMarks((m) => Math.max(0, m - 1));
+        setMenu(null);
+      };
+
+      const share = () => {
+        const url = location.href.split('#')[0] + '#:~:text=' + encodeURIComponent((menu.text || '').slice(0, 120));
+        const done = () => { setCopied('link copied · opens on this passage'); setMenu(null); };
+        try { navigator.clipboard ? navigator.clipboard.writeText(url).then(done, done) : done(); } catch (e) { done(); }
+      };
+
+      const clearAll = () => {
+        if (!art.current) return;
+        art.current.querySelectorAll('[data-pp-mark]').forEach((el) => {
+          const p = el.parentNode; while (el.firstChild) p.insertBefore(el.firstChild, el); p.removeChild(el); p.normalize();
+        });
+        setMarks(0); setCopied('');
+      };
+
+      const pointer = pressing ? 'var(--pp-cursor-pressed)' : 'var(--pp-cursor-point)';
+      const verdict = lr > 1.115 ? ['diverging', 'var(--pp-plate-2-text)'] : lr > 1.02 ? ['orbiting', 'var(--pp-faint)'] : lr < 0.2 ? ['crawling', 'var(--pp-faint)'] : ['converging', 'var(--pp-plate-1-text)'];
+      const btn = { height: 34, padding: '0 .75rem', background: 'transparent', border: '1px solid var(--pp-line)', borderRadius: 'var(--pp-radius-sm)', fontFamily: 'var(--pp-font-body)', fontSize: '.8rem', fontWeight: 600, cursor: pointer };
+      const kicker = { fontFamily: 'var(--pp-font-mono)', fontSize: '.68rem', letterSpacing: 'var(--pp-track-label)', textTransform: 'uppercase', color: 'var(--pp-faint)' };
+
+      return (
+        <div>
+          <header style={{ position: 'sticky', top: 0, zIndex: 30, background: 'var(--pp-paper)', borderBottom: '1px solid var(--pp-hair)' }}>
+            <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '.7rem var(--pp-gutter)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem' }}>
+                <span style={{ position: 'relative', display: 'block', width: 24, height: 24, flex: 'none' }}>
+                  <span style={{ position: 'absolute', left: 0, top: 0, width: 16, height: 16, background: 'var(--pp-plate-1)', mixBlendMode: mode === 'dark' ? 'screen' : 'multiply' }} />
+                  <span style={{ position: 'absolute', left: 8, top: 2, width: 16, height: 16, background: 'var(--pp-plate-2)', mixBlendMode: mode === 'dark' ? 'screen' : 'multiply' }} />
+                  <span style={{ position: 'absolute', left: 4, top: 8, width: 16, height: 16, background: 'var(--pp-plate-3)', mixBlendMode: mode === 'dark' ? 'screen' : 'multiply' }} />
+                </span>
+                <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.72rem', letterSpacing: '.22em', textTransform: 'uppercase', fontWeight: 700 }}>Preprint</code>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem' }}>
+                <code style={{ ...kicker, marginRight: '.3rem' }}>{copied || (marks === 0 ? 'no marks' : marks + (marks === 1 ? ' mark' : ' marks'))}</code>
+                <button style={btn} onClick={clearAll}>Clear marks</button>
+                <button style={btn} onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>{mode === 'dark' ? 'Light' : 'Dark'}</button>
+              </div>
+            </div>
+          </header>
+
+          <div ref={panel} style={{ position: 'relative' }}>
+            <div style={{ height: 3, background: 'var(--pp-hair)' }}><div style={{ height: 3, width: pct + '%', background: 'var(--pp-plate-1)' }} /></div>
+
+            <div className="wrap" style={{ padding: 'clamp(1.75rem,5vw,3.25rem) var(--pp-gutter) 4rem' }}>
+              <div ref={art} data-pp-article="" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,66ch) minmax(0,20ch)', gap: 'clamp(1rem,3vw,2.25rem)', justifyContent: 'center', fontSize: 'var(--pp-size-body)', lineHeight: 'var(--pp-leading-body)' }}>
+
+                <div style={{ gridColumn: 1, display: 'grid', gap: '1rem' }}>
+                  <code style={{ ...kicker, color: 'var(--pp-plate-1-text)', letterSpacing: '.2em' }}>Research · market design</code>
+                  <h1 style={{ margin: 0, fontFamily: 'var(--pp-font-display)', fontWeight: 900, fontSize: 'var(--pp-size-title)', letterSpacing: '-0.04em', lineHeight: 1.02, textWrap: 'balance' }}>
+                    On the reluctance of systems to break their own rules
+                  </h1>
+                  <p style={{ fontFamily: 'var(--pp-font-display)', fontWeight: 300, fontSize: '1.12rem', lineHeight: 1.5, letterSpacing: '-0.015em', color: 'var(--pp-muted)' }}>
+                    Why consistency is cheap, exceptions are expensive, and a system that has never violated itself has probably never been used for anything difficult.
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', padding: '.6rem 0', borderTop: '1px solid var(--pp-hair)', borderBottom: '1px dotted var(--pp-plate-1)' }}>
+                    <code style={kicker}>rev 15 · 2026-07-26</code>
+                    <code style={kicker}>2 figures · 1 interactive</code>
+                  </div>
+                </div>
+
+                <aside style={{ gridColumn: 2, display: 'grid', gap: '.7rem', alignContent: 'start', paddingTop: '2rem' }}>
+                  <code style={{ ...kicker, fontSize: '.64rem' }}>contents</code>
+                  <div style={{ display: 'grid', gap: '.3rem', borderLeft: '1px solid var(--pp-line)', paddingLeft: '.65rem' }}>
+                    {['The reluctance', 'A budget, formally', 'Implementation'].map((t, i) => (
+                      <span key={t} style={{ fontSize: '.8rem', lineHeight: 1.4, color: 'var(--pp-muted)' }}>
+                        <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.9em', color: 'var(--pp-faint)' }}>{i + 1}</code> {t}
+                      </span>
+                    ))}
+                  </div>
+                </aside>
+
+                <div style={{ gridColumn: 1, display: 'grid', gap: '1.1rem' }}>
+                  <p>
+                    <span aria-hidden="true" style={{ float: 'left', fontFamily: 'var(--pp-font-display)', fontWeight: 900, fontSize: 'var(--pp-dropcap-size)', lineHeight: 'var(--pp-dropcap-leading)', letterSpacing: '-0.04em', color: 'var(--pp-plate-1)', paddingRight: '.07em', marginTop: '.05em' }}>E</span>
+                    very system I have written starts strict and ends apologetic. The strictness is easy: pick four radii, three faces, six slots, and refuse. What is hard is the third month, when a screen arrives that the system describes accurately and serves badly — and the honest move is to break something.
+                  </p>
+                  <p>
+                    The reluctance is not aesthetic, it is administrative. A violation has to be explained to someone later, and explanation is expensive, so teams quietly prefer a page that is uniformly mediocre to one that is excellent with a footnote.
+                    <sup><span data-pp-ref="1" style={{ color: 'var(--pp-plate-3-text)', background: hover === '1' ? 'var(--pp-tint)' : 'transparent', cursor: 'var(--pp-cursor-help)' }}>1</span></sup>
+                  </p>
+                  <p>
+                    The proposal is administrative too: write the exceptions <em>into</em> the contract, give each a budget, and mark them so nobody has to guess whether a deviation was intent or{' '}
+                    <span data-pp-term="Drift — an unnamed deviation that accumulates because no one owns it. Distinguished from a breach only by whether it was declared." style={{ borderBottom: '1px dotted var(--pp-plate-3)', cursor: 'var(--pp-cursor-help)' }}>drift</span>.
+                    <sup><span data-pp-ref="2" style={{ color: 'var(--pp-plate-3-text)', background: hover === '2' ? 'var(--pp-tint)' : 'transparent', cursor: 'var(--pp-cursor-help)' }}>2</span></sup>
+                  </p>
+                </div>
+
+                <aside style={{ gridColumn: 2, display: 'grid', gap: '.8rem', alignContent: 'start' }}>
+                  {NOTES.map((n) => (
+                    <div key={n.id} data-pp-note={n.id} style={{ display: 'grid', gap: '.2rem', borderLeft: '2px solid var(--pp-plate-3)', paddingLeft: '.65rem', background: hover === n.id ? 'var(--pp-tint)' : 'transparent' }}>
+                      <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.64rem', color: 'var(--pp-plate-3-text)' }}>{n.id}</code>
+                      <p style={{ fontSize: 'var(--pp-size-micro)', lineHeight: 'var(--pp-leading-micro)', color: 'var(--pp-muted)' }}>{n.text}</p>
+                    </div>
+                  ))}
+                </aside>
+
+                <figure style={{ gridColumn: '1 / -1', display: 'grid', gap: '.7rem', margin: '.5rem 0', padding: '1rem', border: '1px solid var(--pp-line)', background: 'var(--pp-surface)' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '.75rem' }}>
+                    <code style={kicker}>Figure 1 · interactive</code>
+                    <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.7rem', color: verdict[1] }}>{verdict[0]} · step {steps}</code>
+                  </div>
+                  <div style={{ background: 'var(--pp-paper)', border: '1px solid var(--pp-hair)', padding: '.5rem' }}>
+                    <GradientDescent lr={lr} steps={steps} />
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '.7rem', flex: 1, minWidth: 'min(100%,230px)' }}>
+                      <code style={{ ...kicker, whiteSpace: 'nowrap' }}>step size</code>
+                      <input type="range" min="0.05" max="1.35" step="0.05" value={lr} onChange={(e) => setLr(+e.target.value)} style={{ flex: 1 }} aria-label="Step size" />
+                      <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.78rem', fontWeight: 700, width: '3rem', textAlign: 'right' }}>{lr.toFixed(2)}</code>
+                    </div>
+                    <div style={{ display: 'flex', gap: '.4rem' }}>
+                      <button style={btn} onClick={() => setSteps((s) => Math.min(14, s + 1))}>Step</button>
+                      <button style={{ ...btn, background: 'var(--pp-edge)', color: 'var(--pp-paper)', border: '1px solid var(--pp-edge)' }} onClick={() => setRunning(!running)}>{running ? 'Pause' : 'Run'}</button>
+                      <button style={btn} onClick={() => { setRunning(false); setSteps(0); }}>Reset</button>
+                    </div>
+                  </div>
+                  <figcaption style={{ fontSize: 'var(--pp-size-micro)', lineHeight: 'var(--pp-leading-micro)', color: 'var(--pp-muted)' }}>
+                    <strong style={{ color: 'var(--pp-ink)', fontWeight: 600 }}>Figure 1. Gradient descent on a quadratic loss.</strong> Steps in plate 2, the curve in plate 3, the minimum in plate 1 — assigned by position, not by meaning. Below 1.11 the iteration contracts; at 1.11 it orbits; above it the step exceeds what the curvature permits.
+                  </figcaption>
+                </figure>
+
+                <div style={{ gridColumn: 1, display: 'grid', gap: '1.1rem' }}>
+                  <h2 style={{ margin: 0, fontSize: 'var(--pp-size-subhead)' }}>A budget, formally</h2>
+                  <p>Let <em style={{ fontFamily: 'var(--pp-font-math)' }}>v</em> be the number of licensed violations visible in one view. Attention does not accumulate; it divides.</p>
+                  <div style={{ display: 'grid', padding: '1rem', borderLeft: '2px solid var(--pp-edge)', background: 'var(--pp-sunk)', fontFamily: 'var(--pp-font-math)', fontSize: '1.2rem', textAlign: 'center' }}>
+                    <span>
+                      <em>w</em>(<em>v</em>) ={' '}
+                      <span style={{ display: 'inline-flex', flexDirection: 'column', verticalAlign: 'middle', textAlign: 'center' }}>
+                        <span style={{ borderBottom: '1px solid var(--pp-ink)', padding: '0 .3em' }}>1</span>
+                        <span style={{ padding: '0 .3em' }}><em>v</em></span>
+                      </span>
+                      {' '}· <em>w</em><sub style={{ fontSize: '.7em' }}>max</sub>
+                      <span style={{ marginLeft: '1.5rem', fontFamily: 'var(--pp-font-mono)', fontSize: '.7rem', color: 'var(--pp-faint)' }}>(1)</span>
+                    </span>
+                  </div>
+                  <div style={{ height: 0, borderTop: '1px dashed var(--pp-plate-2)' }} />
+                  <div style={{ display: 'grid', gap: '.35rem', padding: '.85rem .95rem', border: '1px solid var(--pp-plate-1)', background: 'var(--pp-surface)' }}>
+                    <code style={{ ...kicker, fontSize: '.66rem', color: 'var(--pp-plate-1-text)' }}>definition</code>
+                    <p style={{ fontSize: '.94rem', lineHeight: 1.6 }}><strong>Licensed breach.</strong> A deviation named in the contract, budgeted per view, and marked so a reader can tell intent from drift.</p>
+                  </div>
+                </div>
+
+                <div style={{ gridColumn: '1 / -1', border: '1px solid var(--pp-line)', background: 'var(--pp-surface)', overflowX: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '1rem', padding: '.55rem .8rem', borderBottom: '2px solid var(--pp-edge)' }}>
+                    <code style={{ ...kicker, fontSize: '.66rem', color: 'var(--pp-ink)' }}>Table 1 · breach costs</code>
+                    <code style={{ ...kicker, fontSize: '.66rem' }}>n = 7</code>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '44px minmax(140px,1.4fr) minmax(120px,1fr) 92px', gap: '1rem', padding: '.45rem .8rem', borderBottom: '1px solid var(--pp-line)', minWidth: 460 }}>
+                    {['law', 'breach', 'cost if unmarked', 'budget'].map((h) => <code key={h} style={{ ...kicker, fontSize: '.64rem', letterSpacing: '.1em' }}>{h}</code>)}
+                  </div>
+                  {LAWS.map((l) => (
+                    <div key={l.n} style={{ display: 'grid', gridTemplateColumns: '44px minmax(140px,1.4fr) minmax(120px,1fr) 92px', gap: '1rem', padding: '.5rem .8rem', borderBottom: '1px solid var(--pp-hair)', alignItems: 'baseline', minWidth: 460 }}>
+                      <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.78rem', color: 'var(--pp-faint)' }}>{l.n}</code>
+                      <span style={{ fontSize: '.85rem', lineHeight: 1.45 }}>{l.breach}</span>
+                      <span style={{ fontSize: '.85rem', lineHeight: 1.45, color: 'var(--pp-muted)' }}>{l.cost}</span>
+                      <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.72rem', color: 'var(--pp-plate-2-text)', whiteSpace: 'nowrap' }}>{l.budget}</code>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {menu && (
+              <div data-pp-float="" style={{ position: 'absolute', left: menu.x, top: menu.y, minWidth: 200, background: 'var(--pp-surface)', border: '2px solid var(--pp-edge)', boxShadow: '5px 5px 0 var(--pp-shadow)', zIndex: 40 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '.5rem', padding: '.4rem .6rem', borderBottom: '1px solid var(--pp-hair)' }}>
+                  <code style={{ ...kicker, fontSize: '.62rem' }}>{menu.markId ? 'this mark' : menu.text ? 'selection' : 'no selection'}</code>
+                  <div style={{ display: 'flex', gap: '.25rem' }}>
+                    {Object.keys(MARKERS).map((k) => (
+                      <button key={k} aria-label={k} onClick={() => applyMark(k)} style={{ width: 20, height: 20, border: '1px solid var(--pp-line)', background: MARKERS[k].swatch, cursor: pointer }} />
+                    ))}
+                  </div>
+                </div>
+                <button onClick={share} style={{ width: '100%', display: 'block', textAlign: 'left', padding: '.5rem .6rem', background: 'transparent', border: 0, borderBottom: menu.markId ? '1px solid var(--pp-hair)' : 0, fontFamily: 'var(--pp-font-body)', fontSize: '.85rem', fontWeight: 500, color: 'var(--pp-ink)', cursor: pointer }}>Copy link to this passage</button>
+                {menu.markId && (
+                  <button onClick={removeMark} style={{ width: '100%', display: 'block', textAlign: 'left', padding: '.5rem .6rem', background: 'transparent', border: 0, fontFamily: 'var(--pp-font-body)', fontSize: '.85rem', fontWeight: 500, color: 'var(--pp-plate-2-text)', cursor: pointer }}>Remove highlight</button>
+                )}
+              </div>
+            )}
+
+            {tip && (
+              <div style={{ position: 'absolute', left: tip.x, top: tip.y, transform: 'translate(-50%,-100%)', maxWidth: 260, padding: '.5rem .65rem', background: 'var(--pp-edge)', color: 'var(--pp-paper)', fontSize: '.8rem', lineHeight: 1.45, zIndex: 40, pointerEvents: 'none' }}>{tip.text}</div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<Reader />);
+  </script>
+</body>
+</html>

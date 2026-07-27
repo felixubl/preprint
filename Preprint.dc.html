@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PREPRINT — a design system for reading and for building</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hepta+Slab:wght@200;400;700;900&amp;family=Zilla+Slab:wght@300;400;500;600;700&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;family=Public+Sans:wght@400;600&amp;family=Cousine:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    --paper: #fbfbf9; --surface: #ffffff; --sunk: #f2f2ee;
+    --ink: #171716; --muted: #52524b; --faint: #6a6a62;
+    --hair: rgba(23,23,22,.11); --line: rgba(23,23,22,.27); --edge: #171716;
+    --g: #01a368; --r: #ed0a3f; --b: #0066ff;
+    --g-text: #017a4e; --r-text: #c8082f; --b-text: #0052cc;
+    --mark-c: rgba(222,238,46,.62); --mark-p: rgba(255,79,163,.34); --mark-b: rgba(64,204,255,.38);
+    --code: #f4f4f0; --sel: rgba(0,102,255,.15); --shadow: rgba(23,23,22,.12);
+    --tint: rgba(23,23,22,.055);
+    background: var(--paper); color: var(--ink);
+    font-family: 'Zilla Slab', Georgia, serif;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  body[data-mode="dark"] {
+    /* Warm-neutral graphite: the ink itself, thinned. A blue dark reads as a
+       code editor rather than paper; a brown one goes muddy under a plate. */
+    --paper: #141413; --surface: #1c1c1a; --sunk: #0e0e0d;
+    --ink: #efeee8; --muted: #a8a7a0; --faint: #8e8d86;
+    --hair: rgba(239,238,232,.13); --line: rgba(239,238,232,.30); --edge: #efeee8;
+    --g: #26d494; --r: #ff4d68; --b: #6a9dff;
+    --g-text: #45e2a6; --r-text: #ff8b9d; --b-text: #9dbfff;
+    /* Markers gain opacity in the dark, not lose it — a highlight still has to
+       read as one, and the ink above it never changes. */
+    --mark-c: rgba(222,238,46,.32); --mark-p: rgba(255,79,163,.30); --mark-b: rgba(64,204,255,.30);
+    --code: #111110; --sel: rgba(106,157,255,.28); --shadow: rgba(0,0,0,.60);
+    --tint: rgba(239,238,232,.075);
+  }
+  h1, h2, h3, h4, h5 { font-family: 'Hepta Slab', Georgia, serif; font-weight: 700; letter-spacing: -0.03em; line-height: 1.06; }
+  code, kbd, pre, samp { font-family: 'Cousine', ui-monospace, monospace; }
+  a { color: var(--b-text); text-decoration: none; border-bottom: 1px solid currentColor; }
+  a:hover { color: var(--ink); }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  ::selection { background: var(--sel); }
+  mark { color: inherit; padding: .04em 0; cursor: pointer; }
+  sup { font-size: .62em; line-height: 0; vertical-align: super; }
+  input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; height: 22px; cursor: ew-resize; }
+  input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: var(--line); }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 20px; background: var(--edge); border: 0; margin-top: -9px; }
+  input[type="range"]::-moz-range-track { height: 2px; background: var(--line); }
+  input[type="range"]::-moz-range-thumb { width: 11px; height: 20px; background: var(--edge); border: 0; border-radius: 0; }
+  input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--sel); }
+  input[type="range"]::-webkit-slider-thumb { transition: box-shadow 90ms ease-out, height 90ms ease-out; }
+  input[type="range"]:active::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--sel); }
+  textarea { resize: vertical; }
+  @media (max-width: 820px) {
+    [data-pp-article] { grid-template-columns: minmax(0, 1fr) !important; }
+    [data-pp-article] > * { grid-column: 1 !important; }
+    [data-pp-article] > aside { padding-top: 0 !important; }
+  }
+  @media (max-width: 1100px) {
+    [data-pp-reading] { grid-template-columns: minmax(0, 1fr) !important; }
+    [data-pp-toc] { display: none !important; }
+  }
+  @keyframes pp-blink { 0%,55% { opacity: 1 } 56%,100% { opacity: 0 } }
+  @keyframes pp-in { from { opacity: 0; transform: translateY(3px) } to { opacity: 1; transform: none } }
+</style>
+</helmet>
+
+<div style="overflow-x:hidden;background:var(--paper);color:var(--ink)">
+
+  <header style="border-bottom:1px solid var(--hair);position:sticky;top:0;z-index:30;background:var(--paper)">
+    <div style="max-width:1280px;margin:0 auto;padding:.75rem clamp(1.15rem,5vw,3.5rem)">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem">
+        <div style="display:flex;align-items:center;gap:.8rem">
+          <span style="position:relative;display:block;width:26px;height:26px;flex:none">
+            <span style="position:absolute;left:0;top:0;width:17px;height:17px;background:var(--g);mix-blend-mode:{{ plateBlend }}"></span>
+            <span style="position:absolute;left:9px;top:2px;width:17px;height:17px;background:var(--r);mix-blend-mode:{{ plateBlend }}"></span>
+            <span style="position:absolute;left:4px;top:9px;width:17px;height:17px;background:var(--b);mix-blend-mode:{{ plateBlend }}"></span>
+          </span>
+          <code style="font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;font-weight:700">Preprint</code>
+          <code style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">rev 15</code>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <code style="font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">{{ modeLabel }}</code>
+          <button onClick="{{ toggleMode }}" aria-label="Toggle colour mode" style="height:32px;padding:0 .65rem;display:inline-flex;align-items:center;gap:.45rem;background:transparent;border:1px solid var(--line);border-radius:3px;cursor:pointer;font-size:.78rem;font-weight:600">
+            <span style="width:.65rem;height:.65rem;background:var(--ink);display:block"></span>{{ modeNext }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section style="border-bottom:6px solid var(--g)">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(2rem,6vw,4.5rem) clamp(1.15rem,5vw,3.5rem) clamp(1.75rem,4vw,2.75rem)">
+      <code style="font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)">A design system for pages that are read, and apps that are used</code>
+      <h1 style="margin-top:clamp(1.25rem,3vw,2rem);font-size:clamp(2.9rem,11.5vw,8.5rem);font-weight:900;letter-spacing:-0.055em;line-height:1.04">Printed<br><span style="position:relative;z-index:1;text-decoration:underline;text-decoration-color:var(--g);text-decoration-thickness:.07em;text-underline-offset:.05em">first</span><span style="color:var(--r);position:relative;z-index:1">,</span> then<br><span style="background:var(--mark-c);padding:0 .06em;box-decoration-break:clone">annotated</span><span style="color:var(--b)">.</span></h1>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:clamp(1.5rem,4vw,2.5rem);padding-top:1.25rem;border-top:1px solid var(--line)">
+        <p style="font-family:'Hepta Slab',serif;font-weight:200;font-size:clamp(1.1rem,2.4vw,1.6rem);line-height:1.34;letter-spacing:-0.02em;max-width:28ch">A precise, quiet page — and a second layer, added by hand, that is allowed to be strange.</p>
+        <p style="font-size:1.0625rem;line-height:1.62;color:var(--muted);max-width:42ch">Three press plates carry structure. Three fluorescent markers carry attention and may only sit <em>behind</em> type. The reader owns the second layer: marks, notes, bookmarks, and a sheet they can take with them.</p>
+        <div style="display:grid;gap:.4rem;align-content:start">
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding-bottom:.4rem;border-bottom:1px dotted var(--g)"><code style="font-size:.74rem;color:var(--faint)">reading</code><code style="font-size:.74rem">highlight · share the highlight</code></div>
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding-bottom:.4rem;border-bottom:1px dotted var(--r)"><code style="font-size:.74rem;color:var(--faint)">figures</code><code style="font-size:.74rem">plotted, interactive, captioned</code></div>
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding-bottom:.4rem;border-bottom:1px dotted var(--b)"><code style="font-size:.74rem;color:var(--faint)">also dresses</code><code style="font-size:.74rem">docs · tools · dashboards</code></div>
+          <div style="display:flex;justify-content:space-between;gap:1rem"><code style="font-size:.74rem;color:var(--faint)">laws · breaches</code><code style="font-size:.74rem">7 · 7</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="max-width:1280px;margin:0 auto;padding:0 clamp(1.15rem,5vw,3.5rem)">
+
+    <section style="padding:clamp(2.25rem,5vw,3.5rem) 0">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">01</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">Plates &amp; markers</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.0625rem;line-height:1.62;max-width:64ch">Three plates, pressed with the page — full strength, structural, never translucent. Three markers, added afterwards by hand — translucent, always a field behind type. Nothing in the system may be both.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1.25rem;margin-top:1.75rem">
+        <div style="border:2px solid var(--edge);background:var(--surface)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem .9rem;background:var(--edge);color:var(--paper)"><code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase">plates</code><code style="font-size:.7rem;opacity:.7">light / dark</code></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr))">
+            <sc-for list="{{ plates }}" as="p" hint-placeholder-count="3">
+              <div style="border-right:1px solid var(--hair)">
+                <div style="height:clamp(4rem,8vw,5.5rem);background:{{ p.token }}"></div>
+                <div style="padding:.55rem .6rem;border-top:1px solid var(--hair);display:grid;gap:.15rem">
+                  <code style="font-size:.7rem;font-weight:700">{{ p.name }}</code>
+                  <code style="font-size:.62rem;color:{{ p.lightCol }}">{{ p.light }}</code>
+                  <code style="font-size:.62rem;color:{{ p.darkCol }}">{{ p.dark }}</code>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <p style="padding:.7rem .9rem;border-top:1px solid var(--line);font-size:.85rem;line-height:1.6;color:var(--muted)">Plates are for fills, rules, large type and figure marks. Below 18px they hand over to <code style="font-size:.9em">--g-text</code> / <code style="font-size:.9em">--r-text</code> / <code style="font-size:.9em">--b-text</code>. A plate never measured as 13px text is not a text colour.</p>
+        </div>
+
+        <div style="border:1px solid var(--line);background:var(--surface)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem .9rem;border-bottom:1px solid var(--line)"><code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)">markers · by hand</code><code style="font-size:.7rem;color:var(--r-text)">never as text</code></div>
+          <div style="display:grid;gap:.5rem;padding:.85rem">
+            <sc-for list="{{ markers }}" as="m" hint-placeholder-count="3">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem">
+                <span style="font-size:1rem;line-height:1.5"><span style="background:{{ m.field }};padding:.06em .1em">{{ m.demo }}</span></span>
+                <code style="font-size:.66rem;color:var(--faint);white-space:nowrap">{{ m.name }}</code>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:.7rem .9rem;border-top:1px solid var(--hair);background:var(--sunk)">
+            <p style="font-size:.85rem;line-height:1.6;color:var(--muted)">Citron as <em>text</em> on eggshell is 1.6:1. As a field behind ink it is 14:1. Same colour, opposite outcome — hence the rule.</p>
+            <p style="margin-top:.45rem;font-size:.85rem;line-height:1.6;color:var(--muted)">A marker is a <em>painted box</em> and stacks in source order: with display leading, lift the ink above onto its own layer rather than loosening the leading.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3rem) 0;border-top:1px solid var(--hair)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">02</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">Rules &amp; separators</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.0625rem;line-height:1.62;max-width:64ch">Four weights × three styles × four inks. That is the whole separator vocabulary, and it is enough to structure a book without adding a single box.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:clamp(1.5rem,3vw,2.5rem);margin-top:1.75rem">
+        <div style="display:grid;gap:.9rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">weight · what it means</code>
+          <div style="border-top:2px solid var(--edge)">
+            <sc-for list="{{ weights }}" as="w" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:minmax(0,5rem) minmax(0,4rem) minmax(0,1fr);gap:.9rem;align-items:center;padding:.8rem 0;border-bottom:1px solid var(--hair)">
+                <code style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700">{{ w.name }}</code>
+                <span style="height:0;border-top:{{ w.px }} solid {{ w.col }}"></span>
+                <p style="font-size:.84rem;line-height:1.5;color:var(--muted)">{{ w.job }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;gap:.9rem;align-content:start">
+          <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">style × ink · what it says</code>
+          <div style="display:grid;gap:0;border-top:2px solid var(--edge)">
+            <sc-for list="{{ seps }}" as="s" hint-placeholder-count="6">
+              <div style="display:grid;gap:.4rem;padding:.75rem 0;border-bottom:1px solid var(--hair)">
+                <span style="height:0;border-top:{{ s.rule }}"></span>
+                <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline">
+                  <code style="font-size:.7rem;font-weight:700;color:{{ s.labelCol }}">{{ s.name }}</code>
+                  <p style="font-size:.82rem;line-height:1.45;color:var(--muted)">{{ s.job }}</p>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <p style="font-size:.84rem;line-height:1.6;color:var(--muted)">Dotted always means <em>provisional or optional</em>. Dashed always means <em>a boundary the reader may cross</em>. Solid means structure. The ink says which thread it belongs to, never how loud it is.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3rem) 0;border-top:1px solid var(--hair)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">03</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">Type, and the coloured cap</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(1.25rem,3vw,2.5rem);margin-top:1rem;align-items:start">
+        <p style="font-size:1.0625rem;line-height:1.62;max-width:54ch">On serif versus sans: <strong>not the science people claim.</strong> The screen studies wash out. What holds up is measure, leading, size and contrast — so the face is a voice decision, and my vote is to keep Zilla Slab.</p>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.5rem">
+          <sc-for list="{{ faceOpts }}" as="f" hint-placeholder-count="3">
+            <button onClick="{{ f.on }}" style="height:36px;padding:0 .85rem;border:{{ f.bd }};border-radius:2px;background:{{ f.bg }};font-size:.84rem;font-weight:600;cursor:pointer">{{ f.label }}</button>
+          </sc-for>
+          <code style="font-size:.7rem;color:var(--faint)">{{ faceNote }}</code>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:1.25rem;margin-top:1.75rem">
+        <sc-for list="{{ caps }}" as="c" hint-placeholder-count="3">
+          <div style="border:1px solid var(--line);background:var(--surface);padding:1.1rem;display:grid;gap:.6rem;align-content:start;border-top:6px solid {{ c.plate }}">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem">
+              <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:{{ c.textCol }}">{{ c.register }}</code>
+              <code style="font-size:.66rem;color:var(--faint)">{{ c.plateName }}</code>
+            </div>
+            <p style="font-family:{{ faceStack }};font-size:1rem;line-height:1.6"><span style="float:left;font-family:'Hepta Slab',serif;font-weight:900;font-size:3.4em;line-height:.78;letter-spacing:-0.04em;color:{{ c.plate }};padding-right:.08em;margin-top:.06em">{{ c.letter }}</span>{{ c.text }}</p>
+            <p style="font-size:.8rem;line-height:1.5;color:var(--muted);clear:both">{{ c.note }}</p>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:1.75rem;border-top:2px solid var(--edge)">
+        <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:clamp(.75rem,2vw,2rem);padding:.9rem 0;border-bottom:1px solid var(--hair);align-items:baseline">
+            <div style="display:grid;gap:.15rem">
+              <code style="font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">{{ t.name }}</code>
+              <code style="font-size:.64rem;color:var(--faint)">{{ t.spec }}</code>
+            </div>
+            <p style="font-family:{{ t.stack }};font-weight:{{ t.wt }};font-size:{{ t.size }};line-height:{{ t.lh }};letter-spacing:{{ t.tr }};color:{{ t.col }};max-width:44ch">{{ t.sample }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3rem) 0;border-top:1px solid var(--hair)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">04</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">Icons &amp; pointers</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.0625rem;line-height:1.62;max-width:64ch">A 16-unit grid, 1.35px stroke, square caps, three angles, and one optional filled square where a glyph needs a dot rather than a stub of stroke. Colour enters only where a glyph reports a <em>state</em> — confirmed, blocked, informational — and never to decorate. Pointers work the other way round: the shape never changes at all. <code style="font-size:.9em">point</code> is the plain arrow with the same silhouette cast in plate 3 behind it, so a clickable surface reads as raised, and and the cast shortens the instant the button goes down.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,100px),1fr));gap:1px;margin-top:1.5rem">
+        <sc-for list="{{ icons }}" as="ic" hint-placeholder-count="27">
+          <div style="display:grid;gap:.45rem;justify-items:center;padding:.9rem .35rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);cursor:{{ tileCur }}" style-hover="background:var(--sunk)">
+            <svg width="23" height="23" viewBox="0 0 16 16" fill="none" stroke="{{ ic.col }}" stroke-width="1.35" stroke-linecap="square"><path d="{{ ic.d }}"></path><path d="{{ ic.fill }}" fill="{{ ic.col }}" stroke="none"></path></svg>
+            <code style="font-size:.6rem;color:var(--muted)">{{ ic.n }}</code>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,152px),1fr));gap:1rem;margin-top:1.5rem">
+        <sc-for list="{{ cursors }}" as="c" hint-placeholder-count="12">
+          <div style="border:1px solid var(--line);background:var(--surface);display:grid;gap:.45rem;align-content:start;padding:.85rem;cursor:{{ c.cur }}" style-hover="border-color:var(--edge);box-shadow:3px 3px 0 var(--edge)">
+            <div style="display:grid;place-items:center;height:3rem;background:var(--sunk);background-image:linear-gradient(45deg,var(--hair) 25%,transparent 25%,transparent 75%,var(--hair) 75%);background-size:8px 8px">
+              <span style="width:1.7rem;height:1.7rem;display:block;background-repeat:no-repeat;background-position:center;background-size:contain;background-image:{{ c.art }}"></span>
+            </div>
+            <code style="font-size:.72rem;font-weight:700;color:{{ c.labelCol }}">{{ c.n }}</code>
+            <p style="font-size:.76rem;line-height:1.45;color:var(--muted)">{{ c.use }}</p>
+            <code style="font-size:.6rem;color:var(--b-text)">hot {{ c.hot }}</code>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin-top:1.1rem;font-size:.85rem;line-height:1.7;color:var(--muted);max-width:74ch">Hotspots are contract: a surface may repaint a pointer, never move its point. The lift is the only state change with no shape change: <code style="font-size:.9em">point</code> casts 1.1px, <code style="font-size:.9em">pressed</code> casts 0.5px. The difference is deliberately almost nothing — just enough that the hand registers the surface giving way, not enough to look like the shadow was taken away. The swap is instant rather than animated — a reader clicks hundreds of times, and a transition here is felt as lag. Hold the mouse down over the icon grid above. All of them are dropped on touch.</p>
+    </section>
+  </div>
+
+  <section style="border-top:6px solid var(--edge);border-bottom:6px solid var(--edge);background:var(--surface)">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(2.25rem,5vw,3.5rem) clamp(1.15rem,5vw,3.5rem)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">05</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">The reading page</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.0625rem;line-height:1.62;max-width:66ch">The primary surface. <strong>Select a passage and right-click</strong> (or long-press on touch) to highlight it in one of the three markers, or copy a link that opens on that exact sentence. Click an existing mark to recolour or remove it. Hover a sidenote or its anchor and the pair lights up faintly.</p>
+
+      <div data-pp-panel="" style="margin-top:1.75rem;border:2px solid var(--edge);background:var(--paper);position:relative">
+        <div style="height:3px;background:var(--hair)">
+          <div style="height:3px;background:var(--g);width:{{ readPct }}"></div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;padding:.6rem 1rem;border-bottom:1px solid var(--line)">
+          <div style="display:flex;align-items:center;gap:.6rem">
+            <span style="padding:.18rem .5rem;border:1px solid var(--line);border-radius:9999px;font-size:.68rem;font-weight:600">research</span>
+            <code style="font-size:.7rem;color:var(--faint)">{{ readPct }} · 9 min</code>
+          </div>
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <code style="font-size:.7rem;color:var(--faint)">{{ markCount }}</code>
+            <button onClick="{{ clearMarks }}" style="height:30px;padding:0 .6rem;background:transparent;border:1px solid var(--line);border-radius:2px;font-size:.74rem;font-weight:600;cursor:pointer">Clear marks</button>
+          </div>
+        </div>
+
+        <div data-pp-reading="" style="padding:clamp(1.5rem,4vw,2.75rem) clamp(1rem,3vw,2.25rem);display:grid;grid-template-columns:17ch minmax(0,1fr);gap:clamp(1rem,3vw,2.25rem)">
+          <nav data-pp-toc="" style="align-self:start;position:sticky;top:4.5rem;display:grid;gap:.75rem">
+            <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">contents</code>
+            <div style="display:grid;gap:.1rem">
+              <sc-for list="{{ toc }}" as="t" hint-placeholder-count="4">
+                <button onClick="{{ t.on }}" style="display:grid;grid-template-columns:1.1rem minmax(0,1fr);gap:.4rem;align-items:start;text-align:left;cursor:pointer;padding:.4rem 0 .4rem .55rem;border-left:2px solid {{ t.bar }};background:{{ t.bg }}" style-hover="background:var(--tint)">
+                  <code style="font-size:.68rem;line-height:1.5;color:{{ t.numCol }}">{{ t.n }}</code>
+                  <span style="display:grid;gap:.3rem">
+                    <span style="font-size:.8rem;line-height:1.35;color:{{ t.col }};font-weight:{{ t.wt }}">{{ t.label }}</span>
+                    <span style="height:2px;background:var(--hair)"><span style="display:block;height:2px;width:{{ t.pct }};background:{{ t.fill }}"></span></span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+            <code style="font-size:.62rem;letter-spacing:.1em;color:var(--faint)">{{ readPct }} of the piece</code>
+          </nav>
+
+          <div data-pp-article="" style="display:grid;grid-template-columns:minmax(0,66ch) minmax(0,20ch);gap:clamp(1rem,3vw,2.25rem);justify-content:center;font-size:1.0625rem;line-height:1.68">
+
+            <div style="grid-column:1;display:grid;gap:1rem">
+              <code style="font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--g-text)">Research · market design</code>
+              <h3 style="font-size:clamp(1.7rem,4vw,2.5rem);font-weight:900;letter-spacing:-0.04em;line-height:1.02;text-wrap:balance">On the reluctance of systems to break their own rules</h3>
+              <p style="font-size:1.12rem;line-height:1.5;font-weight:300;font-family:'Hepta Slab',serif;letter-spacing:-0.015em;color:var(--muted)">Why consistency is cheap, exceptions are expensive, and a system that has never violated itself has probably never been used for anything difficult.</p>
+              <div style="display:flex;flex-wrap:wrap;gap:1.25rem;padding:.6rem 0;border-top:1px solid var(--hair);border-bottom:1px dotted var(--g)">
+                <code style="font-size:.7rem;color:var(--faint)">rev 15 · 2026-07-26</code>
+                <code style="font-size:.7rem;color:var(--faint)">2 figures · 1 interactive</code>
+              </div>
+            </div>
+
+            <div data-pp-sec="1" style="grid-column:1;display:grid;gap:1.1rem">
+              <p><span style="float:left;font-family:'Hepta Slab',serif;font-weight:900;font-size:3.6em;line-height:.76;letter-spacing:-0.04em;color:var(--g);padding-right:.07em;margin-top:.05em">E</span>very system I have written starts strict and ends apologetic. The strictness is easy: pick four radii, three faces, six slots, and refuse. What is hard is the third month, when a screen arrives that the system describes accurately and serves badly — and the honest move is to break something.</p>
+              <p>The reluctance is not aesthetic, it is administrative. A violation has to be explained to someone later, and explanation is expensive, so teams quietly prefer a page that is uniformly mediocre to one that is excellent with a footnote.<sup><span data-pp-ref="1" style="color:var(--b-text);background:{{ refBg1 }};cursor:{{ helpCur }}">1</span></sup></p>
+              <p>The proposal is administrative too: write the exceptions <em>into</em> the contract, give each a budget, and mark them so nobody has to guess whether a deviation was intent or <span data-pp-term="Drift — an unnamed deviation that accumulates because no one owns it. Distinguished from a breach only by whether it was declared." style="border-bottom:1px dotted var(--b);cursor:{{ helpCur }}">drift</span>.<sup><span data-pp-ref="2" style="color:var(--b-text);background:{{ refBg2 }};cursor:{{ helpCur }}">2</span></sup></p>
+            </div>
+
+            <aside style="grid-column:2;display:grid;gap:.8rem;align-content:start">
+              <sc-if value="{{ sidenotes }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;gap:.8rem">
+                  <sc-for list="{{ notes }}" as="n" hint-placeholder-count="2">
+                    <div data-pp-note="{{ n.id }}" style="display:grid;gap:.2rem;border-left:2px solid var(--b);padding-left:.65rem;background:{{ n.bg }}">
+                      <code style="font-size:.64rem;color:var(--b-text)">{{ n.id }}</code>
+                      <p style="font-size:.8125rem;line-height:1.5;color:var(--muted)">{{ n.text }}</p>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </aside>
+
+            <figure style="grid-column:1 / -1;display:grid;gap:.7rem;margin:.5rem 0;padding:1rem;border:1px solid var(--line);background:var(--surface)">
+              <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.75rem">
+                <code style="font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">Figure 1 · interactive</code>
+                <code style="font-size:.7rem;color:{{ gdCol }}">{{ gdVerdict }}</code>
+              </div>
+              <div style="background:var(--paper);border:1px solid var(--hair);padding:.5rem">
+                <svg viewBox="0 0 620 260" style="width:100%;height:auto;display:block" role="img" aria-label="Gradient descent on a quadratic loss">
+                  <path d="{{ gdGrid }}" stroke="{{ gdHair }}" stroke-width="1" fill="none"></path>
+                  <path d="{{ gdCurve }}" stroke="{{ gdBlue }}" stroke-width="2" fill="none"></path>
+                  <path d="{{ gdTrail }}" stroke="{{ gdRed }}" stroke-width="1.5" stroke-dasharray="4 3" fill="none"></path>
+                  <sc-for list="{{ gdPoints }}" as="pt" hint-placeholder-count="6">
+                    <rect x="{{ pt.x }}" y="{{ pt.y }}" width="7" height="7" fill="{{ pt.col }}"></rect>
+                  </sc-for>
+                  <path d="{{ gdMinMark }}" stroke="{{ gdGreen }}" stroke-width="2" fill="none"></path>
+                  <text x="{{ gdMinLabelX }}" y="257" font-family="Cousine, monospace" font-size="11" fill="{{ gdGreenText }}">minimum</text>
+                </svg>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center">
+                <div style="display:flex;align-items:center;gap:.7rem;flex:1;min-width:min(100%,230px)">
+                  <code style="font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);white-space:nowrap">step size</code>
+                  <input type="range" min="0.05" max="1.35" step="0.05" value="{{ lr }}" onInput="{{ setLr }}" onChange="{{ setLr }}" style="flex:1" aria-label="Learning rate">
+                  <code style="font-size:.78rem;font-weight:700;width:3rem;text-align:right">{{ lr }}</code>
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem">
+                  <button onClick="{{ gdStep }}" style="height:34px;padding:0 .75rem;background:transparent;border:1px solid var(--line);border-radius:2px;font-size:.8rem;font-weight:600;cursor:pointer">Step</button>
+                  <button onClick="{{ gdRun }}" style="height:34px;padding:0 .75rem;background:var(--edge);color:var(--paper);border:1px solid var(--edge);border-radius:2px;font-size:.8rem;font-weight:600;cursor:pointer">{{ gdRunLabel }}</button>
+                  <button onClick="{{ gdReset }}" style="height:34px;padding:0 .75rem;background:transparent;border:1px solid var(--line);border-radius:2px;font-size:.8rem;font-weight:600;cursor:pointer">Reset</button>
+                </div>
+              </div>
+              <figcaption style="font-size:.85rem;line-height:1.55;color:var(--muted)"><strong style="color:var(--ink);font-weight:600">Figure 1. Gradient descent on a quadratic loss.</strong> Steps in red, the loss curve in blue, the minimum in green. The step size is the whole story: below 1.11 the iteration contracts, at 1.11 it orbits, above it the step exceeds what the curvature permits and the parameter runs away. {{ gdDetail }}</figcaption>
+            </figure>
+
+            <div data-pp-sec="2" style="grid-column:1;display:grid;gap:1.1rem">
+              <h4 style="font-size:1.2rem;margin-top:.4rem">A budget, formally</h4>
+              <p>Let <em style="font-family:'Source Serif 4',Georgia,serif">v</em> be the number of licensed violations visible in one view. Attention does not accumulate; it divides.</p>
+              <div style="display:grid;gap:.4rem;padding:1rem;border-left:2px solid var(--edge);background:var(--sunk);font-family:'Source Serif 4',Georgia,serif;font-size:1.2rem;text-align:center">
+                <span><em>w</em>(<em>v</em>) = <span style="display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center"><span style="border-bottom:1px solid var(--ink);padding:0 .3em">1</span><span style="padding:0 .3em"><em>v</em></span></span> · <em>w</em><sub style="font-size:.7em">max</sub><span style="margin-left:1.5rem;color:var(--faint);font-family:'Cousine',monospace;font-size:.7rem">(1)</span></span>
+              </div>
+              <p>At <em style="font-family:'Source Serif 4',Georgia,serif">v</em> = 1 the exception carries full weight. At <em style="font-family:'Source Serif 4',Georgia,serif">v</em> = 2 each carries half — worse than none, because the reader now has two candidates for the important thing and no way to choose.</p>
+              <div style="height:0;border-top:1px dashed var(--r)"></div>
+              <p>The three plates are assigned by position, not meaning, so syntax colour carries no semantic claim:</p>
+            </div>
+
+            <div data-pp-sec="3" style="grid-column:1 / -1;border:1px solid var(--line);background:var(--code)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.45rem .7rem;border-bottom:1px solid var(--hair)">
+                <code style="font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">exceptions.ts</code>
+                <div style="display:flex;gap:.3rem">
+                  <span style="width:.45rem;height:.45rem;background:var(--g)"></span>
+                  <span style="width:.45rem;height:.45rem;background:var(--r)"></span>
+                  <span style="width:.45rem;height:.45rem;background:var(--b)"></span>
+                </div>
+              </div>
+              <pre style="margin:0;padding:.85rem .7rem;font-size:.82rem;line-height:1.85;overflow-x:auto"><span style="display:block;color:var(--faint)">// one licence per view — law 00 is not advisory</span><span style="display:block"><span style="color:var(--r-text)">export function</span> <span style="color:var(--b-text)">grant</span>(held: <span style="color:var(--g-text)">Licence</span>[]) {</span><span style="display:block">  <span style="color:var(--r-text)">if</span> (held.length &gt; <span style="color:var(--g-text)">1</span>) <span style="color:var(--r-text)">return</span> { active: <span style="color:var(--g-text)">null</span> };</span><span style="display:block">  <span style="color:var(--r-text)">return</span> { active: held[<span style="color:var(--g-text)">0</span>] ?? <span style="color:var(--g-text)">null</span> };</span><span style="display:block">}</span></pre>
+            </div>
+
+            <div style="grid-column:1;display:grid;gap:1.1rem">
+              <div style="display:grid;gap:.35rem;padding:.85rem .95rem;border:1px solid var(--g);background:var(--surface)">
+                <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--g-text)">definition</code>
+                <p style="font-size:.94rem;line-height:1.6"><strong>Licensed breach.</strong> A deviation named in the contract, budgeted per view, and marked so a reader can tell intent from drift.</p>
+              </div>
+              <p>Table 1 records what each law costs when broken without a licence.</p>
+            </div>
+
+            <div style="grid-column:1 / -1;border:1px solid var(--line);background:var(--surface);overflow-x:auto">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:.55rem .8rem;border-bottom:2px solid var(--edge)">
+                <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase">Table 1 · breach costs</code>
+                <code style="font-size:.66rem;color:var(--faint)">n = 7</code>
+              </div>
+              <div style="display:grid;grid-template-columns:44px minmax(140px,1.4fr) minmax(120px,1fr) 92px;gap:1rem;padding:.45rem .8rem;border-bottom:1px solid var(--line);min-width:460px">
+                <code style="font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">law</code>
+                <code style="font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">breach</code>
+                <code style="font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">cost if unmarked</code>
+                <code style="font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">budget</code>
+              </div>
+              <sc-for list="{{ laws }}" as="l" hint-placeholder-count="7">
+                <div style="display:grid;grid-template-columns:44px minmax(140px,1.4fr) minmax(120px,1fr) 92px;gap:1rem;padding:.5rem .8rem;border-bottom:1px solid var(--hair);align-items:baseline;min-width:460px">
+                  <code style="font-size:.78rem;color:var(--faint)">{{ l.n }}</code>
+                  <span style="font-size:.85rem;line-height:1.45">{{ l.breach }}</span>
+                  <span style="font-size:.85rem;line-height:1.45;color:var(--muted)">{{ l.cost }}</span>
+                  <code style="font-size:.72rem;color:var(--r-text);white-space:nowrap">{{ l.budget }}</code>
+                </div>
+              </sc-for>
+            </div>
+
+            <figure style="grid-column:1 / -1;display:grid;gap:.55rem;margin:.4rem 0">
+              <div style="border:1px dashed var(--line);background:var(--sunk);min-height:clamp(8rem,20vw,13rem);display:grid;place-items:center;background-image:repeating-linear-gradient(45deg,var(--hair) 0 1px,transparent 1px 9px)">
+                <code style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:var(--paper);padding:.35rem .65rem">figure 2 — XOR surface, or a photograph</code>
+              </div>
+              <figcaption style="font-size:.85rem;line-height:1.55;color:var(--muted)"><strong style="color:var(--ink);font-weight:600">Figure 2.</strong> The same frame takes a plotted figure, a placeholder, or an image. Captions are 13px, tight under the frame, number in ink.</figcaption>
+            </figure>
+
+            <div data-pp-sec="4" style="grid-column:1;display:grid;gap:.9rem">
+              <h4 style="font-size:1.2rem">References</h4>
+              <div style="display:grid;gap:.5rem;font-size:.88rem;line-height:1.55">
+                <p style="display:grid;grid-template-columns:1.6rem minmax(0,1fr);gap:.5rem;color:var(--muted)"><code style="color:var(--b-text);font-size:.8rem">[1]</code><span>On uniform mediocrity as an administrative preference. Internal note, rev 11.</span></p>
+                <p style="display:grid;grid-template-columns:1.6rem minmax(0,1fr);gap:.5rem;color:var(--muted)"><code style="color:var(--b-text);font-size:.8rem">[2]</code><span>Edges &amp; Exceptions §5, the grammar of earned rule-breaks. Superseded by this document.</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ menuOn }}" hint-placeholder-val="{{ false }}">
+          <div data-pp-float="" style="position:absolute;left:{{ fx }};top:{{ fy }};min-width:200px;background:var(--surface);border:2px solid var(--edge);box-shadow:5px 5px 0 var(--shadow);z-index:40;animation:pp-in .12s ease-out">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.4rem .6rem;border-bottom:1px solid var(--hair)">
+              <code style="font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)">{{ menuTitle }}</code>
+              <div style="display:flex;gap:.25rem">
+                <sc-for list="{{ markerBtns }}" as="mb" hint-placeholder-count="3">
+                  <button onClick="{{ mb.on }}" aria-label="{{ mb.label }}" style="width:20px;height:20px;border:1px solid var(--line);background:{{ mb.solid }};cursor:pointer"></button>
+                </sc-for>
+              </div>
+            </div>
+            <sc-for list="{{ menuItems }}" as="mi" hint-placeholder-count="4">
+              <button onClick="{{ mi.on }}" style="width:100%;display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:transparent;border:0;border-bottom:1px solid var(--hair);font-size:.85rem;font-weight:500;cursor:pointer;text-align:left;color:{{ mi.col }}" style-hover="background:var(--sunk)">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="square" style="flex:none"><path d="{{ mi.icon }}"></path></svg>{{ mi.label }}
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ tipOn }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:{{ fx }};top:{{ fy }};transform:translate(-50%,-100%);max-width:260px;padding:.5rem .65rem;background:var(--edge);color:var(--paper);font-size:.8rem;line-height:1.45;z-index:40;pointer-events:none;animation:pp-in .1s ease-out">{{ tipText }}</div>
+        </sc-if>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:1px;margin-top:1.25rem">
+        <div style="padding:1.05rem;background:var(--paper);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.5rem;align-content:start;border-top:6px solid var(--g)">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--g-text)">small screens · notes</code>
+          <p style="font-size:.88rem;line-height:1.6;color:var(--muted)">Below 820px the margin column has nowhere to go, so it stops being a margin. Each sidenote folds into the flow <em>directly after the paragraph that cites it</em>, keeping its number and its blue rule — a note, not a footnote. Nothing is collapsed behind a tap: a note you have to open is a note nobody reads.</p>
+        </div>
+        <div style="padding:1.05rem;background:var(--paper);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.5rem;align-content:start;border-top:6px solid var(--r)">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--r-text)">small screens · marking</code>
+          <p style="font-size:.88rem;line-height:1.6;color:var(--muted)">There is no right-click, so the menu comes from the selection itself: lift your finger and it appears under the passage. Same three markers, same share action, 44px targets. Long-press and drag to adjust the selection first — the menu waits.</p>
+        </div>
+        <div style="padding:1.05rem;background:var(--paper);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.5rem;align-content:start;border-top:6px solid var(--b)">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--b-text)">small screens · figures</code>
+          <p style="font-size:.88rem;line-height:1.6;color:var(--muted)">Figures already span the full column, so they simply become full width. Tables keep their real column widths and scroll sideways rather than reflowing into unreadable stacks. Interactive controls sit below their figure so a thumb never covers the thing it is changing.</p>
+        </div>
+        <div style="padding:1.05rem;background:var(--paper);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.5rem;align-content:start;border-top:6px solid var(--edge)">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">what does not change</code>
+          <p style="font-size:.88rem;line-height:1.6;color:var(--muted)">The measure. Sixty-six characters is sixty-six characters — on a phone that means the type does not shrink and the margins do not vanish; the column simply becomes the screen. Body stays 17px, the drop cap stays, the rules keep their weights.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div style="max-width:1280px;margin:0 auto;padding:0 clamp(1.15rem,5vw,3.5rem)">
+
+    <section style="padding:clamp(2.25rem,5vw,3.5rem) 0">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">06</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">When motion is allowed</h2>
+      </div>
+      <p style="margin-top:1rem;font-size:1.0625rem;line-height:1.62;max-width:64ch">Four cases. Everything else is still, including on load, including on scroll.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;margin-top:1.5rem">
+        <sc-for list="{{ motion }}" as="mo" hint-placeholder-count="5">
+          <div style="padding:1.1rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.5rem;align-content:start;border-top:6px solid {{ mo.plate }}">
+            <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:{{ mo.col }}">{{ mo.tag }}</code>
+            <h4 style="font-size:1rem">{{ mo.title }}</h4>
+            <p style="font-size:.86rem;line-height:1.55;color:var(--muted)">{{ mo.body }}</p>
+            <code style="font-size:.68rem;color:var(--faint)">{{ mo.spec }}</code>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3rem) 0;border-top:1px solid var(--hair)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">07</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">The parts that do things</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:1px;margin-top:1.5rem">
+        <div style="padding:1.15rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.85rem;align-content:start">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">buttons</code>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+            <button style="height:44px;padding:0 1.1rem;background:var(--edge);color:var(--paper);border:2px solid var(--edge);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-active="transform:translate(1px,1px)">Primary</button>
+            <button style="height:44px;padding:0 1.1rem;background:transparent;border:1px solid var(--line);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer" style-hover="border-color:var(--edge)">Secondary</button>
+            <button style="height:44px;padding:0 1.1rem;background:transparent;border:1px solid transparent;border-radius:3px;color:var(--muted);font-weight:600;font-size:.95rem;cursor:pointer" style-hover="color:var(--ink)">Quiet</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+            <button style="height:44px;padding:0 1.1rem;background:transparent;color:var(--r-text);border:2px solid var(--r);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer">Delete</button>
+            <button style="height:44px;padding:0 1.1rem;background:transparent;color:var(--g-text);border:2px solid var(--g);border-radius:3px;font-weight:600;font-size:.95rem;cursor:pointer">Approve</button>
+            <button disabled="{{ true }}" style="height:44px;padding:0 1.1rem;background:transparent;color:var(--faint);border:1px dashed var(--line);border-radius:3px;font-weight:600;font-size:.95rem;cursor:not-allowed">Disabled</button>
+          </div>
+          <p style="font-size:.82rem;line-height:1.5;color:var(--muted)">Plate on the border, text-safe companion on the type, never a plate as a fill behind white.</p>
+        </div>
+
+        <div style="padding:1.15rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.85rem;align-content:start">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">inputs</code>
+          <label style="display:grid;gap:.3rem"><code style="font-size:.7rem;color:var(--muted)">identifier</code><input value="preprint/rev-15" style="height:44px;padding:0 .7rem;background:var(--paper);border:1px solid var(--line);border-radius:3px;font-size:.95rem;cursor:{{ textCur }}" style-focus="border-color:var(--b);box-shadow:0 0 0 3px var(--sel);outline:none"></label>
+          <label style="display:grid;gap:.3rem"><code style="font-size:.7rem;color:var(--r-text)">invalid</code><input value="rev 15.2.1" style="height:44px;padding:0 .7rem;background:var(--paper);border:2px solid var(--r);border-radius:3px;font-size:.95rem"><span style="font-size:.78rem;color:var(--r-text)">One dot, no spaces.</span></label>
+          <div style="display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden">
+            <sc-for list="{{ segs }}" as="sg" hint-placeholder-count="3">
+              <button onClick="{{ sg.on }}" style="flex:1;height:40px;border:0;border-right:1px solid var(--line);background:{{ sg.bg }};color:{{ sg.fg }};font-size:.85rem;font-weight:600;cursor:pointer">{{ sg.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:1.15rem;background:var(--surface);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.85rem;align-content:start">
+          <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">data density</code>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+              <div style="padding:.65rem;background:var(--paper);box-shadow:0 0 0 1px var(--hair);display:grid;gap:.2rem">
+                <code style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">{{ s.label }}</code>
+                <span style="font-family:'Hepta Slab',serif;font-weight:700;font-size:1.45rem;letter-spacing:-0.03em;color:{{ s.col }}">{{ s.val }}</span>
+                <code style="font-size:.64rem;color:var(--muted)">{{ s.note }}</code>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:2px;height:3.2rem;padding-top:.5rem;border-top:1px solid var(--hair)">
+            <sc-for list="{{ bars }}" as="bh" hint-placeholder-count="14">
+              <span style="flex:1;height:{{ bh.h }};background:{{ bh.col }}" style-hover="opacity:.6"></span>
+            </sc-for>
+          </div>
+          <p style="font-size:.82rem;line-height:1.5;color:var(--muted)">Plates rotate across a series by position — first, middle, last — never by value.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:clamp(2rem,4vw,3rem) 0;border-top:6px solid var(--edge)">
+      <div style="display:flex;align-items:baseline;gap:1.1rem;flex-wrap:wrap">
+        <code style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)">08</code>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.7rem)">Laws, and what breaking them costs</h2>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:1.5rem;padding:.85rem;border:2px solid var(--edge);background:var(--surface)">
+        <code style="font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-right:.4rem">licences</code>
+        <sc-for list="{{ licences }}" as="lc" hint-placeholder-count="3">
+          <button onClick="{{ lc.on }}" style="height:36px;padding:0 .8rem;border:{{ lc.bd }};border-radius:2px;background:{{ lc.bg }};color:var(--ink);font-size:.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem">
+            <span style="width:.5rem;height:.5rem;background:{{ lc.dot }}"></span>{{ lc.label }}
+          </button>
+        </sc-for>
+        <code style="margin-left:auto;font-size:.74rem;font-weight:700;color:{{ budgetCol }}">{{ budgetMsg }}</code>
+      </div>
+
+      <div style="margin-top:1.25rem;border-top:2px solid var(--edge)">
+        <div style="display:grid;grid-template-columns:1.05fr 1fr 1.3fr 92px;gap:1.1rem;padding:.6rem 0;border-bottom:1px solid var(--line)">
+          <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">law</code>
+          <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">licensed breach</code>
+          <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">what earns it</code>
+          <code style="font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">budget</code>
+        </div>
+        <sc-for list="{{ laws }}" as="l" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:1.05fr 1fr 1.3fr 92px;gap:1.1rem;padding:.95rem 0;border-bottom:1px solid var(--hair);align-items:start">
+            <div style="display:flex;gap:.6rem;align-items:baseline">
+              <code style="font-size:.7rem;color:var(--faint)">{{ l.n }}</code>
+              <h4 style="font-size:.96rem;line-height:1.25;letter-spacing:-0.012em">{{ l.rule }}</h4>
+            </div>
+            <p style="font-size:.86rem;line-height:1.5">{{ l.breach }}</p>
+            <p style="font-size:.86rem;line-height:1.5;color:var(--muted)">{{ l.earn }}</p>
+            <code style="font-size:.72rem;color:var(--r-text);white-space:nowrap">{{ l.budget }}</code>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:1.25rem;margin-top:1.5rem">
+        <div style="border-left:6px solid var(--edge);padding:.1rem 0 .1rem 1rem">
+          <h4 style="font-size:1rem">Law 00 — two breaches cancel</h4>
+          <p style="margin-top:.3rem;font-size:.86rem;line-height:1.6;color:var(--muted)">Not discouraged. Cancelled. Attention divides rather than accumulates, per equation (1).</p>
+        </div>
+        <div style="border-left:6px solid var(--b);padding:.1rem 0 .1rem 1rem">
+          <h4 style="font-size:1rem">A breach used twice is an undeclared token</h4>
+          <p style="margin-top:.3rem;font-size:.86rem;line-height:1.6;color:var(--muted)">The second appearance stops being a breach. Name it, give it a slot, write its states — or stop.</p>
+        </div>
+        <div style="border-left:6px solid var(--r);padding:.1rem 0 .1rem 1rem">
+          <h4 style="font-size:1rem">The law must survive the breach</h4>
+          <p style="margin-top:.3rem;font-size:.86rem;line-height:1.6;color:var(--muted)">If breaking it makes it look arbitrary, the law was wrong. Delete it instead of licensing around it.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer style="padding:1.25rem 0 clamp(3rem,6vw,4.5rem);border-top:1px solid var(--hair)">
+      <div style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:space-between;align-items:baseline">
+        <p style="max-width:56ch;font-size:.88rem;line-height:1.7;color:var(--muted)">PREPRINT · rev 15. Offwhite ground, three plates, three markers, twelve pointers, four motion licences, seven laws. Quiet where it is read, strange where it is used.</p>
+        <code style="font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">still a draft — that is the name</code>
+      </div>
+    </footer>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Surface&quot;},&quot;sidenotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Reading&quot;},&quot;strict&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Exceptions&quot;}}">
+const PLATES = [
+  { name: 'plate 1', token: 'var(--g)', light: '#01a368', dark: '#26d494' },
+  { name: 'plate 2', token: 'var(--r)', light: '#ed0a3f', dark: '#ff4d68' },
+  { name: 'plate 3', token: 'var(--b)', light: '#0066ff', dark: '#6a9dff' },
+];
+
+const MARKERS = [
+  { name: 'citron', field: 'var(--mark-c)', demo: 'the passage someone came back to' },
+  { name: 'pink', field: 'var(--mark-p)', demo: 'a disagreement in the margin' },
+  { name: 'cyan', field: 'var(--mark-b)', demo: 'a definition worth keeping' },
+];
+
+const WEIGHTS = [
+  { name: 'hairline', px: '1px', col: 'var(--hair)', job: 'splits inside a container. Never encloses.' },
+  { name: 'line', px: '1px', col: 'var(--line)', job: 'the ordinary container edge and secondary controls.' },
+  { name: 'structure', px: '2px', col: 'var(--edge)', job: 'the thing you are meant to notice.' },
+  { name: 'spine', px: '6px', col: 'var(--edge)', job: 'once per page — a break that resets the reader.' },
+];
+
+const SEPS = [
+  { name: 'solid · ink', rule: '1px solid var(--line)', labelCol: 'var(--ink)', job: 'structure. The default separator.' },
+  { name: 'dotted · green', rule: '1px dotted var(--g)', labelCol: 'var(--g-text)', job: 'provisional — a draft boundary, a definition, a term you may skip.' },
+  { name: 'dashed · red', rule: '1px dashed var(--r)', labelCol: 'var(--r-text)', job: 'a boundary the reader may cross: an aside, a digression, a warning.' },
+  { name: 'dotted · blue', rule: '1px dotted var(--b)', labelCol: 'var(--b-text)', job: 'a reference thread — notes, citations, links back.' },
+  { name: 'structure · green', rule: '2px solid var(--g)', labelCol: 'var(--g-text)', job: 'a research section opening. Register, not emphasis.' },
+  { name: 'spine · ink', rule: '6px solid var(--edge)', labelCol: 'var(--ink)', job: 'once per page. The full stop between movements.' },
+];
+
+const CAPS = [
+  { register: 'science', plate: 'var(--g)', textCol: 'var(--g-text)', plateName: 'plate 1 · green', letter: 'M', text: 'arket design asks what a rule does to the people it binds, which is the same question a design system asks and answers less carefully.', note: 'Economics, mechanism design, anything with a result to defend.' },
+  { register: 'notebook', plate: 'var(--b)', textCol: 'var(--b-text)', plateName: 'plate 3 · blue', letter: 'I', text: 'spent a weekend learning how a single neuron performs linear regression, and the surprise was how little was left over once the analogy closed.', note: 'Worked through, or built. Outside the field is allowed — length is not promised.' },
+  { register: 'opinion', plate: 'var(--r)', textCol: 'var(--r-text)', plateName: 'plate 2 · red', letter: 'T', text: 'here is no neutral way to allocate a scarce thing, and pretending otherwise is the most common political act in technical work.', note: 'A position taken, on the record.' },
+];
+
+const MOTION = [
+  { tag: 'licence 1', plate: 'var(--g)', col: 'var(--g-text)', title: 'The process is time', body: 'Gradient descent stepping, a parameter converging, a simulation running. Here motion is the content — a static frame would be a worse figure.', spec: 'as long as the process takes' },
+  { tag: 'licence 2', plate: 'var(--b)', col: 'var(--b-text)', title: 'Continuity of state', body: 'A mark appearing, a menu opening, a panel arriving. Just enough that the thing does not teleport and the eye keeps its place.', spec: '100–140ms · ease-out · opacity + 3px' },
+  { tag: 'licence 3', plate: 'var(--r)', col: 'var(--r-text)', title: 'Confirming the irreversible', body: 'One beat on an action that cannot be undone, so the hand knows it landed before the page changes underneath it.', spec: '≤ 200ms · once' },
+  { tag: 'licence 4', plate: 'var(--edge)', col: 'var(--muted)', title: 'Restoring position', body: 'Returning a reader to where they stopped. Smooth, because a jump loses the context that makes the return useful.', spec: 'smooth scroll · user-initiated only' },
+  { tag: 'revoked', plate: 'var(--line)', col: 'var(--faint)', title: 'Everything else', body: 'No entrance animations, no scroll-triggered reveals, no parallax, no hover lifts, no looping accents. A page that moves while being read is a page arguing with its reader.', spec: 'prefers-reduced-motion honoured throughout' },
+];
+
+const LAWS = [
+  { n: '01', rule: 'Corners follow the surface\u2019s scale.', breach: 'One element borrows a radius from another scale.', earn: 'When a shape must read as a thing you touch, not a region you are inside.', cost: 'reads as a bug', budget: '1 / view' },
+  { n: '02', rule: 'Type sits on the scale.', breach: 'One line leaves it — size, weight or face.', earn: 'When that line is the reason the page exists. Not a heading: the content.', cost: 'reads as a mistake', budget: '1 / page' },
+  { n: '03', rule: 'Everything meets the column.', breach: 'One element crosses or bleeds past it.', earn: 'When the content genuinely continues past the edge. Never for emphasis.', cost: 'reads as broken layout', budget: '1 / section' },
+  { n: '04', rule: 'Two elevation levels.', breach: 'One element casts a hard offset instead of a soft one.', earn: 'For something temporarily on top of the work rather than part of it.', cost: 'reads as a stray card', budget: '1 / view' },
+  { n: '05', rule: 'Plates carry no fixed meaning.', breach: 'One element claims a plate semantically.', earn: 'When the action is irreversible, and the label says so in words too.', cost: 'teaches a false rule', budget: '1 / flow' },
+  { n: '06', rule: 'Nothing sits off-axis.', breach: 'One element rotates, up to 1.5°.', earn: 'Where the thing depicted is physically loose: a plate, a sticker, a slip of paper.', cost: 'reads as CSS drift', budget: '1 / page' },
+  { n: '07', rule: 'Density is uniform.', breach: 'One section takes twice the air, or half.', earn: 'Where a decision is asked for and the page should visibly slow down first.', cost: 'reads as unfinished', budget: '1 / page' },
+];
+
+const ICONS = [
+  { n: 'plus', d: 'M8 2.5v11M2.5 8h11' },
+  { n: 'minus', d: 'M2.5 8h11' },
+  { n: 'close', d: 'M3.5 3.5l9 9M12.5 3.5l-9 9' },
+  { n: 'check', d: 'M3 8.5l3.5 3.5L13 5.5', col: 'var(--g)' },
+  { n: 'chevron', d: 'M4.5 6.5 8 10l3.5-3.5' },
+  { n: 'arrow', d: 'M2.5 8h10M8.5 4l4 4-4 4' },
+  { n: 'external', d: 'M8.5 3.5h4v4M12.5 3.5 8 8M11.5 9.5v3h-9v-9h3' },
+  { n: 'link', d: 'M9.5 4.5h3v3M12.5 4.5 9 8M6.5 11.5h-3v-3M3.5 11.5 7 8' },
+  { n: 'box', d: 'M2.5 2.5h11v11h-11z' },
+  { n: 'columns', d: 'M2.5 2.5h11v11h-11z M8 2.5v11' },
+  { n: 'grid', d: 'M2.5 2.5h4v4h-4z M9.5 2.5h4v4h-4z M2.5 9.5h4v4h-4z M9.5 9.5h4v4h-4z' },
+  { n: 'brackets', d: 'M5.5 2.5h-3v11h3M10.5 2.5h3v11h-3' },
+  { n: 'search', d: 'M2.5 2.5h8v8h-8z M10.5 10.5 13.5 13.5' },
+  { n: 'funnel', d: 'M2.5 3.5h11L9 8v5H7V8z' },
+  { n: 'menu', d: 'M2.5 4h11M2.5 8h11M2.5 12h11' },
+  { n: 'layers', d: 'M8 2 12.5 6.5 8 11 3.5 6.5z M4 9.5 8 13.5l4-4' },
+  { n: 'ruler', d: 'M2 5.5h12v5H2z M5 5.5v2M8 5.5v2M11 5.5v2' },
+  { n: 'lock', d: 'M3.5 7.5h9v6h-9z M5.5 7.5V6l1.5-1.5h2L10.5 6v1.5', fill: 'M7.4 9.6h1.2v2.2H7.4z' },
+  { n: 'eye', d: 'M1.5 8 8 2.5 14.5 8 8 13.5z', fill: 'M6.8 6.8h2.4v2.4H6.8z' },
+  { n: 'download', d: 'M8 2.5v7.5M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11' },
+  { n: 'upload', d: 'M8 10.5V3M4.5 6.5 8 3l3.5 3.5M2.5 13.5h11' },
+  { n: 'trash', d: 'M2.5 4.5h11M6 4.5V2.5h4v2M4 4.5v9h8v-9M6.5 7v4M9.5 7v4', col: 'var(--r)' },
+  { n: 'warn', d: 'M8 1.5 14.5 8 8 14.5 1.5 8z M8 5v4', fill: 'M7.35 10.4h1.3v1.3h-1.3z', col: 'var(--r)' },
+  { n: 'info', d: 'M2.5 2.5h11v11h-11z M8 7.5v4', fill: 'M7.35 4.9h1.3v1.3h-1.3z', col: 'var(--b)' },
+  { n: 'note', d: 'M3.5 2h9v12h-9z M5.5 5.5h5M5.5 8h5M5.5 10.5h3' },
+  { n: 'quote', d: 'M3 3v10M6.5 5h7M6.5 8h7M6.5 11h4.5' },
+  { n: 'highlight', d: 'M3.5 3h6M3.5 6h9', fill: 'M2.5 9h11v3.5h-11z' },
+  { n: 'mode', d: 'M8 4.5 11.5 8 8 11.5 4.5 8z M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5' },
+];
+
+const CURSOR_DEFS = [
+  { n: 'arrow', hot: '2 2', fb: 'default', use: 'everything by default — page, panels, prose.',
+    p: '<path d="M2 2 L2 18 L6.5 13.5 L9.5 20 L12.5 18.6 L9.5 12.4 L16 12.4 Z"/>' },
+  { n: 'point', hot: '2 2', fb: 'pointer', lift: 1.1, use: 'anything that responds. Same silhouette, cast in plate 3 — the pointer sits raised.',
+    p: '<path d="M2 2 L2 18 L6.5 13.5 L9.5 20 L12.5 18.6 L9.5 12.4 L16 12.4 Z"/>' },
+  { n: 'pressed', hot: '2 2', fb: 'pointer', lift: 0.5, use: 'the same pointer while the button is down. Half a pixel less cast — felt rather than seen.',
+    p: '<path d="M2 2 L2 18 L6.5 13.5 L9.5 20 L12.5 18.6 L9.5 12.4 L16 12.4 Z"/>' },
+  { n: 'text', hot: '8 8', fb: 'text', use: 'inputs and any prose meant to be selected.',
+    p: '<path d="M5 2h6v2H9v12h2v2H5v-2h2V4H5z"/>' },
+  { n: 'cross', hot: '11 11', fb: 'crosshair', use: 'precise placement — a point, a crop, a box.',
+    p: '<path d="M10 1h2v7h-2z M10 14h2v7h-2z M1 10h7v2H1z M14 10h7v2h-7z"/>' },
+  { n: 'grab', hot: '11 11', fb: 'grab', use: 'a surface that pans. Never the content inside it.',
+    p: '<path d="M2 2h7v2H4v5H2z M13 2h7v7h-2V4h-5z M2 13h2v5h5v2H2z M18 13h2v7h-7v-2h5z"/>' },
+  { n: 'move', hot: '11 11', fb: 'move', use: 'an object being dragged to a new position.',
+    p: '<path d="M11 1l4 5h-3v4h4V7l5 4-5 4v-3h-4v4h3l-4 5-4-5h3v-4H6v3l-5-4 5-4v3h4V6H7z"/>' },
+  { n: 'zoom', hot: '9 9', fb: 'zoom-in', use: 'a surface that scales under the pointer. Lens and handle are one outline.',
+    p: '<path d="M2 2H16V12.9L21.3 18.2 18.2 21.3 12.9 16H2Z"/><path fill="#f7f7f4" stroke="none" d="M8 5h2v8H8z M5 8h8v2H5z"/>' },
+  { n: 'help', hot: '11 11', fb: 'help', plate: 'b', use: 'explains itself on press. The i sits low, where a footnote would.',
+    p: '<path d="M3 3h16v16H3z"/><path fill="#f7f7f4" stroke="none" d="M10 9.5h2v6.5h-2z M10 6.6h2v1.7h-2z"/>' },
+  { n: 'working', hot: '11 11', fb: 'progress', use: 'the system has it and has not finished.',
+    p: '<path d="M4 3h14l-7 7z M4 20h14l-7-7z"/><path d="M4 2h14v1.6H4z M4 19.4h14V21H4z"/>' },
+  { n: 'blocked', hot: '11 11', fb: 'not-allowed', plate: 'r', use: 'unavailable here, and pressing will not change that.',
+    p: '<path d="M3 3h16v16H3z"/><path fill="#f7f7f4" stroke="none" d="M6.68 13.76 13.76 6.68 15.32 8.24 8.24 15.32z"/>' },
+  { n: 'resize-col', hot: '11 11', fb: 'col-resize', use: 'a vertical divider draggable sideways.',
+    p: '<path d="M1 11 6.5 5.5v11z M21 11 15.5 5.5v11z M10 3h2v16h-2z"/>' },
+  { n: 'resize-row', hot: '11 11', fb: 'row-resize', use: 'a horizontal divider draggable up or down.',
+    p: '<path d="M11 1 5.5 6.5h11z M11 21 5.5 15.5h11z M3 10h16v2H3z"/>' },
+];
+
+const FACES = {
+  zilla: { label: 'Zilla Slab', stack: "'Zilla Slab', Georgia, serif", note: 'slab · large x-height · low contrast' },
+  serif: { label: 'Source Serif 4', stack: "'Source Serif 4', Georgia, serif", note: 'true serif · built for long reading' },
+  sans: { label: 'Public Sans', stack: "'Public Sans', system-ui, sans-serif", note: 'neutral sans · least voice' },
+};
+
+const SIDENOTES = [
+  { id: '1', text: 'Sidenotes sit in the margin at reading height rather than collapsing to the foot of the page. Hover either half and the pair lights up.' },
+  { id: '2', text: 'A budget is not a limit on quality. It is a limit on how many things one screen is allowed to be about.' },
+];
+
+const MARK_FIELDS = {
+  c: { field: 'var(--mark-c)', solid: '#deee2e', label: 'Citron' },
+  p: { field: 'var(--mark-p)', solid: '#ff4fa3', label: 'Pink' },
+  b: { field: 'var(--mark-b)', solid: '#40ccff', label: 'Cyan' },
+};
+
+const cursorUrl = (p, dark, plate, lift) => {
+  const ink = plate === 'b' ? (dark ? '#6a9dff' : '#0066ff')
+    : plate === 'r' ? (dark ? '#ff4d68' : '#ed0a3f')
+    : (dark ? '#efeee8' : '#171716');
+  const ground = dark ? '#141413' : '#fbfbf9';
+  const blue = dark ? '#6a9dff' : '#0066ff';
+  const inner = p.split('#f7f7f4').join(ground);
+  // lift: the same silhouette cast in plate 3 behind the ink, so a clickable
+  // surface reads as slightly raised. The pressed variant drops the cast.
+  // lift is the cast distance: the same silhouette in plate 3 behind the ink.
+  // Pressing shortens it rather than removing it, so the pointer reads as
+  // having gone down a little instead of losing its shadow.
+  const body = lift
+    ? '<g transform="translate(' + lift + ',' + lift + ')" fill="' + blue + '" stroke="none" opacity="' + (lift > 0.8 ? '.8' : '.66') + '">' + inner + '</g>' + inner
+    : inner;
+  const size = lift ? 26 : 23;
+  return 'url("data:image/svg+xml,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" fill="' + ink +
+    '" stroke="' + ground + '" stroke-width="1.15" stroke-linejoin="miter">' + body + '</svg>'
+  ) + '")';
+};
+
+class Component extends DCLogic {
+  state = {
+    mode: null, face: 'zilla', seg: 1,
+    lr: 0.5, gdN: 0, running: false,
+    float: null, marks: 0, hoverRef: null, copied: '', pressing: false,
+    readPct: 0, secs: [], activeSec: 0, lic: { scale: true, axis: false, plate: false },
+  };
+
+  get mode() { return this.state.mode ?? this.props.mode ?? 'light'; }
+
+  art() {
+    if (!this._art || !this._art.isConnected) this._art = document.querySelector('[data-pp-article]');
+    return this._art;
+  }
+  panel() {
+    const a = this.art();
+    return a ? a.closest('[data-pp-panel]') : null;
+  }
+
+  componentDidMount() {
+    document.body.setAttribute('data-mode', this.mode);
+
+    this.onCtx = (e) => {
+      const art = this.art();
+      if (!art || !art.contains(e.target)) return;
+      e.preventDefault();
+      const p = this.panel().getBoundingClientRect();
+      const sel = window.getSelection();
+      const text = sel && !sel.isCollapsed ? sel.toString().trim() : '';
+      const onMark = e.target.closest ? e.target.closest('[data-pp-mark]') : null;
+      this.setState({
+        float: {
+          kind: 'menu', x: e.clientX - p.left, y: e.clientY - p.top,
+          text, markId: onMark ? onMark.getAttribute('data-pp-id') : null,
+        },
+      });
+    };
+
+    this.onClick = (e) => {
+      const art = this.art();
+      const m = art && e.target.closest ? e.target.closest('[data-pp-mark]') : null;
+      if (m && art.contains(m)) {
+        const p = this.panel().getBoundingClientRect();
+        const r = m.getBoundingClientRect();
+        this.setState({ float: { kind: 'menu', x: r.left - p.left, y: r.bottom - p.top + 4, text: m.textContent, markId: m.getAttribute('data-pp-id') } });
+        return;
+      }
+      if (!e.target.closest || !e.target.closest('[data-pp-float]')) {
+        if (this.state.float && this.state.float.kind === 'menu') this.setState({ float: null });
+      }
+    };
+
+    this.onOver = (e) => {
+      const t = e.target.closest ? e.target.closest('[data-pp-term]') : null;
+      if (t) {
+        const p = this.panel().getBoundingClientRect();
+        const r = t.getBoundingClientRect();
+        this.setState({ float: { kind: 'tip', x: r.left - p.left + r.width / 2, y: r.top - p.top - 4, text: t.getAttribute('data-pp-term') } });
+        return;
+      }
+      const ref = e.target.closest ? (e.target.closest('[data-pp-ref]') || e.target.closest('[data-pp-note]')) : null;
+      const id = ref ? (ref.getAttribute('data-pp-ref') || ref.getAttribute('data-pp-note')) : null;
+      if (id !== this.state.hoverRef) this.setState({ hoverRef: id });
+      if (!ref && this.state.float && this.state.float.kind === 'tip') this.setState({ float: null });
+    };
+
+    this.onScroll = () => {
+      const art = this.art();
+      if (!art) return;
+      const b = art.getBoundingClientRect();
+      const total = b.height - window.innerHeight;
+      const pct = total <= 0 ? (b.top < 0 ? 100 : 0) : Math.min(100, Math.max(0, (-b.top / total) * 100));
+      const line = window.innerHeight * 0.42;
+      const secs = [];
+      let active = 0;
+      art.querySelectorAll('[data-pp-sec]').forEach((el, k) => {
+        const r = el.getBoundingClientRect();
+        const read = Math.min(100, Math.max(0, ((line - r.top) / Math.max(1, r.height)) * 100));
+        secs.push(Math.round(read));
+        if (r.top <= line) active = k;
+      });
+      const same = this.state.secs.length === secs.length && secs.every((v, k) => v === this.state.secs[k]);
+      if (same && active === this.state.activeSec && Math.round(pct) === this.state.readPct) return;
+      this.setState({ readPct: Math.round(pct), secs, activeSec: active });
+    };
+
+    // The lift drops on press. Driven from state rather than :active because
+    // the pressed art is a computed data-URI, and an instant swap is required.
+    this.onDown = () => this.setState({ pressing: true });
+    this.onUpBtn = () => this.setState({ pressing: false });
+    this.onTouchEnd = () => {
+      const art = this.art();
+      const sel = window.getSelection();
+      if (!art || !sel || sel.isCollapsed) return;
+      const range = sel.getRangeAt(0);
+      if (!art.contains(range.commonAncestorContainer)) return;
+      const text = sel.toString().trim();
+      if (text.length < 3) return;
+      const p = this.panel().getBoundingClientRect();
+      const r = range.getBoundingClientRect();
+      this.setState({ float: { kind: 'menu', x: r.left - p.left, y: r.bottom - p.top + 6, text, markId: null } });
+    };
+    document.addEventListener('touchend', this.onTouchEnd);
+    document.addEventListener('mousedown', this.onDown);
+    document.addEventListener('mouseup', this.onUpBtn);
+    document.addEventListener('contextmenu', this.onCtx);
+    document.addEventListener('click', this.onClick);
+    document.addEventListener('mouseover', this.onOver);
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    this.onScroll();
+    this.restoreShared();
+  }
+
+  componentDidUpdate() { document.body.setAttribute('data-mode', this.mode); }
+
+  componentWillUnmount() {
+    document.removeEventListener('touchend', this.onTouchEnd);
+    document.removeEventListener('mousedown', this.onDown);
+    document.removeEventListener('mouseup', this.onUpBtn);
+    document.removeEventListener('contextmenu', this.onCtx);
+    document.removeEventListener('click', this.onClick);
+    document.removeEventListener('mouseover', this.onOver);
+    window.removeEventListener('scroll', this.onScroll);
+    clearInterval(this._runner);
+  }
+
+  // A shared link carries the quote as a text fragment; reopen on it.
+  restoreShared() {
+    const m = /#:~:text=([^&]+)/.exec(window.location.href);
+    if (!m) return;
+    let quote;
+    try { quote = decodeURIComponent(m[1]); } catch (e) { return; }
+    if (!quote) return;
+    if (this.repaint({ quote, color: 'c', id: 'shared' })) {
+      const el = document.querySelector('[data-pp-id="shared"]');
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' });
+      this.setState((s) => ({ marks: s.marks + 1 }));
+    }
+  }
+
+  repaint(entry) {
+    const art = this.art();
+    if (!art || !entry.quote) return false;
+    const needle = entry.quote.slice(0, 70);
+    const walker = document.createTreeWalker(art, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.parentElement && node.parentElement.closest('[data-pp-mark]')) continue;
+      const i = node.textContent.indexOf(needle);
+      if (i < 0) continue;
+      const range = document.createRange();
+      range.setStart(node, i);
+      range.setEnd(node, Math.min(node.textContent.length, i + entry.quote.length));
+      this.paint(range, entry.color, entry.id);
+      return true;
+    }
+    return false;
+  }
+
+  paint(range, color, id) {
+    const el = document.createElement('mark');
+    el.setAttribute('data-pp-mark', '');
+    el.setAttribute('data-pp-id', id);
+    el.style.background = (MARK_FIELDS[color] || MARK_FIELDS.c).field;
+    try { range.surroundContents(el); }
+    catch (e) { el.appendChild(range.extractContents()); range.insertNode(el); }
+    return el;
+  }
+
+  addMark(color) {
+    const f = this.state.float;
+    const sel = window.getSelection();
+    if (!f) return;
+    if (f.markId) { this.recolour(f.markId, color); return; }
+    if (!sel || sel.isCollapsed) { this.setState({ float: null }); return; }
+    const quote = sel.toString().trim();
+    const id = 'm' + Date.now().toString(36);
+    this.paint(sel.getRangeAt(0), color, id);
+    sel.removeAllRanges();
+    this.setState((s) => ({ float: null, marks: s.marks + 1 }));
+  }
+
+  recolour(id, color) {
+    const el = document.querySelector('[data-pp-id="' + id + '"]');
+    if (el) el.style.background = (MARK_FIELDS[color] || MARK_FIELDS.c).field;
+    this.setState({ float: null });
+  }
+
+  unwrap(id) {
+    const el = document.querySelector('[data-pp-id="' + id + '"]');
+    if (el) {
+      const p = el.parentNode;
+      while (el.firstChild) p.insertBefore(el.firstChild, el);
+      p.removeChild(el);
+      p.normalize();
+    }
+    this.setState((s) => ({ float: null, marks: Math.max(0, s.marks - 1) }));
+  }
+
+  copyLink(quote) {
+    const url = window.location.href.split('#')[0] + '#:~:text=' + encodeURIComponent((quote || '').slice(0, 120));
+    const done = () => this.setState({ float: null, copied: 'link copied · opens on this passage' });
+    try {
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done);
+      else done();
+    } catch (e) { done(); }
+  }
+
+  gdTrajectory(lr, n) {
+    const fp = (x) => 1.8 * (x - 1);
+    const xs = [-2.2];
+    for (let i = 0; i < n; i++) {
+      const nx = xs[xs.length - 1] - lr * fp(xs[xs.length - 1]);
+      if (!isFinite(nx) || Math.abs(nx) > 60) { xs.push(Math.sign(nx) * 60); break; }
+      xs.push(nx);
+    }
+    return xs;
+  }
+
+  toggleRun() {
+    if (this.state.running) { clearInterval(this._runner); this.setState({ running: false }); return; }
+    this.setState({ running: true });
+    this._runner = setInterval(() => {
+      this.setState((s) => {
+        if (s.gdN >= 14) { clearInterval(this._runner); return { gdN: s.gdN, running: false }; }
+        return { gdN: s.gdN + 1 };
+      });
+    }, 420);
+  }
+
+  renderVals() {
+    const st = this.state;
+    const dark = this.mode === 'dark';
+    const face = FACES[st.face] || FACES.zilla;
+
+    const cursors = CURSOR_DEFS.map((c) => {
+      const art = cursorUrl(c.p, dark, c.plate, c.lift);
+      return {
+        n: c.n, hot: c.hot + ' · ' + c.fb, use: c.use, art,
+        cur: art + ' ' + c.hot + ', ' + c.fb,
+        labelCol: c.plate === 'r' ? 'var(--r-text)' : c.lift ? 'var(--b-text)' : 'var(--ink)',
+      };
+    });
+    const byName = {};
+    cursors.forEach((c) => { byName[c.n] = c.cur; });
+    const pointCur = byName.point;
+    const pressCur = byName.pressed;
+    const helpCur = byName.help;
+
+    // ── Figure 1: gradient descent ──
+    const W = 620, H = 260, PAD = 26;
+    const yMax = 12;
+    // sample only where the loss fits the frame, so no endpoint is ever drawn flat
+    const half = Math.sqrt((yMax - 0.45) / 0.9);
+    const xMin = 1 - half, xMax = 1 + half;
+    const f = (x) => 0.9 * (x - 1) * (x - 1) + 0.4;
+    const px = (x) => PAD + ((x - xMin) / (xMax - xMin)) * (W - PAD * 2);
+    const py = (y) => H - PAD - (Math.min(y, yMax) / yMax) * (H - PAD * 2);
+    let curve = '';
+    for (let i = 0; i <= 120; i++) {
+      const x = xMin + (i / 120) * (xMax - xMin);
+      curve += (i ? 'L' : 'M') + px(x).toFixed(1) + ' ' + py(f(x)).toFixed(1) + ' ';
+    }
+    let grid = '';
+    for (let gx = Math.ceil(xMin); gx <= Math.floor(xMax); gx++) grid += 'M' + px(gx).toFixed(1) + ' ' + PAD + 'V' + (H - PAD) + ' ';
+    for (let gy = 0; gy <= 12; gy += 3) grid += 'M' + PAD + ' ' + py(gy).toFixed(1) + 'H' + (W - PAD) + ' ';
+    const xs = this.gdTrajectory(st.lr, st.gdN);
+    const pts = xs.map((x, i) => ({
+      x: (px(Math.max(xMin, Math.min(xMax, x))) - 3.5).toFixed(1),
+      y: (py(f(x)) - 3.5).toFixed(1),
+      col: i === xs.length - 1 ? (dark ? '#ff4d68' : '#ed0a3f') : (dark ? 'rgba(255,77,104,.45)' : 'rgba(237,10,63,.45)'),
+    }));
+    let trail = '';
+    xs.forEach((x, i) => {
+      trail += (i ? 'L' : 'M') + px(Math.max(xMin, Math.min(xMax, x))).toFixed(1) + ' ' + py(f(x)).toFixed(1) + ' ';
+    });
+    const last = xs[xs.length - 1];
+    const diverging = st.lr > 1.115;
+    const verdict = diverging ? 'diverging' : st.lr > 1.02 ? 'orbiting' : st.lr < 0.2 ? 'crawling' : 'converging';
+    const vCol = diverging ? 'var(--r-text)' : st.lr > 1.02 ? 'var(--faint)' : 'var(--g-text)';
+
+    const notes = SIDENOTES.map((n) => ({
+      id: n.id, text: n.text,
+      bg: st.hoverRef === n.id ? 'var(--tint)' : 'transparent',
+    }));
+
+    const f0 = st.float;
+    const menuOn = !!f0 && f0.kind === 'menu';
+    const tipOn = !!f0 && f0.kind === 'tip';
+    const LINK_ICON = 'M6.5 9.5 9.5 6.5M7 4.5 8.5 3a2.5 2.5 0 0 1 0 0M5.5 7.5 3.5 9.5v3h3l2-2M10.5 8.5l2-2v-3h-3l-2 2';
+    const menuItems = menuOn && f0.markId ? [
+      { label: 'Copy link to this mark', icon: LINK_ICON, col: 'var(--ink)', on: () => this.copyLink(f0.text) },
+      { label: 'Remove highlight', icon: 'M4 4.5h8M6 4.5V2.5h4v2M4.5 4.5v9h7v-9M6.5 7v4M9.5 7v4', col: 'var(--r-text)', on: () => this.unwrap(f0.markId) },
+    ] : [
+      { label: 'Copy link to selection', icon: LINK_ICON, col: 'var(--ink)', on: () => this.copyLink(f0 ? f0.text : '') },
+    ];
+
+    const lic = st.lic;
+    const held = ['scale', 'axis', 'plate'].filter((k) => lic[k]);
+    const cancelled = held.length > 1;
+    const strict = this.props.strict ?? false;
+    const eff = strict ? null : (held.length === 1 ? held[0] : null);
+    let budgetMsg = 'budget clear · 0 of 1 spent';
+    let budgetCol = 'var(--faint)';
+    if (strict) { budgetMsg = 'strict · all licences revoked'; budgetCol = 'var(--r-text)'; }
+    else if (cancelled) { budgetMsg = held.length + ' held · both cancelled, law 00'; budgetCol = 'var(--r-text)'; }
+    else if (eff) { budgetMsg = 'licence in force · 1 of 1 spent'; budgetCol = 'var(--g-text)'; }
+
+    const barVals = [38, 52, 30, 64, 48, 72, 41, 58, 88, 45, 61, 34, 76, 55];
+
+    return {
+      plates: PLATES.map((p) => Object.assign({}, p, {
+        lightCol: dark ? 'var(--faint)' : 'var(--ink)',
+        darkCol: dark ? 'var(--ink)' : 'var(--faint)',
+      })),
+      markers: MARKERS, weights: WEIGHTS, seps: SEPS, caps: CAPS, motion: MOTION, laws: LAWS,
+      icons: ICONS.map((i) => Object.assign({}, i, { col: i.col || 'var(--ink)', fill: i.fill || '' })),
+      cursors, pointCur, pressCur, helpCur, textCur: byName.text,
+      tileCur: st.pressing ? pressCur : pointCur,
+      plateBlend: dark ? 'screen' : 'multiply',
+      modeLabel: dark ? 'dark' : 'light',
+      modeNext: dark ? 'Light' : 'Dark',
+      toggleMode: () => this.setState({ mode: dark ? 'light' : 'dark' }),
+      faceStack: face.stack, faceNote: face.note,
+      faceOpts: Object.keys(FACES).map((k) => ({
+        label: FACES[k].label,
+        on: () => this.setState({ face: k }),
+        bd: st.face === k ? '2px solid var(--edge)' : '1px solid var(--line)',
+        bg: st.face === k ? 'var(--mark-c)' : 'transparent',
+      })),
+      typeScale: [
+        { name: 'display', spec: 'Hepta 900', stack: "'Hepta Slab',serif", wt: 900, size: 'clamp(2rem,5vw,3.3rem)', lh: '1.02', tr: '-0.05em', col: 'var(--ink)', sample: 'Printed first' },
+        { name: 'head', spec: 'Hepta 700', stack: "'Hepta Slab',serif", wt: 700, size: 'clamp(1.5rem,3.4vw,2.1rem)', lh: '1.06', tr: '-0.03em', col: 'var(--ink)', sample: 'Section heads land here' },
+        { name: 'lede', spec: 'Hepta 200', stack: "'Hepta Slab',serif", wt: 200, size: 'clamp(1.1rem,2.4vw,1.5rem)', lh: '1.34', tr: '-0.02em', col: 'var(--muted)', sample: 'Quiet and large at once' },
+        { name: 'body', spec: face.label + ' · 17px / 1.68', stack: face.stack, wt: 400, size: '1.0625rem', lh: '1.68', tr: '0', col: 'var(--ink)', sample: 'Seventeen pixels, sixty-six characters, enough leading to keep a paragraph honest.' },
+        { name: 'micro', spec: face.label + ' · 13px', stack: face.stack, wt: 400, size: '.8125rem', lh: '1.5', tr: '0', col: 'var(--muted)', sample: 'Captions, table cells, footnotes. Never smaller.' },
+        { name: 'mono', spec: 'Cousine · 13px', stack: "'Cousine',monospace", wt: 400, size: '.8125rem', lh: '1.7', tr: '0', col: 'var(--faint)', sample: '--mark-c: rgba(222,238,46,.62);' },
+      ],
+      toc: ['The reluctance', 'A budget, formally', 'Implementation', 'References'].map((label, k) => {
+        const on = st.activeSec === k;
+        const read = st.secs[k] || 0;
+        return {
+          n: String(k + 1), label,
+          bar: on ? 'var(--edge)' : 'var(--hair)',
+          bg: on ? 'var(--tint)' : 'transparent',
+          col: on ? 'var(--ink)' : 'var(--muted)',
+          numCol: on ? 'var(--ink)' : 'var(--faint)',
+          wt: on ? '600' : '400',
+          pct: read + '%',
+          fill: read >= 99 ? 'var(--g)' : 'var(--edge)',
+          on: () => {
+            const el = document.querySelector('[data-pp-sec="' + (k + 1) + '"]');
+            if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - window.innerHeight * 0.28, behavior: 'smooth' });
+          },
+        };
+      }),
+      notes, sidenotes: this.props.sidenotes ?? true,
+      refBg1: st.hoverRef === '1' ? 'var(--tint)' : 'transparent',
+      refBg2: st.hoverRef === '2' ? 'var(--tint)' : 'transparent',
+      readPct: st.readPct + '%',
+      markCount: st.copied ? st.copied : (st.marks === 0 ? 'no marks' : st.marks + (st.marks === 1 ? ' mark' : ' marks')),
+      clearMarks: () => {
+        const art = this.art();
+        if (art) Array.prototype.forEach.call(art.querySelectorAll('[data-pp-mark]'), (el) => {
+          const p = el.parentNode;
+          while (el.firstChild) p.insertBefore(el.firstChild, el);
+          p.removeChild(el);
+          p.normalize();
+        });
+        this.setState({ marks: 0, copied: '' });
+      },
+      menuOn, tipOn,
+      fx: f0 ? f0.x + 'px' : '0px',
+      fy: f0 ? f0.y + 'px' : '0px',
+      tipText: tipOn ? f0.text : '',
+      menuTitle: menuOn ? (f0.markId ? 'this mark' : f0.text ? 'selection' : 'no selection') : '',
+      menuItems,
+      markerBtns: Object.keys(MARK_FIELDS).map((k) => ({
+        label: MARK_FIELDS[k].label, solid: MARK_FIELDS[k].solid,
+        on: () => this.addMark(k),
+      })),
+      lr: st.lr.toFixed(2),
+      setLr: (e) => this.setState({ lr: Number(e.target.value) }),
+      gdStep: () => this.setState((s) => ({ gdN: Math.min(14, s.gdN + 1) })),
+      gdReset: () => { clearInterval(this._runner); this.setState({ gdN: 0, running: false }); },
+      gdRun: () => this.toggleRun(),
+      gdRunLabel: st.running ? 'Pause' : 'Run',
+      gdCurve: curve.trim(), gdGrid: grid.trim(), gdTrail: trail.trim(), gdPoints: pts,
+      gdMinMark: 'M' + (px(1) - 6).toFixed(1) + ' ' + (py(f(1)) + 10).toFixed(1) + 'h12M' + px(1).toFixed(1) + ' ' + (py(f(1)) + 4).toFixed(1) + 'v12',
+      gdMinLabelX: (px(1) - 24).toFixed(1),
+      gdBlue: dark ? '#6a9dff' : '#0066ff',
+      gdRed: dark ? '#ff4d68' : '#ed0a3f',
+      gdGreen: dark ? '#26d494' : '#01a368',
+      gdGreenText: dark ? '#45e2a6' : '#017a4e',
+      gdHair: dark ? 'rgba(239,238,232,.10)' : 'rgba(23,23,22,.09)',
+      gdVerdict: verdict + ' · step ' + st.gdN,
+      gdCol: vCol,
+      gdDetail: diverging
+        ? 'At this step size the parameter has left the frame entirely — the figure clips it rather than rescaling, because rescaling would hide the failure.'
+        : 'Currently at x = ' + last.toFixed(3) + ', loss ' + f(last).toFixed(3) + '.',
+      segs: ['Docs', 'Tool', 'Dash'].map((label, i) => ({
+        label,
+        bg: st.seg === i ? 'var(--edge)' : 'transparent',
+        fg: st.seg === i ? 'var(--paper)' : 'var(--muted)',
+        on: () => this.setState({ seg: i }),
+      })),
+      stats: [
+        { label: 'laws', val: '7', col: 'var(--ink)', note: 'unchanged since rev 13' },
+        { label: 'breaches', val: '7', col: 'var(--b)', note: 'one per law' },
+        { label: 'per view', val: '1', col: 'var(--r)', note: 'law 00' },
+      ],
+      bars: barVals.map((v, i) => ({
+        h: v + '%',
+        col: i === 0 ? 'var(--g)' : i === barVals.length - 1 ? 'var(--b)' : i === 8 ? 'var(--r)' : 'var(--line)',
+      })),
+      licences: [
+        { key: 'scale', label: '02 · scale' },
+        { key: 'axis', label: '06 · axis' },
+        { key: 'plate', label: '05 · plate' },
+      ].map((l) => {
+        const on = lic[l.key];
+        const live = on && !cancelled && !strict;
+        return {
+          label: l.label,
+          on: () => this.setState((s) => ({ lic: Object.assign({}, s.lic, { [l.key]: !s.lic[l.key] }) })),
+          bd: live ? '2px solid var(--edge)' : on ? '2px dashed var(--r)' : '1px solid var(--line)',
+          bg: live ? 'var(--mark-c)' : 'transparent',
+          dot: live ? 'var(--edge)' : on ? 'var(--r-text)' : 'var(--line)',
+        };
+      }),
+      budgetMsg, budgetCol,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

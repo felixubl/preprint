@@ -1,0 +1,169 @@
+<!-- @dsCard group="Docs" viewport="1100x700" -->
+<!-- @startingPoint section="App" subtitle="Docs page and data view with a nav rail" viewport="1100x700" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PREPRINT — docs and dashboard</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; cursor: var(--pp-cursor-arrow); }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const NAV = [
+      { group: 'Foundations', items: ['Plates and markers', 'Rules and separators', 'Type', 'Space'] },
+      { group: 'Components', items: ['Button', 'Field', 'Segmented', 'Tag', 'Icon'] },
+      { group: 'Reading', items: ['Drop caps', 'Sidenotes', 'Figures', 'Marks'] },
+    ];
+
+    const ROWS = [
+      { k: '--pp-radius-sm', was: '7px', now: '2px', who: 'surface' },
+      { k: '--pp-radius-md', was: '11px', now: '3px', who: 'surface' },
+      { k: '--pp-radius-lg', was: '16px', now: '4px', who: 'surface' },
+      { k: '--pp-radius-pill', was: 'any', now: 'tags', who: 'contract' },
+      { k: '--pp-rule-spine', was: '—', now: '6px', who: 'contract' },
+    ];
+
+    const kicker = { fontFamily: 'var(--pp-font-mono)', fontSize: '.66rem', letterSpacing: 'var(--pp-track-label)', textTransform: 'uppercase', color: 'var(--pp-faint)' };
+
+    function App() {
+      const [mode, setMode] = useState('light');
+      const [view, setView] = useState('Docs');
+      const [active, setActive] = useState('Rules and separators');
+      const [pressing, setPressing] = useState(false);
+      useEffect(() => { document.body.setAttribute('data-mode', mode); }, [mode]);
+      useEffect(() => {
+        const d = () => setPressing(true), u = () => setPressing(false);
+        document.addEventListener('mousedown', d); document.addEventListener('mouseup', u);
+        return () => { document.removeEventListener('mousedown', d); document.removeEventListener('mouseup', u); };
+      }, []);
+      const pointer = pressing ? 'var(--pp-cursor-pressed)' : 'var(--pp-cursor-point)';
+      const btn = { height: 34, padding: '0 .7rem', background: 'transparent', border: '1px solid var(--pp-line)', borderRadius: 'var(--pp-radius-sm)', fontFamily: 'var(--pp-font-body)', fontSize: '.8rem', fontWeight: 600, cursor: pointer };
+
+      return (
+        <div style={{ minHeight: '100vh', display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+          <header style={{ borderBottom: '2px solid var(--pp-edge)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '.7rem var(--pp-gutter)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem' }}>
+              <span style={{ position: 'relative', display: 'block', width: 22, height: 22, flex: 'none' }}>
+                <span style={{ position: 'absolute', left: 0, top: 0, width: 15, height: 15, background: 'var(--pp-plate-1)', mixBlendMode: mode === 'dark' ? 'screen' : 'multiply' }} />
+                <span style={{ position: 'absolute', left: 7, top: 2, width: 15, height: 15, background: 'var(--pp-plate-2)', mixBlendMode: mode === 'dark' ? 'screen' : 'multiply' }} />
+                <span style={{ position: 'absolute', left: 3, top: 7, width: 15, height: 15, background: 'var(--pp-plate-3)', mixBlendMode: mode === 'dark' ? 'screen' : 'multiply' }} />
+              </span>
+              <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.7rem', letterSpacing: '.22em', textTransform: 'uppercase', fontWeight: 700 }}>Preprint</code>
+              <code style={{ ...kicker, fontSize: '.64rem' }}>rev 15</code>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+              <div style={{ display: 'flex', border: '1px solid var(--pp-line)', borderRadius: 'var(--pp-radius-sm)', overflow: 'hidden' }}>
+                {['Docs', 'Dash'].map((v, i) => (
+                  <button key={v} onClick={() => setView(v)} style={{ height: 34, padding: '0 .85rem', border: 0, borderRight: i ? 0 : '1px solid var(--pp-line)', background: view === v ? 'var(--pp-edge)' : 'transparent', color: view === v ? 'var(--pp-paper)' : 'var(--pp-muted)', fontFamily: 'var(--pp-font-body)', fontSize: '.82rem', fontWeight: 600, cursor: pointer }}>{v}</button>
+                ))}
+              </div>
+              <button style={btn} onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>{mode === 'dark' ? 'Light' : 'Dark'}</button>
+            </div>
+          </header>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,15rem) minmax(0,1fr)' }}>
+            <nav style={{ borderRight: '1px solid var(--pp-line)', padding: '1.25rem 1rem', display: 'grid', gap: '1.1rem', alignContent: 'start' }}>
+              {NAV.map((g) => (
+                <div key={g.group} style={{ display: 'grid', gap: '.35rem' }}>
+                  <code style={{ ...kicker, fontSize: '.62rem' }}>{g.group}</code>
+                  {g.items.map((it) => (
+                    <button key={it} onClick={() => setActive(it)}
+                      style={{ textAlign: 'left', padding: '.25rem .4rem', border: 0, borderLeft: active === it ? '2px solid var(--pp-plate-3)' : '2px solid transparent', background: active === it ? 'var(--pp-tint)' : 'transparent', fontFamily: 'var(--pp-font-body)', fontSize: '.88rem', color: active === it ? 'var(--pp-ink)' : 'var(--pp-muted)', cursor: pointer }}>
+                      {it}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </nav>
+
+            <main style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', display: 'grid', gap: '1.5rem', alignContent: 'start' }}>
+              {view === 'Docs' ? (
+                <React.Fragment>
+                  <div style={{ display: 'grid', gap: '.7rem', maxWidth: '66ch' }}>
+                    <code style={{ ...kicker, color: 'var(--pp-plate-1-text)' }}>Foundations</code>
+                    <h1 style={{ margin: 0, fontFamily: 'var(--pp-font-display)', fontWeight: 900, fontSize: 'clamp(1.7rem,4vw,2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.04 }}>{active}</h1>
+                    <p style={{ margin: 0, fontSize: 'var(--pp-size-body)', lineHeight: 'var(--pp-leading-body)' }}>
+                      Four weights, three styles, four inks. That is the whole separator vocabulary, and it is enough to structure a book without adding a single box.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'grid', gap: 0, borderTop: '2px solid var(--pp-edge)', maxWidth: '66ch' }}>
+                    {[['solid · ink', '1px solid var(--pp-line)', 'var(--pp-ink)', 'structure. The default separator.'],
+                      ['dotted · green', '1px dotted var(--pp-plate-1)', 'var(--pp-plate-1-text)', 'provisional — a draft boundary, a term you may skip.'],
+                      ['dashed · red', '1px dashed var(--pp-plate-2)', 'var(--pp-plate-2-text)', 'a boundary the reader may cross.'],
+                      ['dotted · blue', '1px dotted var(--pp-plate-3)', 'var(--pp-plate-3-text)', 'a reference thread — notes, citations, links back.']].map(([n, r, c, job]) => (
+                      <div key={n} style={{ padding: '.75rem 0', borderBottom: '1px solid var(--pp-hair)' }}>
+                        <span style={{ display: 'block', height: 0, borderTop: r, marginBottom: '.45rem' }} />
+                        <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.7rem', fontWeight: 700, color: c }}>{n}</code>
+                        <span style={{ fontSize: '.84rem', color: 'var(--pp-muted)' }}> {job}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'grid', gap: '.35rem', padding: '.85rem .95rem', border: '1px solid var(--pp-plate-1)', maxWidth: '66ch' }}>
+                    <code style={{ ...kicker, color: 'var(--pp-plate-1-text)' }}>definition</code>
+                    <p style={{ margin: 0, fontSize: '.94rem', lineHeight: 1.6 }}><strong>Spine.</strong> The 6px rule. Once per page, where a reader should be reset.</p>
+                  </div>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '1rem' }}>
+                    <h1 style={{ margin: 0, fontFamily: 'var(--pp-font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem,3.4vw,2rem)', letterSpacing: '-0.04em' }}>Token ledger</h1>
+                    <code style={kicker}>rev 14 → rev 15 · 5 changed</code>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,150px),1fr))', gap: 1 }}>
+                    {[['changed', '5', null], ['surfaces', '3', 'var(--pp-plate-3)'], ['breaking', '1', 'var(--pp-plate-2)'], ['reviewed', '5', 'var(--pp-plate-1)']].map(([l, v, c]) => (
+                      <div key={l} style={{ padding: '.7rem', background: 'var(--pp-paper)', boxShadow: '0 0 0 1px var(--pp-hair)', display: 'grid', gap: '.2rem' }}>
+                        <code style={{ ...kicker, fontSize: '.62rem' }}>{l}</code>
+                        <span style={{ fontFamily: 'var(--pp-font-display)', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.03em', color: c || 'var(--pp-ink)' }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ border: '1px solid var(--pp-line)', background: 'var(--pp-surface)', overflowX: 'auto' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '.55rem .8rem', borderBottom: '2px solid var(--pp-edge)' }}>
+                      <code style={{ ...kicker, color: 'var(--pp-ink)' }}>Table 1 · token diff</code>
+                      <code style={kicker}>n = 5</code>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(140px,1.4fr) 90px 90px 100px', gap: '1rem', padding: '.45rem .8rem', borderBottom: '1px solid var(--pp-line)', minWidth: 460 }}>
+                      {['token', 'was', 'now', 'owner'].map((h) => <code key={h} style={{ ...kicker, fontSize: '.64rem', letterSpacing: '.1em' }}>{h}</code>)}
+                    </div>
+                    {ROWS.map((r) => (
+                      <div key={r.k} style={{ display: 'grid', gridTemplateColumns: 'minmax(140px,1.4fr) 90px 90px 100px', gap: '1rem', padding: '.5rem .8rem', borderBottom: '1px solid var(--pp-hair)', alignItems: 'baseline', minWidth: 460 }}>
+                        <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.82rem' }}>{r.k}</code>
+                        <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.82rem', color: 'var(--pp-faint)', textDecoration: 'line-through' }}>{r.was}</code>
+                        <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.82rem', color: 'var(--pp-plate-1-text)', fontWeight: 700 }}>{r.now}</code>
+                        <code style={{ fontFamily: 'var(--pp-font-mono)', fontSize: '.74rem', color: 'var(--pp-muted)' }}>{r.who}</code>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
+                    <button style={{ ...btn, height: 44, padding: '0 1.1rem', fontSize: '.95rem', background: 'var(--pp-edge)', color: 'var(--pp-paper)', border: '2px solid var(--pp-edge)', borderRadius: 'var(--pp-radius-md)' }}>Publish rev 15</button>
+                    <button style={{ ...btn, height: 44, padding: '0 1.1rem', fontSize: '.95rem', borderRadius: 'var(--pp-radius-md)' }}>Discard</button>
+                    <button style={{ ...btn, height: 44, padding: '0 1.1rem', fontSize: '.95rem', color: 'var(--pp-plate-2-text)', border: '2px solid var(--pp-plate-2)', borderRadius: 'var(--pp-radius-md)' }}>Revert all</button>
+                  </div>
+                </React.Fragment>
+              )}
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
