@@ -144,8 +144,8 @@ filing system would have opened a filing system. Do not add it back.
 
 ## 3 · Interactive figures
 
-`ui_kits/reader/GradientDescent.jsx` is the reference. Two rules to copy into
-every new figure:
+The figure inside `ui_kits/reader/index.html` is the reference. Two rules to copy
+into every new figure:
 
 1. **Plates by position, not meaning.** Curve in plate 3, trajectory in plate 2,
    the answer in plate 1. No plate means "good".

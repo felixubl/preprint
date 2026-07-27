@@ -237,3 +237,148 @@ comment line was planted in it.
 
 **Not explicitly requested** — the tool, and the definition of behind. Flagged
 for review.
+
+## 2026-07-27 — `app.css` is parts, not an app. The console went home
+
+**Decided:** the 560-line `app.css` was cut to roughly 270. What stayed is what a
+second app would want: the rail, screens, heads, `.btn`, `.seg`, `.find`,
+`.stat`, `.panel`, `.ico`, `.tgl`, `.onoff`, `.srow`, `.legend`, `.drop`,
+`.foot`, the base `.pill`, and the overlays. What left is what only the writing
+console knows about: the library list, the whole editor, deploy, the source
+picker, the figure list, `.swatch`, `.secrow`, and `.pill[data-state]`. Those
+live in `personalwebsite/admin/console.css` now.
+
+**Why:** the entry above ("`app.css` is the console, verbatim, for now") called a
+second app the honest moment to make this cut. The second app never arrived, but
+the requirement did: the system is meant to be a signature rather than a uniform,
+and an app that links a finished console has been handed a uniform. The cut was
+verified by comparing selector sets before and after: 226 rules in, 107 + 119
+out, nothing dropped and nothing invented except the rename below.
+
+**Not explicitly requested** — where exactly each rule landed. The test applied
+was one question: would a second app, doing something else entirely, still want
+this? `.drop` and `.onoff` passed it and stayed. `.swatch` and `.secrow` did not.
+The line is written into `app.css`'s header so the next person applies the same
+test rather than a new one.
+
+## 2026-07-27 — `.field` is the input. The wrapper became `.frow`
+
+**Decided:** `app.css`'s `.field` (a label-above-control grid wrapper) was
+renamed `.frow`. The name `.field` now belongs to `controls.css`, where it styles
+the input itself.
+
+**Why:** the two meanings collided the moment `controls.js` joined the system.
+The workshop had used `.field` for the input in eight places and `controls.js`
+generates it; the console had used it for the wrapper in two, both inside
+`admin.js`. Two occurrences lose to eight, and the input is the more natural
+reading of the word anyway.
+
+**Not explicitly requested.** It touched two lines of `admin.js`.
+
+## 2026-07-27 — Behaviour joined the system, and brought its faces with it
+
+**Decided:** `js/mode.js` and `js/controls.js` are vendored alongside the CSS,
+and `controls.css` came with them as a root-level optional sheet.
+
+**Why:** the mode switch was written twice, once in fubl.org's `site.js` and once
+in the workshop's `theme.js`, and both files described it as "the same object the
+other one wears". By this system's own rule a breach used twice is an undeclared
+token. The drawn controls were only in the workshop, but they are enhancement
+over native inputs and the console is the obvious second customer.
+
+`controls.css` had to follow `controls.js` and could not stay behind in the
+workshop: the script generates class names, and a script whose faces live in one
+consumer is not in the system in any useful sense. It sits at the root rather than
+in `surfaces/` because it is not a surface. A reading page with one form and a
+console with forty want the same number field, so it loads with either sheet.
+
+**Not explicitly requested** — moving `controls.css`, and dropping `title` from
+what `mode.js` sets. fubl.org's old implementation set `title` on the toggle,
+which produces the operating system's tooltip box, and this system replaced that
+with `[data-tip]`. `mode.js` sets `aria-label` and `data-tip` and leaves `title`
+alone, so fubl.org loses a native tooltip on one button and gains the correct
+accessible name.
+
+## 2026-07-27 — The sync moved here, and `tools/push` is the point of the repo
+
+**Decided:** `tools/sync-preprint` was byte-identical in both consumers. The real
+implementation is now `tools/sync <consumer>` here, each consumer keeps a
+three-line shim under the old name, and `tools/push` runs the sync across every
+consumer in one command. `tools/lib.py` holds the vendored file list and the
+consumer discovery that all three tools share.
+
+**Why:** the ask was to change the system once and have it land everywhere
+instead of visiting each site. Vendoring is worth keeping (offline builds, no
+runtime dependency, a stale copy that is visible rather than suspected) and none
+of it required the sync to be duplicated per consumer. Two byte-identical copies
+of the anti-drift script was the joke writing itself.
+
+`push` deliberately does not deploy, and only commits when asked. A change that
+reaches every site the instant it is saved is a change that can break every site
+the instant it is wrong.
+
+**Not explicitly requested** — `tools/lib.py`. Three scripts holding three copies
+of the vendor list would have been the same fault one layer up.
+
+## 2026-07-27 — `status` can tell "behind" from "edited by hand"
+
+**Decided:** a vendored file that differs from the system's HEAD is only reported
+as hand-edited if it also differs from what the system shipped at the commit the
+copy is stamped with.
+
+**Why:** the old check compared against HEAD only. It had never been wrong
+because the consumers had never been behind, and the first real system change
+made it report both consumers as EDITED BY HAND when they were simply out of
+date. A dashboard that cries wolf is a dashboard nobody reads, and this one is
+the only thing standing between the vendoring model and silent drift.
+
+## 2026-07-27 — The conformance check is vendored, not copied
+
+**Decided:** `tools/conformance.js` is in the vendored set, so a consumer links
+it rather than keeping a copy. The workshop's harness, which had this check
+written out inline, now calls it.
+
+**Why:** a check that each site owns a copy of is a check that drifts away from
+the rules it is enforcing. It also gained a third assertion the inline version
+never had: every `--pp-*` a variant layer sets must be one the system actually
+defines. That immediately caught `--pp-screen-dot`, which the workshop invented
+and which had been sitting under the system's prefix looking official.
+
+It reads the token files to learn what the system defines rather than holding a
+list, so it stays true when the system gains a token.
+
+## 2026-07-27 — The readme became a front door, and the guide moved to `guidelines/`
+
+**Decided:** `readme.md` was cut from 271 lines to a front door: the premise, the
+layer diagram, how to load it, how to consume it, and an index.
+`guidelines/invariants.md`, `guidelines/voice.md` and `guidelines/icons.md` are
+new, and `laws.md` and `motion.md` were already there.
+
+**Why:** the request was for the system to be, first, a design guide: general
+rules, and when breaking them is fine. All of that existed and none of it was
+findable, because the rules were prose in a readme that also had to explain the
+loading order and the vendoring model. `invariants.md` is the one that answers
+the actual question, which is what is fixed and what is mine.
+
+**Not explicitly requested** — `guidelines/icons.md`. The angle law was one of
+the readme's longest sections and is a rule, not an introduction.
+
+## 2026-07-27 — No em dashes, and the last of the JSX
+
+**Decided:** `guidelines/voice.md` now says no em or en dashes as punctuation,
+reversing what the readme used to instruct. Prose already in the repo is
+corrected as files are touched rather than in one sweep. Separately, `uploads/`
+(1.3MB of screenshots and one unreferenced 1MB HTML file) and the last three
+`GradientDescent.*` files in `ui_kits/reader/` were deleted.
+
+**Why:** the dash rule contradicted the standing rule of the only person writing
+here, and had never been a considered position. The `GradientDescent` files were
+the final remnant of the `components/` layer that the first entry in this file
+records dropping, for exactly the reason given there: nothing loaded them. The
+kit's `index.html` defines its own figure inline and always did. `ui_kits/reader/
+README.md` had also been listing a `Reader.jsx` that was already gone.
+
+**Not explicitly requested** — the deletions were in the agreed plan, the prose
+references pointing at them were not, and both were repointed at the file that
+actually works.
+

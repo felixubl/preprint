@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Vendor PREPRINT into every consumer, in one command.
+
+    tools/push                    every sibling that already carries a copy
+    tools/push ../workshop        only the ones named
+    tools/push --commit           and commit the vendored change in each
+
+This is the whole point of the system living in its own repo: you change it
+HERE, once, and one command lands it everywhere instead of visiting each site
+and remembering which ones exist. `tools/status` is the same list without the
+writing, and is the thing to run first if you want to know what will move.
+
+What this does not do is deploy. Each site publishes on its own terms, and a
+change that reaches every site the instant it is saved is a change that can
+break every site the instant it is wrong. The commit is optional for the same
+reason: run it without --commit, look at the diff, then commit.
+"""
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lib import SYS, find_consumers, git, head  # noqa: E402
+
+G, R, Y, D = "\033[32m", "\033[31m", "\033[33m", "\033[0m"
+if not sys.stdout.isatty():
+    G = R = Y = D = ""
+
+
+def main() -> int:
+    argv = sys.argv[1:]
+    commit = "--commit" in argv
+    consumers = find_consumers([a for a in argv if not a.startswith("-")])
+
+    rev = head()
+    if git(SYS, "status", "--porcelain"):
+        print(f"{Y}NOTE{D}: the system has uncommitted changes. The stamp will say"
+              f" '{rev}', which names a commit that does not contain them.\n")
+
+    if not consumers:
+        print("no consumers found next to this repo")
+        return 0
+
+    print(f"PREPRINT {rev} → {len(consumers)} consumer(s)\n")
+    failed, committed = [], []
+    for c in consumers:
+        print(f"  {c.name}")
+        r = subprocess.run(
+            [sys.executable, str(SYS / "tools" / "sync"), str(c)],
+            capture_output=True, text=True,
+        )
+        # sync prints its own heading; the interesting lines are the rest.
+        for line in r.stdout.splitlines()[1:]:
+            print(f"  {line}")
+        if r.stderr:
+            print(r.stderr.rstrip())
+        if r.returncode:
+            failed.append(c.name)
+            continue
+
+        if commit and git(c, "status", "--porcelain", "assets/preprint"):
+            subprocess.run(["git", "-C", str(c), "add", "assets/preprint"], check=False)
+            subprocess.run(
+                ["git", "-C", str(c), "commit", "-m", f"Take PREPRINT {rev}"],
+                capture_output=True, check=False,
+            )
+            committed.append(c.name)
+
+    print()
+    if failed:
+        print(f"{R}{len(failed)} failed{D}: {', '.join(failed)}")
+    else:
+        print(f"{G}all {len(consumers)} in sync{D} at {rev}")
+    if committed:
+        print(f"committed in: {', '.join(committed)}")
+    elif commit:
+        print("nothing to commit")
+    else:
+        print("not committed. Review the diffs, then commit, then deploy each site.")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
