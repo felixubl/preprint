@@ -40,7 +40,7 @@ Take what you want:
 
 ```
   tokens/          the constants        colours, faces, scales, rules, motion, pointers
-  core.css         small and shared     reset, .sq, .eyebrow, .mark, the toast. 78 lines.
+  core.css         small and shared     reset, .sq, .eyebrow, .mark, the mode switch, the toast.
   controls.css     optional             faces for js/controls.js
   surfaces/
     reading.css    if you are writing   article, sidenotes, figures, the marker layer
@@ -160,7 +160,7 @@ ignored.
 |---|---|
 | `styles.css` | the token entry point, an `@import` list only |
 | `tokens/` | colors, typography, rules, spacing, motion, cursors, fonts, base |
-| `core.css` | every surface: the reset, `.sq`, `.eyebrow`, `.toast`, the mark |
+| `core.css` | every surface: the reset, `.sq`, `.eyebrow`, `.sr`, `.toast`, the mark, the mode switch |
 | `controls.css` | the drawn number field, checkbox, colour picker, select, tooltip |
 | `surfaces/reading.css` | what a renderer emits: rows, article, sidenotes, figures, markers |
 | `surfaces/app.css` | parts for an app: rail, screens, heads, buttons, panels, menus |
