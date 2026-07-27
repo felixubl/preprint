@@ -1,0 +1,69 @@
+/* The workshop's own deviations from PREPRINT, and the whole list of them.
+
+   Everything else comes from assets/preprint/, which is vendored verbatim and
+   must not be edited — when the system changes, re-copy it and this file
+   survives. Note what is NOT here: no ground override, no ink override, no
+   plate override. There is one dark mode for every surface, and forking it is
+   how a family stops looking related. */
+
+:root {
+  --pp-screen-dot: var(--pp-hair);
+
+  /* Category washes. Translucent on purpose — the halftone screen has to stay
+     visible through a card, or the card stops being paper. color-mix means
+     each wash tracks its plate through the mode switch for free. */
+  --w-wash-1: color-mix(in srgb, var(--pp-plate-1) 8%, transparent);
+  --w-wash-2: color-mix(in srgb, var(--pp-plate-2) 7%, transparent);
+  --w-wash-3: color-mix(in srgb, var(--pp-plate-3) 7%, transparent);
+  --w-wash-0: color-mix(in srgb, var(--pp-ink) 4%, transparent);
+
+  /* Sticker chips are OPAQUE in both modes, with near-black text always. A
+     translucent marker is right behind body copy and wrong on a sticker: over
+     a dark ground it turns into a dim smudge, and the workshop's badges were
+     loud precisely because they were solid ink on solid stock. */
+  --w-chip-live: #deee2e;
+  --w-chip-soon: #40ccff;
+  --w-chip-ink: #171716;
+
+  /* The wordmark W, and the favicon, are the same object printed at two sizes,
+     so they use the same two inks at the same full strength. Nothing else on
+     any surface may take these. */
+  --w-mark-fill: #deee2e;
+  --w-mark-edge: #ff4fa3;
+
+  /* Law 06 rotation, declared once. A breach used twice is an undeclared
+     token, and this one is used on every badge and every card. */
+  --w-tilt: -1.5deg;
+}
+
+/* Two adjustments, both about this page's own devices rather than the palette:
+   the halftone screen needs more presence on a dark ground to survive at all,
+   and the category washes need roughly double the strength to register. */
+[data-mode='dark'] {
+  --pp-screen-dot: rgba(239, 238, 232, .16);
+  --w-wash-1: color-mix(in srgb, var(--pp-plate-1) 14%, transparent);
+  --w-wash-2: color-mix(in srgb, var(--pp-plate-2) 14%, transparent);
+  --w-wash-3: color-mix(in srgb, var(--pp-plate-3) 14%, transparent);
+  --w-wash-0: color-mix(in srgb, var(--pp-ink) 7%, transparent);
+}
+
+/* The pointers, repointed — the one override here that is a fix rather than a
+   deviation.
+
+   tokens/cursors.css declares its twelve pointers as url('../assets/cursors/…'),
+   relative. A relative url() inside a CUSTOM PROPERTY is resolved against the
+   document, not against the stylesheet that declared it, so the same token
+   resolves differently on / than on /draw-svg/ and 404s on both. Root-absolute
+   paths are the only form that survives var() substitution at any page depth.
+   The hotspot numbers are copied unchanged: a surface may repaint a pointer,
+   it may never move its point. */
+
+/* The halftone screen. Not decoration — this is how a plate is actually laid
+   down, which makes it functional texture. Pinned to the viewport: the screen
+   is ON the paper and the work slides over it. The press does not move when
+   you turn the page. */
+body {
+  background-image: radial-gradient(var(--pp-screen-dot) 1px, transparent 1.5px);
+  background-size: 15px 15px;
+  background-attachment: fixed;
+}
