@@ -246,3 +246,25 @@ JSX could only ever drift, and it did. The CSS in `core.css`, `reading.css` and
 `app.css` was scraped back out of the two surfaces that actually shipped. The
 component *names* above survive as the taxonomy, because they turned out to map
 one-to-one onto the classes the surfaces had really built.
+
+### Variants live with their consumer, not here
+
+A variant is a site's identity: the workshop's halftone screen, its opaque
+sticker chips, its 1.5° tilt. It changes often and it belongs to the site that
+wears it, so it lives in that repo (`assets/site.css`) and is never vendored
+back. Keeping a copy here would be a second source of truth for the one file
+most likely to change.
+
+What the system does instead is state the contract and let each site's harness
+enforce it. A variant layer may:
+
+- declare its own namespaced variables (`--w-*`)
+- spend the breach budget in `guidelines/laws.md`, one per law per view
+- add texture that is functional rather than decorative
+
+A variant layer may **not** restate the ground, the ink or the plates, and there
+is one dark mode for every surface. Forking those is how a family stops looking
+related. The workshop's harness asserts exactly this by reading its own
+`site.css` and failing on any `--pp-paper`, `--pp-ink` or `--pp-plate-N`
+declaration, and a new site should copy that check before it copies anything
+else.
