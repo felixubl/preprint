@@ -1,0 +1,19 @@
+<!-- @dsCard group="Rules" viewport="700x180" name="Four rule weights" subtitle="One border weight is the largest cause of flatness" -->
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../styles.css">
+<style>body{margin:0;padding:14px 16px;background:var(--pp-paper);font-family:var(--pp-font-body)}
+.k{font-family:var(--pp-font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pp-faint)}
+.v{font-family:var(--pp-font-mono);font-size:.62rem;color:var(--pp-muted)}
+.row{display:flex;gap:10px}.col{display:grid;gap:4px}</style></head><body>
+<div class="col" style="gap:0">
+  <div style="display:grid;grid-template-columns:5.5rem 5rem 1fr;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--pp-hair)">
+    <span class="k">hairline</span><span style="height:0;border-top:1px solid var(--pp-hair)"></span><span style="font-size:.82rem;color:var(--pp-muted)">splits inside a container; never encloses</span>
+  </div><div style="display:grid;grid-template-columns:5.5rem 5rem 1fr;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--pp-hair)">
+    <span class="k">line</span><span style="height:0;border-top:1px solid var(--pp-line)"></span><span style="font-size:.82rem;color:var(--pp-muted)">the ordinary container edge</span>
+  </div><div style="display:grid;grid-template-columns:5.5rem 5rem 1fr;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--pp-hair)">
+    <span class="k">structure</span><span style="height:0;border-top:2px solid var(--pp-edge)"></span><span style="font-size:.82rem;color:var(--pp-muted)">the thing you are meant to notice</span>
+  </div><div style="display:grid;grid-template-columns:5.5rem 5rem 1fr;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--pp-hair)">
+    <span class="k">spine</span><span style="height:0;border-top:6px solid var(--pp-edge)"></span><span style="font-size:.82rem;color:var(--pp-muted)">once per page — a break that resets the reader</span>
+  </div>
+</div>
+</body></html>

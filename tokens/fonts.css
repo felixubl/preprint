@@ -1,0 +1,7 @@
+/* PREPRINT — three faces, three jobs.
+   Hepta Slab carries weight and size. Zilla Slab carries everything a person
+   reads at length. Cousine carries anything the machine said. Source Serif 4
+   appears only inside mathematics, where italic variables need a true serif.
+   NOTE: served from Google Fonts rather than shipped binaries — swap these for
+   self-hosted @font-face rules if the system needs to work offline. */
+@import url('https://fonts.googleapis.com/css2?family=Hepta+Slab:wght@200;400;700;900&family=Zilla+Slab:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Cousine:wght@400;700&display=swap');
