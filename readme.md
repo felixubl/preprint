@@ -1,6 +1,6 @@
 # PREPRINT
 
-A design system for pages that are **read** and apps that are **used**.
+A design language for pages that are **read** and apps that are **used**.
 
 > Printed first, then annotated.
 
@@ -10,38 +10,58 @@ is austere and precise: offwhite ground, near-black ink, weighted rules, a
 strange: three fluorescent markers, a coloured drop cap, a rule in one of the
 press inks. Funky socks under a lab coat.
 
-It dresses long-form writing with interactive figures, and it dresses docs, tools
-and dashboards. It is meant to be a signature rather than a uniform: enough is
-fixed that anything built with it is recognisable, and everything else is left to
-the thing being built.
+## It is a language, not a specification
 
-## The layers
+What this gives you is a vocabulary. Two families of ink, three faces with three
+jobs, a scale for corners and one for space, a set of drawn parts, and a short
+list of things that stay constant so that anything made with it reads as
+related. What you say in that vocabulary is yours.
+
+Almost none of it is compulsory. The things that genuinely are constant fit on
+one page, in [`guidelines/invariants.md`](guidelines/invariants.md), and they are
+mostly colour: three plates, three markers, one ground, one ink, one dark mode.
+Everything else here is offered rather than imposed. A project that takes the
+tokens, writes its own everything, and never links a single sheet from
+`surfaces/` is using this correctly.
+
+Even the parts that are stated as rules come with a budget rather than a ban.
+[`guidelines/laws.md`](guidelines/laws.md) gives each of the seven laws exactly
+one licensed breach and the condition that earns it. A deviation that is named
+and budgeted is a **breach** and is fine. An unnamed one is **drift**, and the
+difference is whether you meant it.
+
+The aim is that two things built on this look like siblings and not like the same
+thing twice. If everything made with it started to look identical, that would be
+the language failing, not succeeding.
+
+## What it offers
+
+Take what you want:
 
 ```
-  tokens/          THE INVARIANTS      colours, faces, scales, rules, motion, pointers
-  core.css         EVERY SURFACE       reset, .sq, .eyebrow, .mark, the toast. 78 lines.
-  controls.css     OPTIONAL            faces for js/controls.js
+  tokens/          the constants        colours, faces, scales, rules, motion, pointers
+  core.css         small and shared     reset, .sq, .eyebrow, .mark, the toast. 78 lines.
+  controls.css     optional             faces for js/controls.js
   surfaces/
-    reading.css    ONE OF THESE        the reading contract: article, sidenotes, figures
-    app.css        OR THIS ONE         parts for an app: rail, screens, buttons, panels
-  js/              OPTIONAL            mode.js (the one dark mode), controls.js
+    reading.css    if you are writing   article, sidenotes, figures, the marker layer
+    app.css        if you are building  parts: rail, screens, buttons, panels, menus
+  js/              optional             mode.js (the one dark mode), controls.js
   ─────────────────────────────────────────────────────────────────────────────
-  your-site.css    YOURS               everything the system did not decide
+  your-site.css    yours                everything above left undecided
 ```
 
-The two rules that keep it a system:
+Two things worth knowing about that list, neither of them doctrine.
 
-1. **Nothing above the line is edited by a consumer.** It is vendored, and
-   `tools/sync` overwrites it.
-2. **Nothing above the line is a finished thing.** `app.css` is parts, not an
-   app. If a rule would only ever suit one app, it belongs in that app's own
-   sheet. The test is one question: would a second app, doing something else
-   entirely, still want this?
+**The tree is vendored, so edits to it are lost.** `tools/sync` overwrites your
+copy on the next run. That is mechanics rather than a prohibition: to change the
+system, change it here and sync, and it will hold.
 
-Rule 2 is the one that is easy to lose. `app.css` was 560 lines and about 320 of
-them were one particular console, which meant any second app that linked it
-inherited that console rather than the system. Those 320 lines now live with the
-console that wanted them.
+**Nothing offered here is a finished thing.** `app.css` is parts, not an app. The
+test for whether something belongs in it: would a second app, doing something
+else entirely, still want this? It is easy to lose. `app.css` was 560 lines and
+about 320 of them were one particular console, so any second app that linked it
+inherited that console rather than a design language. Those 320 lines live with
+the console that wanted them now.
 
 ### How a surface loads it
 
@@ -57,28 +77,36 @@ console that wanted them.
 `mode.js` goes in the head and is not deferred: it sets `data-mode` before the
 first paint, and a page that sets it afterwards flashes the wrong mode.
 
-`reading.css` and `app.css` are **never loaded together**. Four class names,
-`.btn`, `.note`, `.rail` and `.head__row`, mean different objects on the two
-surfaces, and the system refuses to pretend one shape serves both. A reading
-page's `.note` is a numbered sidenote on a blue rule. An app's `.note` is a faint
-hint. Same name, different object, and the surface sheet decides which.
+Load `reading.css` or `app.css`, not both. That one is a fact rather than a
+preference: four class names, `.btn`, `.note`, `.rail` and `.head__row`, mean
+different objects in the two sheets, so loading both leaves you with whichever
+won the cascade. A reading page's `.note` is a numbered sidenote on a blue rule.
+An app's `.note` is a faint hint. They are two objects that collided over a name,
+not one object that drifted.
 
 ## The guide
 
-| file | what it settles |
+| file | what it covers |
 |---|---|
-| [`guidelines/invariants.md`](guidelines/invariants.md) | **start here.** What never changes, and what is yours |
-| [`guidelines/laws.md`](guidelines/laws.md) | seven laws, one licensed breach each, and the budget |
+| [`guidelines/invariants.md`](guidelines/invariants.md) | **start here.** The short list that is fixed, and the long list that is yours |
+| [`guidelines/laws.md`](guidelines/laws.md) | seven laws, and the licensed breach each one comes with |
 | [`guidelines/icons.md`](guidelines/icons.md) | the angle law, the drawn pointers, the mark |
-| [`guidelines/motion.md`](guidelines/motion.md) | the four motion licences and nothing else moves |
-| [`guidelines/voice.md`](guidelines/voice.md) | how the system writes |
+| [`guidelines/motion.md`](guidelines/motion.md) | the four things allowed to move |
+| [`guidelines/voice.md`](guidelines/voice.md) | how the system writes about itself |
 | [`Preprint.dc.html`](Preprint.dc.html) | the living document, rev 15, every rule demonstrated |
 
-The short form of all of it: three plates and three markers that never change,
-one ground and one ink, three faces with three jobs, one dark mode, the cut scale
-for corners, no gradients and no soft shadows. Everything else is the site's own
-call, and a deviation that is named and budgeted is a **breach** while an unnamed
-one is **drift**.
+A note on how these are written. They are terse and they use the indicative:
+"pill is not a step", "ink is used at full strength or not at all". That is a
+house style for stating a rule compactly, and it is not a claim that the rule
+outranks your judgement. When one of them is wrong for what you are building,
+you are the one holding the budget. `laws.md` says as much in its own last line:
+if breaking a law makes the law look arbitrary, the law was wrong, so delete it
+rather than licensing around it.
+
+The short form: three plates and three markers that stay put, one ground and one
+ink, three faces with three jobs, one dark mode, corners on the cut scale, no
+gradients and no soft shadows. That is the part that makes things look related.
+The rest is the site's own call.
 
 ## Consuming it
 
@@ -108,9 +136,11 @@ from the other end.
 ### Starting a new one
 
 1. `mkdir -p newsite/assets && cd ~/code/preprint && tools/sync ../newsite`
-2. Link the layers as above.
-3. Wire in [`tools/conformance.js`](tools/conformance.js) before writing any
-   other check. It is the one that defends the invariants.
+2. Link whichever layers the thing actually needs.
+3. If the project has a harness, [`tools/conformance.js`](tools/conformance.js)
+   is worth wiring in early. It checks the short list and nothing else, so it
+   tells you when you have wandered off the invariants without having an opinion
+   about anything else you did.
 4. Write `your-site.css` and enjoy the room.
 
 ### Variants live with their consumer

@@ -4,15 +4,21 @@ description: Use this skill to generate well-branded interfaces and assets for P
 user-invocable: true
 ---
 
-Read `readme.md`, then `guidelines/invariants.md`. Between them they settle the
+Read `readme.md`, then `guidelines/invariants.md`. Between them they answer the
 two questions that matter: what is fixed, and what is yours. `guidelines/laws.md`
-covers deviation, which is allowed, budgeted, and has rules of its own.
+covers deviation, which is allowed and budgeted rather than forbidden.
 
-The system is a signature rather than a uniform. Nothing here is a finished
-design to be reproduced: `surfaces/app.css` is parts, not an app. If you find
-yourself lifting a whole screen out of this repo, you have taken the wrong thing.
-Build the surface the job actually needs, and let the invariants make it
-recognisable.
+This is a design **language**, not a specification to comply with. The fixed part
+is short and mostly colour. Everything else is a vocabulary to build from, and
+two things made with it should look like siblings rather than like the same thing
+twice.
+
+So do not reproduce what is here. `surfaces/app.css` is parts, not an app. If you
+find yourself lifting a whole screen out of this repo, you have taken the wrong
+thing. Build the surface the job actually needs and let the constants make it
+recognisable. The guidelines are written tersely and in the indicative, which is
+a house style for stating a rule compactly and not a claim that the rule outranks
+the judgement of whoever is designing.
 
 If the task is to implement this system in a real repository, the workshop at
 workshop.fubl.org or the personal site at fubl.org, read `handoff/README.md`

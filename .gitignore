@@ -1,2 +1,8 @@
+# Claude Code's working notes. Kept on disk, never published: DECISIONS.md is a
+# log of how this repo argues with itself, which is useful to whoever is working
+# on it and is not part of what the repo offers the world.
+DECISIONS.md
+.claude/
+
 .DS_Store
 __pycache__/
