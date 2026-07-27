@@ -116,3 +116,61 @@ so its diff can be reviewed.
 
 **Not explicitly requested** — flagged for review. Nothing here is pushed
 anywhere and there is no remote configured.
+
+## 2026-07-27 — The system took the pointer paths back
+
+**Decided:** `tokens/cursors.css` declares its thirteen pointers at absolute
+paths from `/assets/preprint/`, and vendoring there is now a stated contract
+rather than a convention.
+
+**Why:** a relative `url()` inside a custom property is resolved against the
+DOCUMENT in Chrome and Safari, not against the stylesheet that declares it. The
+vendored file said `../assets/cursors/…`, which 404s from any page depth, and the
+browser then falls back to the keyword in the same declaration, so every pointer
+merely looks stock and nothing reports it. fubl.org hit this and restated all
+twenty six declarations in its own layer. The workshop hit it independently and
+restated the same twenty six at a different path. `guidelines/laws.md` already
+rules on that case: a breach used twice is an undeclared token. Both consumers
+deleted their block and neither lost a pixel.
+
+**The cost, stated plainly:** absolute paths hard-code the mount point. A
+consumer that cannot vendor to `/assets/preprint/` has to rewrite this one file.
+That was weighed against the alternative of generating the file per consumer at
+vendor time, which would have made one vendored file differ by design and
+removed the ability to diff a copy against the source. Felix chose the fixed
+mount point with both options in front of him.
+
+## 2026-07-27 — Variants belong to their consumer
+
+**Decided:** `variants/` was created in this repo and then removed in the same
+session. A site's variant layer lives in that site's repo as `assets/site.css`
+and is never vendored back.
+
+**Why:** holding `workshop.css` here made fubl.org vendor a file it will never
+link, and put a round trip through this repo in front of changing a workshop
+colour, which is the file most likely to change. The contract is documented in
+`readme.md` instead, and each site's harness enforces it by reading its own
+variant layer and failing on any `--pp-paper`, `--pp-ink` or `--pp-plate-N`
+declaration.
+
+**Not explicitly requested** — creating `variants/` in the first place was my
+call, from the surface-versus-variant framing, and removing it again is the
+correction. Flagged so the reasoning is on the record rather than just the
+outcome.
+
+## 2026-07-27 — A consumer may ship a subset of the faces, if it says so
+
+**Decided:** `tools/sync-preprint` refuses to sync when the consumer's
+self-hosted `tokens/fonts.css` no longer covers the families the system asks
+for, unless the file names the omission explicitly:
+
+    omits: Source Serif 4 — mathematics only, and the workshop has none
+
+**Why:** the guard fired for real on its first run against the workshop, which
+self-hosts three faces and not the fourth. That is correct for a tools site with
+no equations, and it is indistinguishable in a diff from a face that went missing
+by accident. Making the site say which one it is costs one line and turns a
+silent divergence into a declared one.
+
+**Not explicitly requested** — the subset escape hatch. The guard as originally
+written would have blocked the workshop's sync outright. Flagged for review.
