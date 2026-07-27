@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Which consumers are running which PREPRINT, and what has drifted.
+
+    tools/status [dir ...]        default: every sibling of this repo
+
+Vendoring buys deliberate adoption and costs you the ability to know, at a
+glance, what is actually deployed. This is the glance. For each consumer it
+reports the commit its copy came from, how far behind the system that is, and
+whether anyone has edited the vendored tree by hand.
+
+Nothing here changes a file. It is safe to run at any time and it is the thing
+to run before asking "is this bug in the system or in the site?".
+"""
+import filecmp
+import subprocess
+import sys
+from pathlib import Path
+
+SYS = Path(__file__).resolve().parent.parent
+VENDOR = ["styles.css", "core.css", "surfaces", "tokens", "assets"]
+# tokens/fonts.css is each site's self-hosted override and is never synced, so
+# a difference there is the design rather than a fault.
+EXPECTED_DIFF = {"tokens/fonts.css"}
+
+G, R, Y, D = "\033[32m", "\033[31m", "\033[33m", "\033[0m"
+if not sys.stdout.isatty():
+    G = R = Y = D = ""
+
+
+def git(repo, *args):
+    r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def find_consumers(argv):
+    if argv:
+        return [Path(a).resolve() for a in argv]
+    out = []
+    for d in sorted(SYS.parent.iterdir()):
+        if d.is_dir() and (d / "assets" / "preprint" / "VERSION").exists():
+            out.append(d)
+        # the console is nested inside the site it edits
+        nested = d / "admin"
+        if nested.is_dir() and (nested / "index.html").exists() and (d / "assets" / "preprint").exists():
+            pass  # counted via its parent; it shares the vendored tree
+    return out
+
+
+def main():
+    head = git(SYS, "rev-parse", "--short", "HEAD")
+    dirty = bool(git(SYS, "status", "--porcelain"))
+    print(f"PREPRINT {head}{' (uncommitted changes)' if dirty else ''}  {SYS}")
+
+    consumers = find_consumers(sys.argv[1:])
+    if not consumers:
+        print("  no consumers found next to this repo")
+        return 0
+
+    worst = 0
+    for c in consumers:
+        stamp_file = c / "assets" / "preprint" / "VERSION"
+        stamp = stamp_file.read_text().split("\n")[0].strip()
+        # Only commits that touched something this site actually vendors. The
+        # system's decision log, licence and tooling move often and reach nobody,
+        # and a status tool that cries wolf about them is a status tool people
+        # stop reading.
+        if stamp == "unknown":
+            behind, behind_log = "?", []
+        else:
+            behind_log = [l for l in git(
+                SYS, "log", "--oneline", f"{stamp}..HEAD", "--", *VENDOR
+            ).split("\n") if l]
+            behind = str(len(behind_log))
+
+        # Hand edits to the vendored tree: the one failure this model cannot
+        # otherwise see, because a local edit looks exactly like a synced one.
+        edited = []
+        for item in VENDOR:
+            s = SYS / item
+            if not s.exists():
+                continue
+            if s.is_dir():
+                for f in s.rglob("*"):
+                    if not f.is_file():
+                        continue
+                    rel = str(f.relative_to(SYS))
+                    if rel in EXPECTED_DIFF:
+                        continue
+                    d = c / "assets" / "preprint" / rel
+                    if d.exists() and not filecmp.cmp(f, d, shallow=False):
+                        edited.append(rel)
+            else:
+                d = c / "assets" / "preprint" / item
+                if d.exists() and not filecmp.cmp(s, d, shallow=False):
+                    edited.append(item)
+
+        if edited:
+            state, colour = f"EDITED BY HAND ({len(edited)})", R
+            worst = max(worst, 2)
+        elif behind == "0":
+            # The stamp may name an older commit while every vendored byte is
+            # current, which is the normal state between doc-only releases.
+            state, colour = "in sync", G
+        else:
+            state, colour = f"{behind} change(s) behind", Y
+            worst = max(worst, 1)
+
+        pending = git(c, "status", "--porcelain")
+        local = git(c, "rev-parse", "--short", "HEAD")
+        ahead = git(c, "rev-list", "--count", "@{u}..HEAD") if git(c, "rev-parse", "--abbrev-ref", "@{u}") else ""
+
+        print(f"\n  {c.name}")
+        print(f"    vendored : {stamp}  {colour}{state}{D}")
+        print(f"    repo     : {local}" +
+              (f", {ahead} unpushed" if ahead and ahead != "0" else "") +
+              (f", {len(pending.splitlines())} uncommitted" if pending else ""))
+        for e in edited[:5]:
+            print(f"    {R}hand-edited{D}: assets/preprint/{e}")
+        if len(edited) > 5:
+            print(f"    ... and {len(edited) - 5} more")
+        if state != "in sync" and not edited:
+            for l in behind_log[:4]:
+                print(f"    waiting  : {l}")
+            print(f"    fix      : cd {c} && tools/sync-preprint")
+        elif edited:
+            print(f"    fix      : the vendored tree is not yours to edit. Move the change")
+            print(f"               into {SYS.name}/, then re-run tools/sync-preprint here.")
+
+    return worst
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
