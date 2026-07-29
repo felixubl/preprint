@@ -41,12 +41,13 @@ Take what you want:
 ```
   tokens/          the constants        colours, faces, scales, rules, motion, pointers
   core.css         shared, and growing  reset, .sq, .eyebrow, .sr, the marker, the mark,
-                                        the mode switch, the toast. 369 lines.
+                                        the mode switch, the pull cord, the toast.
   controls.css     optional             faces for js/controls.js
   surfaces/
     reading.css    if you are writing   article, sidenotes, figures, the marker menu
     app.css        if you are building  parts: rail, screens, buttons, panels, menus
-  js/              optional             mode.js (the one dark mode), controls.js
+  js/              optional             mode.js (the one dark mode), pullcord.js,
+                                        controls.js
   ─────────────────────────────────────────────────────────────────────────────
   your-site.css    yours                everything above left undecided
 ```
@@ -161,11 +162,11 @@ ignored.
 |---|---|
 | `styles.css` | the token entry point, an `@import` list only |
 | `tokens/` | colors, typography, rules, spacing, motion, cursors, fonts, base |
-| `core.css` | every surface: the reset, `.sq`, `.eyebrow`, `.sr`, the marker, `.toast`, the mark, the mode switch |
+| `core.css` | every surface: the reset, `.sq`, `.eyebrow`, `.sr`, the marker, `.toast`, the mark, the mode switch, the pull cord |
 | `controls.css` | the drawn number field, checkbox, colour picker, select, tooltip |
 | `surfaces/reading.css` | what a renderer emits: rows, article, sidenotes, figures, the marker menu |
 | `surfaces/app.css` | parts for an app: rail, screens, heads, buttons, panels, menus |
-| `js/mode.js`, `js/controls.js` | the one dark mode, and the drawn controls |
+| `js/mode.js`, `js/pullcord.js`, `js/controls.js` | the one dark mode, the cord that pulls it, and the drawn controls |
 | `assets/icons/`, `assets/cursors/` | 28 glyphs, 12 pointers × 2 modes |
 | `guidelines/` | the guide. See the table above |
 | `tools/` | sync, push, status, and the conformance check |
