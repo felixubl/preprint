@@ -48,6 +48,12 @@ everything. As a field behind ink it is 14:1. That one rule is what keeps a
 shared highlight readable at any size in either mode, and it is why the opacity
 drops in dark rather than the ink changing.
 
+The pen is `.mk--citron` / `.mk--pink` / `.mk--cyan` (or `data-pp-mark`), and it
+is in [`core.css`](../core.css) so that every surface has it rather than only
+the one that is read. A site writing `background: var(--pp-marker-…)` by hand is
+the signal that it could not reach the pen, which is a bug in this system and
+not in that site.
+
 ### Ground and ink
 
 Offwhite, barely warm. `--pp-paper` `#fbfbf9`, `--pp-surface` `#ffffff`,

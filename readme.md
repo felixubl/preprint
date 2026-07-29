@@ -40,10 +40,10 @@ Take what you want:
 
 ```
   tokens/          the constants        colours, faces, scales, rules, motion, pointers
-  core.css         small and shared     reset, .sq, .eyebrow, .mark, the toast. 78 lines.
+  core.css         small and shared     reset, .sq, .eyebrow, the marker, the mark, the toast.
   controls.css     optional             faces for js/controls.js
   surfaces/
-    reading.css    if you are writing   article, sidenotes, figures, the marker layer
+    reading.css    if you are writing   article, sidenotes, figures, the marker menu
     app.css        if you are building  parts: rail, screens, buttons, panels, menus
   js/              optional             mode.js (the one dark mode), controls.js
   ─────────────────────────────────────────────────────────────────────────────
@@ -160,9 +160,9 @@ ignored.
 |---|---|
 | `styles.css` | the token entry point, an `@import` list only |
 | `tokens/` | colors, typography, rules, spacing, motion, cursors, fonts, base |
-| `core.css` | every surface: the reset, `.sq`, `.eyebrow`, `.toast`, the mark |
+| `core.css` | every surface: the reset, `.sq`, `.eyebrow`, the marker, `.toast`, the mark |
 | `controls.css` | the drawn number field, checkbox, colour picker, select, tooltip |
-| `surfaces/reading.css` | what a renderer emits: rows, article, sidenotes, figures, markers |
+| `surfaces/reading.css` | what a renderer emits: rows, article, sidenotes, figures, the marker menu |
 | `surfaces/app.css` | parts for an app: rail, screens, heads, buttons, panels, menus |
 | `js/mode.js`, `js/controls.js` | the one dark mode, and the drawn controls |
 | `assets/icons/`, `assets/cursors/` | 28 glyphs, 12 pointers × 2 modes |
