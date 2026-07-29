@@ -46,8 +46,8 @@ Take what you want:
   surfaces/
     reading.css    if you are writing   article, sidenotes, figures, the marker menu
     app.css        if you are building  parts: rail, screens, buttons, panels, menus
-  js/              optional             mode.js (the one dark mode), pullcord.js,
-                                        controls.js
+  js/              optional             mode.js (the one dark mode), pullcord.js
+                                        (drag it or click it), controls.js
   ─────────────────────────────────────────────────────────────────────────────
   your-site.css    yours                everything above left undecided
 ```
